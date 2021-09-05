@@ -26,10 +26,10 @@ class TestWithTestVectors:
         "v",
         _load_tests(
             [
-                "test-vectors/v1.json",
-                "test-vectors/v2.json",
-                "test-vectors/v3.json",
-                "test-vectors/v4.json",
+                "vectors/v1.json",
+                "vectors/v2.json",
+                "vectors/v3.json",
+                "vectors/v4.json",
             ]
         ),
     )
