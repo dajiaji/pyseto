@@ -1,0 +1,3 @@
+[submodule "tests/test-vectors"]
+	path = tests/test-vectors
+	url = https://github.com/paseto-standard/test-vectors.git
