@@ -1,5 +1,11 @@
 # PySETO - A Python implementation of PASETO
 
+[![PyPI version](https://badge.fury.io/py/pyseto.svg)](https://badge.fury.io/py/pyseto)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyseto)
+![Github CI](https://github.com/dajiaji/pyseto/actions/workflows/python-package.yml/badge.svg)
+[![codecov](https://codecov.io/gh/dajiaji/pyseto/branch/main/graph/badge.svg?token=QN8GXEYEP3)](https://codecov.io/gh/dajiaji/pyseto)
+
+
 PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/) implementation written in Python which supports all of the versions and purposes below.
 
 - [Version 1: NIST Compatibility](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version1.md)
