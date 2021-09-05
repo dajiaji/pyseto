@@ -6,6 +6,7 @@ include tox.ini
 graft docs
 prune docs/_build
 graft tests
+prune tests/test-vectors
 global-exclude .git
 global-exclude *.py[co]
 exclude .readthedocs.yml
