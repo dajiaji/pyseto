@@ -4,6 +4,8 @@ Changes
 Unreleased
 ----------
 
+- Add Token object as a response of decode(). `#165 <https://github.com/dajiaji/pyseto/pull/6>`__
+
 Version 0.1.0
 -------------
 
