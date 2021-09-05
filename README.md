@@ -24,9 +24,9 @@ PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/) imp
     - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
         - ECDSA over NIST P-384, with SHA-384, using [RFC 6979 deterministic k-values](https://datatracker.ietf.org/doc/html/rfc6979).
 - [Version 4: Sodium Modern](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version4.md)
-    - Local: Symmetric Authenticated Encryption
+    - ✅ Local: Symmetric Authenticated Encryption
         - XChaCha20 + BLAKE2b-MAC (Encrypt-then-MAC).
-    - Public: Asymmetric Authentication (Public-Key Signatures)
+    - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
         - EdDSA over Curve25519.
 
 ## Installation
@@ -39,7 +39,7 @@ $ pip install pyseto
 
 ## Usage
 
-You can use it as follows.
+You can use it as follows:
 
 ### `v4.local`
 
