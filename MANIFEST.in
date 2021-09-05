@@ -1,0 +1,13 @@
+include .pre-commit-config.yaml
+include CHANGES.rst
+include CODE_OF_CONDUCT.md
+include LICENSE
+include tox.ini
+graft docs
+prune docs/_build
+graft tests
+prune tests/test-vectors
+global-exclude *.py[co]
+exclude .readthedocs.yml
+exclude .gitmodules
+recursive-exclude * __pycache__
