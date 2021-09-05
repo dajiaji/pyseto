@@ -2,8 +2,8 @@ from .exceptions import DecryptError, EncryptError, PysetoError, SignError, Veri
 from .key import Key
 from .pyseto import decode, encode
 
-__version__ = "0.0.1"
-__title__ = "pyseto"
+__version__ = "0.1.0"
+__title__ = "PySETO"
 __description__ = "A Python implementation of PASETO"
 __url__ = "https://pyseto.readthedocs.io"
 __uri__ = __url__
