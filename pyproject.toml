@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta:__legacy__"
+
+[tool.coverage.run]
+parallel = true
+branch = true
+source = ["pyseto"]
+
+[tool.coverage.paths]
+source = ["pyseto", ".tox/*/site-packages"]
+
+[tool.coverage.report]
+show_missing = true
+
+
+[tool.isort]
+profile = "black"
+atomic = true
+combine_as_imports = true
