@@ -1,7 +1,8 @@
 from typing import List, Union
 
 from .key_interface import KeyInterface
-from .utils import base64url_decode, base64url_encode
+from .token import Token
+from .utils import base64url_encode
 
 
 def encode(
@@ -48,7 +49,7 @@ def decode(
     keys: Union[KeyInterface, List[KeyInterface]],
     token: Union[bytes, str],
     implicit_assertion: Union[bytes, str] = b"",
-) -> bytes:
+) -> Token:
     """
     Decodes a PASETO token with a key.
 
@@ -57,7 +58,7 @@ def decode(
         token (Union[bytes, str]): A PASETO token to be decrypted or verified.
         implicit_assertion (Optional[Union[bytes, str]]): An implicit assertion.
     Returns:
-        bytes: A payload of the PASETO token.
+        Token: A parsed PASETO token object.
     Raise:
         ValueError: Invalid arguments.
         DecryptError: Failed to decrypt the message.
@@ -73,18 +74,13 @@ def decode(
         else implicit_assertion.encode("utf-8")
     )
 
-    if isinstance(token, bytes):
-        token = token.decode("utf-8")
-    fragments = token.split(".")
-    if len(fragments) != 3 and len(fragments) != 4:
-        raise ValueError("token is invalid.")
-    f = base64url_decode(fragments[3]) if len(fragments) == 4 else b""
-    payload = base64url_decode(fragments[2])
-    h = (fragments[0] + "." + fragments[1] + ".").encode("utf-8")
+    t = Token.new(token)
     for k in keys:
-        if k.header != h:
+        if k.header != t.header:
             continue
         if k.type == "local":
-            return k.decrypt(payload, f, bi)
-        return k.verify(payload, f, bi)
+            t.payload = k.decrypt(t.payload, t.footer, bi)
+            return t
+        t.payload = k.verify(t.payload, t.footer, bi)
+        return t
     raise ValueError("key is not found for verifying the token.")

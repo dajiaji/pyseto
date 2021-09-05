@@ -53,7 +53,7 @@ You can use it as follows:
 >>> token
 b'v4.local.VXJUUePf8zL1670zhOmbO7eRdccapuXlf76fRCkntiRauk2qQFOaBQOk4ISSRXQZvcGG2C5H74ShLzoU3YorK4xdfjHBj4ESoRB5mt1FWf8MEXoDQiIHQ4WDyMR57ferhaKJM6FwgcwM2xINWy1xCSFz5f7al0c8RUnd4xO_42beR83ye0jRYg'
 >>> decoded = pyseto.decode(key, token)
->>> decoded
+>>> decoded.payload
 b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 ```
 
@@ -70,7 +70,7 @@ b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 b'v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg'
 >>> public_key = Key.new("v4", "public", public_key_pem)
 >>> decoded = pyseto.decode(public_key, token)
->>> decoded
+>>> decoded.payload
 b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 ```
 

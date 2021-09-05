@@ -50,7 +50,7 @@ class TestWithTestVectors:
             encoded = pyseto.encode(k, payload, footer, implicit_assertion, nonce=nonce)
             decoded_token = pyseto.decode(k, token, implicit_assertion)
             decoded = pyseto.decode(k, encoded, implicit_assertion)
-            assert payload == decoded_token == decoded
+            assert payload == decoded_token.payload == decoded.payload
             return
 
         if purpose == "S":
@@ -62,6 +62,6 @@ class TestWithTestVectors:
             pk = Key.new("v" + version, "public", public_key_pem)
             decoded_token = pyseto.decode(pk, token, implicit_assertion)
             decoded = pyseto.decode(pk, encoded, implicit_assertion)
-            assert payload == decoded_token == decoded
+            assert payload == decoded_token.payload == decoded.payload
             return
         pytest.fail(f"Invalid test name: {v['name']}")
