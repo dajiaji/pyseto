@@ -63,5 +63,22 @@ class TestWithTestVectors:
             decoded_token = pyseto.decode(pk, token, implicit_assertion)
             decoded = pyseto.decode(pk, encoded, implicit_assertion)
             assert payload == decoded_token.payload == decoded.payload
+
+            if version == "1":
+                return
+
+            secret_key = bytes.fromhex(v["secret-key"])
+            public_key = bytes.fromhex(v["public-key"])
+
+            if version == "3":
+                # TODO add support for secret-key/public-key on v3.public test vectors.
+                return
+
+            sk = Key.from_asymmetric_key_params("v" + version, d=secret_key[0:32])
+            encoded = pyseto.encode(sk, payload, footer, implicit_assertion)
+            pk = Key.from_asymmetric_key_params("v" + version, x=public_key)
+            decoded_token = pyseto.decode(pk, token, implicit_assertion)
+            decoded = pyseto.decode(pk, encoded, implicit_assertion)
+            assert payload == decoded_token.payload == decoded.payload
             return
         pytest.fail(f"Invalid test name: {v['name']}")

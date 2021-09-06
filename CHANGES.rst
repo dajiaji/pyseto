@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Add Key.from_asymmetric_key_params. `#8 <https://github.com/dajiaji/pyseto/pull/8>`__
 - Make NotSupportedError public. `#8 <https://github.com/dajiaji/pyseto/pull/8>`__
 
 Version 0.2.0
