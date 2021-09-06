@@ -25,7 +25,7 @@ author = "AJITOMI Daisuke"
 
 # The full version, including alpha/beta/rc tags
 # release = python_pyseto_version
-release = "0.3.0"
+release = "0.3.1"
 
 
 # -- General configuration ---------------------------------------------------

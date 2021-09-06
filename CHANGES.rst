@@ -4,6 +4,13 @@ Changes
 Unreleased
 ----------
 
+Version 0.3.1
+-------------
+
+Released 2021-09-06
+
+- Fix readthedocs build error. `#13 <https://github.com/dajiaji/pyseto/pull/13>`__
+
 Version 0.3.0
 -------------
 
