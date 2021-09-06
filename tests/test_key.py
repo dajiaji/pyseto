@@ -3,10 +3,9 @@ from secrets import token_bytes
 import pytest
 
 from pyseto import Key, NotSupportedError
-
+from pyseto.exceptions import NotSupportedError
 from pyseto.key_interface import KeyInterface
 from pyseto.utils import base64url_decode
-from pyseto.exceptions import NotSupportedError
 
 from .utils import load_jwk, load_key
 
@@ -71,8 +70,18 @@ class TestKey:
         [
             ("v*", "local", token_bytes(32), "Invalid version: v*."),
             ("v0", "local", token_bytes(32), "Invalid version: v0."),
-            ("v*", "public", load_key("keys/private_key_rsa.pem"), "Invalid version: v*."),
-            ("v0", "public", load_key("keys/private_key_rsa.pem"), "Invalid version: v0."),
+            (
+                "v*",
+                "public",
+                load_key("keys/private_key_rsa.pem"),
+                "Invalid version: v*.",
+            ),
+            (
+                "v0",
+                "public",
+                load_key("keys/private_key_rsa.pem"),
+                "Invalid version: v0.",
+            ),
             ("v1", "xxx", token_bytes(32), "Invalid type(purpose): xxx."),
             ("v1", "public", "-----BEGIN BAD", "Invalid or unsupported PEM format."),
         ],
@@ -106,29 +115,60 @@ class TestKey:
     @pytest.mark.parametrize(
         "version, key, msg",
         [
-            ("v1", load_jwk("keys/private_key_rsa.json"), "v1.public is not supported on from_key_parameters."),
+            (
+                "v1",
+                load_jwk("keys/private_key_rsa.json"),
+                "v1.public is not supported on from_key_parameters.",
+            ),
             ("v*", load_jwk("keys/private_key_ed25519.json"), "Invalid version: v*."),
-            ("v2", {"x": b"xxx", "y": b"", "d": b"ddd"}, "Only one of x or d should be set for v2.public."),
+            (
+                "v2",
+                {"x": b"xxx", "y": b"", "d": b"ddd"},
+                "Only one of x or d should be set for v2.public.",
+            ),
             ("v2", {"x": b"xxx", "y": b"", "d": b""}, "Failed to load key."),
             ("v2", {"x": b"", "y": b"", "d": b"ddd"}, "Failed to load key."),
-            ("v2", {"x": b"", "y": b"", "d": b""}, "x or d should be set for v2.public."),
-
-            ("v3", {"x": b"xxx", "y": b"", "d": b"ddd"}, "x and y (and d) should be set for v3.public."),
-            ("v3", {"x": b"", "y": b"yyy", "d": b"ddd"}, "x and y (and d) should be set for v3.public."),
+            (
+                "v2",
+                {"x": b"", "y": b"", "d": b""},
+                "x or d should be set for v2.public.",
+            ),
+            (
+                "v3",
+                {"x": b"xxx", "y": b"", "d": b"ddd"},
+                "x and y (and d) should be set for v3.public.",
+            ),
+            (
+                "v3",
+                {"x": b"", "y": b"yyy", "d": b"ddd"},
+                "x and y (and d) should be set for v3.public.",
+            ),
             ("v3", {"x": b"xxx", "y": b"yyy", "d": b""}, "Failed to load key."),
             (
                 "v3",
                 {
-                    "x": base64url_decode("_XyN9woHaS0mPimSW-etwJMEDSzxIMjp4PjezavU8SHJoClz1bQrcmPb1ZJxHxhI"),
-                    "y": base64url_decode("GCNfc32p9sRotx7u2oDGJ3Eqz6q5zPHLdizNn83oRsUTN31eCWfGLHWRury3xF50"),
+                    "x": base64url_decode(
+                        "_XyN9woHaS0mPimSW-etwJMEDSzxIMjp4PjezavU8SHJoClz1bQrcmPb1ZJxHxhI"
+                    ),
+                    "y": base64url_decode(
+                        "GCNfc32p9sRotx7u2oDGJ3Eqz6q5zPHLdizNn83oRsUTN31eCWfGLHWRury3xF50"
+                    ),
                     "d": b"ddd",
                 },
                 "Failed to load key.",
             ),
-            ("v4", {"x": b"xxx", "y": b"", "d": b"ddd"}, "Only one of x or d should be set for v4.public."),
+            (
+                "v4",
+                {"x": b"xxx", "y": b"", "d": b"ddd"},
+                "Only one of x or d should be set for v4.public.",
+            ),
             ("v4", {"x": b"xxx", "y": b"", "d": b""}, "Failed to load key."),
             ("v4", {"x": b"", "y": b"", "d": b"ddd"}, "Failed to load key."),
-            ("v4", {"x": b"", "y": b"", "d": b""}, "x or d should be set for v4.public."),
+            (
+                "v4",
+                {"x": b"", "y": b"", "d": b""},
+                "x or d should be set for v4.public.",
+            ),
         ],
     )
     def test_key_from_asymmetric_params_with_invalid_arg(self, version, key, msg):
