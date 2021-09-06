@@ -1,4 +1,11 @@
-from .exceptions import DecryptError, EncryptError, PysetoError, SignError, VerifyError
+from .exceptions import (
+    DecryptError,
+    EncryptError,
+    NotSupportedError,
+    PysetoError,
+    SignError,
+    VerifyError,
+)
 from .key import Key
 from .pyseto import decode, encode
 
@@ -17,8 +24,9 @@ __all__ = [
     "decode",
     "Key",
     "PysetoError",
+    "DecryptError",
+    "EncryptError",
+    "NotSupportedError",
     "SignError",
     "VerifyError",
-    "EncryptError",
-    "DecryptError",
 ]
