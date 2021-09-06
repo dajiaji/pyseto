@@ -1,0 +1,8 @@
+{
+    "kty": "OKP",
+    "use": "sig",
+    "crv": "Ed25519",
+    "kid": "Ed25519-01",
+    "x": "2E6dX83gqD_D0eAmqnaHe1TC1xuld6iAKXfw2OVATr0",
+    "alg": "EdDSA"
+}
