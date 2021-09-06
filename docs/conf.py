@@ -15,7 +15,7 @@
 # sys.path.insert(0, os.path.abspath('.'))
 import sphinx_rtd_theme
 
-from pyseto import __version__ as python_pyseto_version
+# from pyseto import __version__ as python_pyseto_version
 
 # -- Project information -----------------------------------------------------
 
@@ -24,7 +24,8 @@ copyright = "2021, AJITOMI Daisuke"
 author = "AJITOMI Daisuke"
 
 # The full version, including alpha/beta/rc tags
-release = python_pyseto_version
+# release = python_pyseto_version
+release = "0.3.0"
 
 
 # -- General configuration ---------------------------------------------------
