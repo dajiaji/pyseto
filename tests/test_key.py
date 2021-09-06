@@ -3,7 +3,6 @@ from secrets import token_bytes
 import pytest
 
 from pyseto import Key, NotSupportedError
-from pyseto.exceptions import NotSupportedError
 from pyseto.key_interface import KeyInterface
 from pyseto.utils import base64url_decode
 
