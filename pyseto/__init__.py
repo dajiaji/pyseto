@@ -10,7 +10,7 @@ from .key import Key
 from .pyseto import decode, encode
 
 __version__ = "0.3.1"
-__title__ = "pyseto"
+__title__ = "PySETO"
 __description__ = "A Python implementation of PASETO"
 __url__ = "https://pyseto.readthedocs.io"
 __uri__ = __url__
