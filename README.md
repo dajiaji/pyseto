@@ -2,6 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/pyseto.svg)](https://badge.fury.io/py/pyseto)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyseto)
+[![Documentation Status](https://readthedocs.org/projects/pyseto/badge/?version=latest)](https://pyseto.readthedocs.io/en/latest/?badge=latest)
 ![Github CI](https://github.com/dajiaji/pyseto/actions/workflows/python-package.yml/badge.svg)
 [![codecov](https://codecov.io/gh/dajiaji/pyseto/branch/main/graph/badge.svg?token=QN8GXEYEP3)](https://codecov.io/gh/dajiaji/pyseto)
 
@@ -28,6 +29,8 @@ PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/) imp
         - XChaCha20 + BLAKE2b-MAC (Encrypt-then-MAC).
     - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
         - EdDSA over Curve25519.
+
+See [Document](https://pyseto.readthedocs.io/en/stable/) for details.
 
 ## Installation
 
@@ -76,7 +79,7 @@ b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
 ## API Reference
 
-Under construction.
+See [Document](https://pyseto.readthedocs.io/en/stable/api.html).
 
 ## Tests
 
