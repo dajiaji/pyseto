@@ -4,6 +4,13 @@ Changes
 Unreleased
 ----------
 
+Version 0.3.2
+-------------
+
+Released 2021-09-07
+
+- Add API reference. `#17 <https://github.com/dajiaji/pyseto/pull/17>`__
+
 Version 0.3.1
 -------------
 
