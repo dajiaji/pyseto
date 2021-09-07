@@ -14,6 +14,8 @@ class KeyInterface:
         self._header = (self._version + "." + self._type + ".").encode("utf-8")
         self._sig_size = 0
         self._key: Any = key
+        if not self._key:
+            raise ValueError("key must be specified.")
         return
 
     @property
