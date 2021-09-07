@@ -15,8 +15,15 @@ from ..utils import base64url_encode, pae
 
 
 class V2Local(KeyInterface):
+    """
+    The key object for v2.local.
+    """
+
     def __init__(self, key: Union[str, bytes]):
+
         super().__init__("v2", "local", key)
+        if len(self._key) != 32:
+            raise ValueError("key must be 32 bytes long.")
         return
 
     def encrypt(
@@ -26,6 +33,7 @@ class V2Local(KeyInterface):
         implicit_assertion: bytes = b"",
         nonce: bytes = b"",
     ) -> bytes:
+
         n = self._generate_nonce(nonce, payload)
         pre_auth = pae([self.header, n, footer])
 
@@ -38,11 +46,12 @@ class V2Local(KeyInterface):
                 token += b"." + base64url_encode(footer)
             return token
         except Exception as err:
-            raise EncryptError("Failed to encrypt a message.") from err
+            raise EncryptError("Failed to encrypt.") from err
 
     def decrypt(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:
+
         n = payload[0:24]
         c = payload[24 : len(payload) - 16]
         tag = payload[-16:]
@@ -53,12 +62,13 @@ class V2Local(KeyInterface):
             cipher.update(pre_auth)
             return cipher.decrypt_and_verify(c, tag)
         except Exception as err:
-            raise DecryptError("Failed to decrypt a message.") from err
+            raise DecryptError("Failed to decrypt.") from err
 
     def _generate_nonce(self, key: bytes, msg: bytes) -> bytes:
+
         if key:
             if len(key) != 24:
-                raise ValueError("nonce should be 24 bytes.")
+                raise ValueError("nonce must be 24 bytes long.")
         else:
             key = token_bytes(24)
 
@@ -71,7 +81,12 @@ class V2Local(KeyInterface):
 
 
 class V2Public(KeyInterface):
+    """
+    The key object for v2.public.
+    """
+
     def __init__(self, key: Union[str, bytes]):
+
         super().__init__("v2", "public", key)
         self._sig_size = 64
 
@@ -82,6 +97,7 @@ class V2Public(KeyInterface):
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:
+
         if isinstance(self._key, Ed25519PublicKey):
             raise ValueError("A public key cannot be used for signing.")
         m2 = pae([self.header, payload, footer])
@@ -93,6 +109,7 @@ class V2Public(KeyInterface):
     def verify(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ):
+
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 

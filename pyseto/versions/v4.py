@@ -14,8 +14,16 @@ from ..utils import base64url_encode, pae
 
 
 class V4Local(KeyInterface):
+    """
+    The key object for v4.local.
+    """
+
     def __init__(self, key: Union[str, bytes]):
+
         super().__init__("v4", "local", key)
+
+        if len(self._key) > 64:
+            raise ValueError("key length must be up to 64 bytes.")
         return
 
     def encrypt(
@@ -25,9 +33,10 @@ class V4Local(KeyInterface):
         implicit_assertion: bytes = b"",
         nonce: bytes = b"",
     ) -> bytes:
+
         if nonce:
             if len(nonce) != 32:
-                raise ValueError("nonce should be 32 bytes.")
+                raise ValueError("nonce must be 32 bytes long.")
         else:
             nonce = token_bytes(32)
         tmp = self._generate_hash(self._key, b"paseto-encryption-key" + nonce, 56)
@@ -50,6 +59,7 @@ class V4Local(KeyInterface):
     def decrypt(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:
+
         n = payload[0:32]
         c = payload[32 : len(payload) - 32]
         t = payload[-32:]
@@ -60,14 +70,15 @@ class V4Local(KeyInterface):
         pre_auth = pae([self.header, n, c, footer, implicit_assertion])
         t2 = self._generate_hash(ak, pre_auth, 32)
         if t != t2:
-            raise DecryptError("Hash value mismatch.")
+            raise DecryptError("Failed to decrypt.")
         try:
             cipher = ChaCha20.new(key=ek, nonce=n2)
             return cipher.decrypt(c)
         except Exception as err:
-            raise DecryptError("Failed to decrypt a message.") from err
+            raise DecryptError("Failed to decrypt.") from err
 
     def _generate_hash(self, key: bytes, msg: bytes, size: int) -> bytes:
+
         try:
             h = hashlib.blake2b(key=key, digest_size=size)
             h.update(msg)
@@ -77,8 +88,14 @@ class V4Local(KeyInterface):
 
 
 class V4Public(KeyInterface):
+    """
+    The key object for v4.public.
+    """
+
     def __init__(self, key: Union[str, bytes]):
+
         super().__init__("v4", "public", key)
+
         self._sig_size = 64
 
         if not isinstance(self._key, (Ed25519PublicKey, Ed25519PrivateKey)):
@@ -88,8 +105,10 @@ class V4Public(KeyInterface):
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:
+
         if isinstance(self._key, Ed25519PublicKey):
             raise ValueError("A public key cannot be used for signing.")
+
         m2 = pae([self.header, payload, footer, implicit_assertion])
         try:
             return self._key.sign(m2)
@@ -99,6 +118,7 @@ class V4Public(KeyInterface):
     def verify(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ):
+
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 

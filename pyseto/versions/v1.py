@@ -15,7 +15,12 @@ from ..utils import base64url_encode, pae
 
 
 class V1Local(KeyInterface):
+    """
+    The key object for v1.local.
+    """
+
     def __init__(self, key: Union[str, bytes]):
+
         super().__init__("v1", "local", key)
         return
 
@@ -26,6 +31,7 @@ class V1Local(KeyInterface):
         implicit_assertion: bytes = b"",
         nonce: bytes = b"",
     ) -> bytes:
+
         n = self._get_nonce(payload, nonce)
         e = HKDF(
             algorithm=hashes.SHA384(),
@@ -39,11 +45,8 @@ class V1Local(KeyInterface):
             salt=n[0:16],
             info=b"paseto-auth-key-for-aead",
         )
-        try:
-            ek = e.derive(self._key)
-            ak = a.derive(self._key)
-        except Exception as err:
-            raise DecryptError("Failed to derive keys.") from err
+        ek = e.derive(self._key)
+        ak = a.derive(self._key)
 
         try:
             c = (
@@ -58,11 +61,12 @@ class V1Local(KeyInterface):
                 token += b"." + base64url_encode(footer)
             return token
         except Exception as err:
-            raise EncryptError("Failed to encrypt a message.") from err
+            raise EncryptError("Failed to encrypt.") from err
 
     def decrypt(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:
+
         n = payload[0:32]
         t = payload[-48:]
         c = payload[32 : len(payload) - 48]
@@ -78,26 +82,24 @@ class V1Local(KeyInterface):
             salt=n[0:16],
             info=b"paseto-auth-key-for-aead",
         )
-        try:
-            ek = e.derive(self._key)
-            ak = a.derive(self._key)
-        except Exception as err:
-            raise DecryptError("Failed to derive keys.") from err
+        ek = e.derive(self._key)
+        ak = a.derive(self._key)
 
         pre_auth = pae([self.header, n, c, footer])
         t2 = hmac.new(ak, pre_auth, hashlib.sha384).digest()
         if t != t2:
-            raise DecryptError("Hash value mismatch.")
+            raise DecryptError("Failed to decrypt.")
 
         try:
             return Cipher(algorithms.AES(ek), modes.CTR(n[16:])).decryptor().update(c)
         except Exception as err:
-            raise DecryptError("Failed to decrypt a message.") from err
+            raise DecryptError("Failed to decrypt.") from err
 
     def _get_nonce(self, msg: bytes, nonce: bytes = b"") -> bytes:
+
         if nonce:
             if len(nonce) != 32:
-                raise ValueError("nonce should be 32 bytes.")
+                raise ValueError("nonce must be 32 bytes long.")
         else:
             nonce = token_bytes(32)
 
@@ -108,7 +110,12 @@ class V1Local(KeyInterface):
 
 
 class V1Public(KeyInterface):
+    """
+    The key object for v1.public.
+    """
+
     def __init__(self, key: Union[str, bytes]):
+
         super().__init__("v1", "public", key)
         self._sig_size = 256
 
@@ -121,6 +128,7 @@ class V1Public(KeyInterface):
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:
+
         if isinstance(self._key, RSAPublicKey):
             raise ValueError("Public key cannot be used for signing.")
         m2 = pae([self.header, payload, footer])
@@ -132,6 +140,7 @@ class V1Public(KeyInterface):
     def verify(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ):
+
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 

@@ -22,7 +22,12 @@ from ..utils import base64url_encode, i2osp, os2ip, pae
 
 
 class V3Local(KeyInterface):
+    """
+    The key object for v3.local.
+    """
+
     def __init__(self, key: Union[str, bytes]):
+
         super().__init__("v3", "local", key)
         return
 
@@ -33,9 +38,10 @@ class V3Local(KeyInterface):
         implicit_assertion: bytes = b"",
         nonce: bytes = b"",
     ) -> bytes:
+
         if nonce:
             if len(nonce) != 32:
-                raise ValueError("nonce should be 32 bytes.")
+                raise ValueError("nonce must be 32 bytes long.")
         else:
             nonce = token_bytes(32)
         e = HKDF(
@@ -72,6 +78,7 @@ class V3Local(KeyInterface):
     def decrypt(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:
+
         n = payload[0:32]
         c = payload[32 : len(payload) - 48]
         t = payload[-48:]
@@ -98,7 +105,7 @@ class V3Local(KeyInterface):
         pre_auth = pae([self.header, n, c, footer, implicit_assertion])
         t2 = hmac.new(ak, pre_auth, hashlib.sha384).digest()
         if t != t2:
-            raise DecryptError("Hash value mismatch.")
+            raise DecryptError("Failed to decrypt.")
 
         try:
             return Cipher(algorithms.AES(ek), modes.CTR(n2)).decryptor().update(c)
@@ -107,7 +114,12 @@ class V3Local(KeyInterface):
 
 
 class V3Public(KeyInterface):
+    """
+    The key object for v3.public.
+    """
+
     def __init__(self, key: Union[str, bytes]):
+
         super().__init__("v3", "public", key)
         self._sig_size = 96
 
@@ -118,6 +130,7 @@ class V3Public(KeyInterface):
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:
+
         if isinstance(self._key, EllipticCurvePublicKey):
             raise ValueError("A public key cannot be used for signing.")
         pk = self._public_key_compress(
@@ -134,6 +147,7 @@ class V3Public(KeyInterface):
     def verify(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ):
+
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 
@@ -154,6 +168,7 @@ class V3Public(KeyInterface):
         return m
 
     def _public_key_compress(self, x: int, y: int) -> bytes:
+
         bx = x.to_bytes((x.bit_length() + 7) // 8, byteorder="big")
         by = y.to_bytes((y.bit_length() + 7) // 8, byteorder="big")
         s = bytearray(1)
@@ -162,11 +177,13 @@ class V3Public(KeyInterface):
         return bytes(s) + bx
 
     def _der_to_os(self, key_size: int, sig: bytes) -> bytes:
+
         num_bytes = (key_size + 7) // 8
         r, s = decode_dss_signature(sig)
         return i2osp(r, num_bytes) + i2osp(s, num_bytes)
 
     def _os_to_der(self, key_size: int, sig: bytes) -> bytes:
+
         num_bytes = (key_size + 7) // 8
         if len(sig) != 2 * num_bytes:
             raise ValueError("Invalid signature.")
