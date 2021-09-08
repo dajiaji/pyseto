@@ -49,9 +49,7 @@ You can use it as follows:
 ```py
 >>> import pyseto
 >>> from pyseto import Key
->>> import secrets
->>> shared_key = secrets.token_bytes(32)
->>> key = Key.new("v4", "local", shared_key)
+>>> key = Key.new("v4", "local", "our-secret")
 >>> token = pyseto.encode(key, '{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}')
 >>> token
 b'v4.local.VXJUUePf8zL1670zhOmbO7eRdccapuXlf76fRCkntiRauk2qQFOaBQOk4ISSRXQZvcGG2C5H74ShLzoU3YorK4xdfjHBj4ESoRB5mt1FWf8MEXoDQiIHQ4WDyMR57ferhaKJM6FwgcwM2xINWy1xCSFz5f7al0c8RUnd4xO_42beR83ye0jRYg'
