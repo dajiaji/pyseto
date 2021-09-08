@@ -20,9 +20,12 @@ def encode(
         payload (Union[bytes, str]): A message to be encrypted or signed.
         footer (Union[bytes, str]): A footer.
         implicit_assertion (Union[bytes, str]): An implicit assertion.
-        nonce (bytes): A nonce.
+        nonce (bytes): A nonce. If omitted(it's recommended), a nonce will be
+            generated with ``secrets.token_bytes()`` internally. If you don't
+            want ot use ``secrets.token_bytes()``, you can specify it via this
+            parameter explicitly.
     Returns:
-        str: A PASETO token.
+        bytes: A PASETO token.
     Raise:
         ValueError: Invalid arguments.
         EncryptError: Failed to encrypt the message.
