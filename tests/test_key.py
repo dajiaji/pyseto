@@ -30,11 +30,11 @@ class TestKey:
         assert k.type == type
         with pytest.raises(NotSupportedError) as err:
             k.sign(b"Hello world!")
-            pytest.fail("Key.sign should fail.")
+            pytest.fail("Key.sign() should fail.")
         assert "A key for local does not have sign()." in str(err.value)
         with pytest.raises(NotSupportedError) as err:
             k.verify(b"xxxxxx")
-            pytest.fail("Key.verify should fail.")
+            pytest.fail("Key.verify() should fail.")
         assert "A key for local does not have verify()." in str(err.value)
 
     @pytest.mark.parametrize(
@@ -57,12 +57,71 @@ class TestKey:
         assert k.type == type
         with pytest.raises(NotSupportedError) as err:
             k.encrypt(b"Hello world!")
-            pytest.fail("Key.sign should fail.")
+            pytest.fail("Key.sign() should fail.")
         assert "A key for public does not have encrypt()." in str(err.value)
         with pytest.raises(NotSupportedError) as err:
             k.decrypt(b"xxxxxx")
-            pytest.fail("Key.verify should fail.")
+            pytest.fail("Key.verify() should fail.")
         assert "A key for public does not have decrypt()." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, key, msg",
+        [
+            ("v1", load_key("keys/private_key_ed25519.pem"), "The key is not RSA key."),
+            ("v1", load_key("keys/public_key_ed25519.pem"), "The key is not RSA key."),
+            (
+                "v1",
+                load_key("keys/private_key_ecdsa_p384.pem"),
+                "The key is not RSA key.",
+            ),
+            (
+                "v1",
+                load_key("keys/public_key_ecdsa_p384.pem"),
+                "The key is not RSA key.",
+            ),
+            ("v2", load_key("keys/private_key_rsa.pem"), "The key is not Ed25519 key."),
+            ("v2", load_key("keys/public_key_rsa.pem"), "The key is not Ed25519 key."),
+            (
+                "v2",
+                load_key("keys/private_key_ecdsa_p384.pem"),
+                "The key is not Ed25519 key.",
+            ),
+            (
+                "v2",
+                load_key("keys/public_key_ecdsa_p384.pem"),
+                "The key is not Ed25519 key.",
+            ),
+            (
+                "v3",
+                load_key("keys/private_key_ed25519.pem"),
+                "The key is not ECDSA key.",
+            ),
+            (
+                "v3",
+                load_key("keys/public_key_ed25519.pem"),
+                "The key is not ECDSA key.",
+            ),
+            ("v3", load_key("keys/private_key_rsa.pem"), "The key is not ECDSA key."),
+            ("v3", load_key("keys/public_key_rsa.pem"), "The key is not ECDSA key."),
+            ("v4", load_key("keys/private_key_rsa.pem"), "The key is not Ed25519 key."),
+            ("v4", load_key("keys/public_key_rsa.pem"), "The key is not Ed25519 key."),
+            (
+                "v4",
+                load_key("keys/private_key_ecdsa_p384.pem"),
+                "The key is not Ed25519 key.",
+            ),
+            (
+                "v4",
+                load_key("keys/public_key_ecdsa_p384.pem"),
+                "The key is not Ed25519 key.",
+            ),
+        ],
+    )
+    def test_key_new_public_with_wrong_key(self, version, key, msg):
+        with pytest.raises(ValueError) as err:
+            Key.new(version, "public", key)
+            pytest.fail("Key.new should fail.")
+        assert msg in str(err.value)
 
     @pytest.mark.parametrize(
         "version, type, key, msg",
@@ -174,5 +233,5 @@ class TestKey:
 
         with pytest.raises(ValueError) as err:
             Key.from_asymmetric_key_params(version, x=key["x"], y=key["y"], d=key["d"])
-            pytest.fail("Key.from_asymmetric_key_params should fail.")
+            pytest.fail("Key.from_asymmetric_key_params() should fail.")
         assert msg in str(err.value)

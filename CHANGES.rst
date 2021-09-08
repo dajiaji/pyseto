@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Add tests for Key. `#22 <https://github.com/dajiaji/pyseto/pull/22>`__
 - Add docstrings for KeyInterface. `#21 <https://github.com/dajiaji/pyseto/pull/21>`__
 
 Version 0.3.2
