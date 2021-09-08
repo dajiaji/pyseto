@@ -130,7 +130,7 @@ class V1Public(KeyInterface):
     ) -> bytes:
 
         if isinstance(self._key, RSAPublicKey):
-            raise ValueError("Public key cannot be used for signing.")
+            raise ValueError("A public key cannot be used for signing.")
         m2 = pae([self.header, payload, footer])
         try:
             return self._key.sign(m2, self._padding, hashes.SHA384())
