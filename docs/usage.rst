@@ -33,11 +33,8 @@ v4.local
 
     import pyseto
     from pyseto import Key
-    import secrets
 
-    shared_key = secrets.token_bytes(32)
-
-    key = Key.new("v4", "local", shared_key)
+    key = Key.new("v4", "local", b"our-secret")
     token = pyseto.encode(
         key, '{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
     )
