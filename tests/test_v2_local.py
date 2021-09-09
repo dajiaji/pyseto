@@ -3,7 +3,7 @@ from secrets import token_bytes
 import pytest
 
 import pyseto
-from pyseto import DecryptError, Key
+from pyseto import DecryptError, EncryptError, Key
 
 
 class TestV2Local:
@@ -36,6 +36,13 @@ class TestV2Local:
             pyseto.decode(k2, token)
             pytest.fail("pyseto.decode() should fail.")
         assert "Failed to decrypt." in str(err.value)
+
+    def test_v2_local_encrypt_with_invalid_arg(self):
+        k = Key.new("v2", "local", token_bytes(32))
+        with pytest.raises(EncryptError) as err:
+            k.encrypt(None)
+            pytest.fail("pyseto.encrypt() should fail.")
+        assert "Failed to generate internal nonce." in str(err.value)
 
     @pytest.mark.parametrize(
         "nonce",

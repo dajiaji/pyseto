@@ -73,7 +73,7 @@ class V3Local(KeyInterface):
                 token += b"." + base64url_encode(footer)
             return token
         except Exception as err:
-            raise EncryptError("Failed to encrypt a message.") from err
+            raise EncryptError("Failed to encrypt.") from err
 
     def decrypt(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
