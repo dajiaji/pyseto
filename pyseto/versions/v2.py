@@ -77,7 +77,7 @@ class V2Local(KeyInterface):
             h.update(msg)
             return h.digest()
         except Exception as err:
-            raise EncryptError("Failed to get nonce.") from err
+            raise EncryptError("Failed to generate internal nonce.") from err
 
 
 class V2Public(KeyInterface):
