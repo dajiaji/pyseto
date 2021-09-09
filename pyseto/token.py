@@ -21,6 +21,8 @@ class Token:
         t = token.split(".")
         if len(t) != 3 and len(t) != 4:
             raise ValueError("token is invalid.")
+        if not t[2]:
+            raise ValueError("Empty payload.")
         p = base64url_decode(t[2])
         f = base64url_decode(t[3]) if len(t) == 4 else b""
         return cls(t[0], t[1], p, f)
