@@ -35,6 +35,13 @@ class TestV4Local:
             pytest.fail("pyseto.decode() should fail.")
         assert "Failed to decrypt." in str(err.value)
 
+    def test_v4_local_encrypt_with_invalid_arg(self):
+        k = Key.new("v4", "local", b"our-secret")
+        with pytest.raises(EncryptError) as err:
+            k.encrypt(None)
+            pytest.fail("pyseto.encrypt() should fail.")
+        assert "Failed to encrypt." in str(err.value)
+
     @pytest.mark.parametrize(
         "nonce",
         [
