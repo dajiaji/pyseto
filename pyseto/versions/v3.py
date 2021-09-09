@@ -173,7 +173,6 @@ class V3Public(KeyInterface):
         by = y.to_bytes((y.bit_length() + 7) // 8, byteorder="big")
         s = bytearray(1)
         s[0] = 0x02 + (by[len(by) - 1] & 1)
-        # s: bytearray = [0x02 + (by[len(by) - 1] & 1)]
         return bytes(s) + bx
 
     def _der_to_os(self, key_size: int, sig: bytes) -> bytes:
