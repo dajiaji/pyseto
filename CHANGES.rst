@@ -4,6 +4,9 @@ Changes
 Unreleased
 ----------
 
+Version 0.5.0
+-------------
+
 - Add API reference about Token. `#30 <https://github.com/dajiaji/pyseto/pull/30>`__
 - Add support for multiple keys on decode. `#29 <https://github.com/dajiaji/pyseto/pull/29>`__
 
