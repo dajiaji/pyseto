@@ -3,7 +3,7 @@ from secrets import token_bytes
 import pytest
 
 import pyseto
-from pyseto import DecryptError, Key, VerifyError
+from pyseto import DecryptError, EncryptError, Key, VerifyError
 
 from .utils import load_key
 
