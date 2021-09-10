@@ -4,10 +4,13 @@ Changes
 Unreleased
 ----------
 
+Version 0.4.0
+-------------
+
 - Add tests for public and fix error message. `#26 <https://github.com/dajiaji/pyseto/pull/26>`__
 - Add tests for local and fix error message. `#25 <https://github.com/dajiaji/pyseto/pull/25>`__
 - Add tests for Token. `#24 <https://github.com/dajiaji/pyseto/pull/24>`__
-- Add tests for Key. `#22 <https://github.com/dajiaji/pyseto/pull/22>`__
+- Add tests for Key and fix checking argument. `#22 <https://github.com/dajiaji/pyseto/pull/22>`__
 - Add docstrings for KeyInterface. `#21 <https://github.com/dajiaji/pyseto/pull/21>`__
 
 Version 0.3.2
