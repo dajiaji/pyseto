@@ -67,23 +67,26 @@ def decode(
         DecryptError: Failed to decrypt the message.
         VerifyError: Failed to verify the message.
     """
-    if isinstance(keys, list):
-        raise ValueError("List[KeyInterface] for keys is not supported so far.")
-    else:
-        keys = [keys]
+    keys = keys if isinstance(keys, list) else [keys]
     bi = (
         implicit_assertion
         if isinstance(implicit_assertion, bytes)
         else implicit_assertion.encode("utf-8")
     )
 
+    failed = None
     t = Token.new(token)
     for k in keys:
         if k.header != t.header:
             continue
-        if k.type == "local":
-            t.payload = k.decrypt(t.payload, t.footer, bi)
+        try:
+            if k.type == "local":
+                t.payload = k.decrypt(t.payload, t.footer, bi)
+                return t
+            t.payload = k.verify(t.payload, t.footer, bi)
             return t
-        t.payload = k.verify(t.payload, t.footer, bi)
-        return t
+        except Exception as err:
+            failed = err
+    if failed:
+        raise failed
     raise ValueError("key is not found for verifying the token.")
