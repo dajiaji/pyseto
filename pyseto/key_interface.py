@@ -7,7 +7,7 @@ class KeyInterface:
     """
     The key interface class for PASETO.
 
-    ``paseto.Key.new`` returns an object which has this interface.
+    :func:`pyseto.Key.new <pyseto.Key.new>` returns an object which has this interface.
     """
 
     def __init__(self, version: str, type: str, key: Any):
@@ -52,14 +52,15 @@ class KeyInterface:
         """
         Encrypts a message to a PASETO token with the key.
 
-        This function is calld in ``paseto.encode`` so you don't need to call
-        it directly.
+        This function is calld in :func:`pyseto.encode <pyseto.encode>`  so you
+        don't need to call it directly.
 
         Args:
             payload (bytes): A message to be encrypted which will be the payload
                 part of the PASETO token.
             footer (bytes): A footer.
-            implicit_assertion (bytes): An implicit assertion.
+            implicit_assertion (Union[bytes, str]): An implicit assertion. It is
+                only used in ``v3`` or ``v4``.
             nonce (bytes): A nonce.
         Returns:
             bytes: A PASETO token.
@@ -76,14 +77,15 @@ class KeyInterface:
         """
         Decrypts an encrypted PASETO token with the key.
 
-        This function is calld in ``paseto.decode`` so you don't need to call
-        it directly.
+        This function is calld in :func:`pyseto.encode <pyseto.decode>`  so you
+        don't need to call it directly.
 
         Args:
             payload (bytes): A message to be decrypted which is the payload part
                 of the PASETO token.
             footer (bytes): A footer.
-            implicit_assertion (bytes): An implicit assertion.
+            implicit_assertion (Union[bytes, str]): An implicit assertion. It is
+                only used in ``v3`` or ``v4``.
         Returns:
             bytes: A dcrypted payload.
         Raise:
@@ -99,14 +101,15 @@ class KeyInterface:
         """
         Signs a message with the key and makes a PASETO token.
 
-        This function is calld in ``paseto.encode`` so you don't need to call
-        it directly.
+        This function is calld in :func:`pyseto.encode <pyseto.encode>`  so you
+        don't need to call it directly.
 
         Args:
             payload (bytes): A message to be signed and encoded which will be
                 the payload part of the PASETO token.
             footer (bytes): A footer.
-            implicit_assertion (bytes): An implicit assertion.
+            implicit_assertion (Union[bytes, str]): An implicit assertion. It is
+                only used in ``v3`` or ``v4``.
             nonce (bytes): A nonce.
         Returns:
             bytes: A PASETO token.
@@ -123,14 +126,15 @@ class KeyInterface:
         """
         Verifies and decodes a signed PASETO token with the key.
 
-        This function is calld in ``paseto.decode`` so you don't need to call
-        it directly.
+        This function is calld in :func:`pyseto.encode <pyseto.decode>`  so you
+        don't need to call it directly.
 
         Args:
             payload (bytes): A message to be verified and decoded which is the
                 payload part of the PASETO token.
             footer (bytes): A footer.
-            implicit_assertion (bytes): An implicit assertion.
+            implicit_assertion (Union[bytes, str]): An implicit assertion. It is
+                only used in ``v3`` or ``v4``.
         Returns:
             bytes: A verified and decoded payload.
         Raise:
