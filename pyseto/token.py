@@ -5,7 +5,7 @@ from .utils import base64url_decode
 
 class Token:
     """
-    The parsed PASETO token class.
+    The parsed token object which is a return value of :func:`pyseto.decode <pyseto.decode>`.
     """
 
     def __init__(self, version: str, purpose: str, payload: bytes, footer: bytes = b""):
@@ -29,30 +29,52 @@ class Token:
 
     @property
     def version(self) -> str:
+        """
+        The version of the token. It will be ``"v1"``, ``"v2"``, ``"v3"`` or ``"v4"``.
+        """
         return self._version
 
     @property
     def purpose(self) -> str:
+        """
+        The purpose of the token. It will be ``"local"`` or ``"public"``.
+        """
         return self._purpose
 
     @property
     def header(self) -> bytes:
+        """
+        The header of the token. It will be ``"<version>.<type>."``.
+        For example, ``"v1.local."``.
+        """
         return self._header
 
     @property
     def payload(self) -> bytes:
+        """
+        The payload of the token which is a decoded binary string. It's not Base64 encoded data.
+        """
         return self._payload
 
     @payload.setter
     def payload(self, payload: bytes):
+        """
+        A setter of the payload.
+        """
         self._payload = payload
         return
 
     @property
     def footer(self) -> bytes:
+        """
+        The footer of the token which is a decoded binary string. It's not Base64 encoded data.
+        """
         return self._footer
 
     @footer.setter
     def footer(self, footer: bytes):
+        """
+        A setter of the footer.
+        """
         self._footer = footer
         return
