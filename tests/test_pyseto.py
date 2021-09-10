@@ -82,4 +82,33 @@ class TestPyseto:
         with pytest.raises(ValueError) as err:
             pyseto.decode([], token)
             pytest.fail("pyseto.decode() should fail.")
-        assert "List[KeyInterface] for keys is not supported so far." in str(err.value)
+        assert "key is not found for verifying the token." in str(err.value)
+
+    def test_decode_with_different_keys(self):
+        sk = Key.new("v4", "public", load_key("keys/private_key_ed25519.pem"))
+        pk1 = Key.new("v1", "public", load_key("keys/public_key_rsa.pem"))
+        pk2 = Key.new("v2", "public", load_key("keys/public_key_ed25519.pem"))
+        pk3 = Key.new("v3", "public", load_key("keys/public_key_ecdsa_p384.pem"))
+        token = pyseto.encode(sk, "Hello world!")
+        with pytest.raises(ValueError) as err:
+            pyseto.decode([pk1, pk2, pk3], token)
+            pytest.fail("pyseto.decode() should fail.")
+        assert "key is not found for verifying the token." in str(err.value)
+
+    def test_decode_with_multiple_keys(self):
+        sk = Key.new("v4", "public", load_key("keys/private_key_ed25519.pem"))
+        token = pyseto.encode(sk, b"Hello world!")
+        pk1 = Key.new("v1", "public", load_key("keys/public_key_rsa.pem"))
+        pk2 = Key.new("v2", "public", load_key("keys/public_key_ed25519.pem"))
+        pk3 = Key.new("v3", "public", load_key("keys/public_key_ecdsa_p384.pem"))
+        pk4 = Key.new("v4", "public", load_key("keys/public_key_ed25519.pem"))
+        decoded = pyseto.decode([pk1, pk2, pk3, pk4], token)
+        assert decoded.payload == b"Hello world!"
+
+    def test_decode_with_multiple_keys_have_same_header(self):
+        sk = Key.new("v4", "public", load_key("keys/private_key_ed25519.pem"))
+        token = pyseto.encode(sk, b"Hello world!")
+        pk2 = Key.new("v4", "public", load_key("keys/public_key_ed25519_2.pem"))
+        pk1 = Key.new("v4", "public", load_key("keys/public_key_ed25519.pem"))
+        decoded = pyseto.decode([pk2, pk1], token)
+        assert decoded.payload == b"Hello world!"
