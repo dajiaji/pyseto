@@ -13,13 +13,14 @@ def encode(
     nonce: bytes = b"",
 ) -> bytes:
     """
-    Encodes a message to a PASETO token with a key.
+    Encodes a message to a PASETO token with a key for encryption or signing.
 
     Args:
         key (KeyInterface): A key for encryption or signing.
         payload (Union[bytes, str]): A message to be encrypted or signed.
         footer (Union[bytes, str]): A footer.
-        implicit_assertion (Union[bytes, str]): An implicit assertion.
+        implicit_assertion (Union[bytes, str]): An implicit assertion. It is
+            only used in ``v3`` or ``v4``.
         nonce (bytes): A nonce. If omitted(it's recommended), a nonce will be
             generated with ``secrets.token_bytes()`` internally. If you don't
             want ot use ``secrets.token_bytes()``, you can specify it via this
@@ -54,12 +55,13 @@ def decode(
     implicit_assertion: Union[bytes, str] = b"",
 ) -> Token:
     """
-    Decodes a PASETO token with a key.
+    Decodes a PASETO token with a key for decryption and/or verifying.
 
     Args:
         key (KeyInterface): A key for decryption or verifying the signature in the token.
         token (Union[bytes, str]): A PASETO token to be decrypted or verified.
-        implicit_assertion (Optional[Union[bytes, str]]): An implicit assertion.
+        implicit_assertion (Union[bytes, str]): An implicit assertion. It is
+            only used in ``v3`` or ``v4``.
     Returns:
         Token: A parsed PASETO token object.
     Raise:
