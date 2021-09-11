@@ -17,10 +17,10 @@ class TestKey:
     @pytest.mark.parametrize(
         "version, type, key",
         [
-            ("v1", "local", token_bytes(32)),
-            ("v2", "local", token_bytes(32)),
-            ("v3", "local", token_bytes(32)),
-            ("v4", "local", token_bytes(32)),
+            (1, "local", token_bytes(32)),
+            (2, "local", token_bytes(32)),
+            (3, "local", token_bytes(32)),
+            (4, "local", token_bytes(32)),
         ],
     )
     def test_key_new_local(self, version, type, key):
@@ -40,14 +40,14 @@ class TestKey:
     @pytest.mark.parametrize(
         "version, type, key",
         [
-            ("v1", "public", load_key("keys/private_key_rsa.pem")),
-            ("v1", "public", load_key("keys/public_key_rsa.pem")),
-            ("v2", "public", load_key("keys/private_key_ed25519.pem")),
-            ("v2", "public", load_key("keys/public_key_ed25519.pem")),
-            ("v3", "public", load_key("keys/private_key_ecdsa_p384.pem")),
-            ("v3", "public", load_key("keys/public_key_ecdsa_p384.pem")),
-            ("v4", "public", load_key("keys/private_key_ed25519.pem")),
-            ("v4", "public", load_key("keys/public_key_ed25519.pem")),
+            (1, "public", load_key("keys/private_key_rsa.pem")),
+            (1, "public", load_key("keys/public_key_rsa.pem")),
+            (2, "public", load_key("keys/private_key_ed25519.pem")),
+            (2, "public", load_key("keys/public_key_ed25519.pem")),
+            (3, "public", load_key("keys/private_key_ecdsa_p384.pem")),
+            (3, "public", load_key("keys/public_key_ecdsa_p384.pem")),
+            (4, "public", load_key("keys/private_key_ed25519.pem")),
+            (4, "public", load_key("keys/public_key_ed25519.pem")),
         ],
     )
     def test_key_new_public(self, version, type, key):
@@ -128,6 +128,7 @@ class TestKey:
         [
             ("v*", "local", token_bytes(32), "Invalid version: v*."),
             ("v0", "local", token_bytes(32), "Invalid version: v0."),
+            (0, "local", token_bytes(32), "Invalid version: 0."),
             (
                 "v*",
                 "public",
@@ -139,6 +140,12 @@ class TestKey:
                 "public",
                 load_key("keys/private_key_rsa.pem"),
                 "Invalid version: v0.",
+            ),
+            (
+                0,
+                "public",
+                load_key("keys/private_key_rsa.pem"),
+                "Invalid version: 0.",
             ),
             ("v1", "xxx", token_bytes(32), "Invalid type(purpose): xxx."),
             ("v1", "public", "-----BEGIN BAD", "Invalid or unsupported PEM format."),
@@ -153,14 +160,14 @@ class TestKey:
     @pytest.mark.parametrize(
         "version, key",
         [
-            # ("v1", load_jwk("keys/private_key_rsa.json")),
-            # ("v1", load_jwk("keys/public_key_rsa.json")),
-            ("v2", load_jwk("keys/private_key_ed25519.json")),
-            ("v2", load_jwk("keys/public_key_ed25519.json")),
-            ("v3", load_jwk("keys/private_key_ecdsa_p384.json")),
-            ("v3", load_jwk("keys/public_key_ecdsa_p384.json")),
-            ("v4", load_jwk("keys/private_key_ed25519.json")),
-            ("v4", load_jwk("keys/public_key_ed25519.json")),
+            # (1, load_jwk("keys/private_key_rsa.json")),
+            # (1, load_jwk("keys/public_key_rsa.json")),
+            (2, load_jwk("keys/private_key_ed25519.json")),
+            (2, load_jwk("keys/public_key_ed25519.json")),
+            (3, load_jwk("keys/private_key_ecdsa_p384.json")),
+            (3, load_jwk("keys/public_key_ecdsa_p384.json")),
+            (4, load_jwk("keys/private_key_ed25519.json")),
+            (4, load_jwk("keys/public_key_ed25519.json")),
         ],
     )
     def test_key_from_asymmetric_params(self, version, key):
@@ -179,6 +186,7 @@ class TestKey:
                 "v1.public is not supported on from_key_parameters.",
             ),
             ("v*", load_jwk("keys/private_key_ed25519.json"), "Invalid version: v*."),
+            (0, load_jwk("keys/private_key_ed25519.json"), "Invalid version: 0."),
             (
                 "v2",
                 {"x": b"xxx", "y": b"", "d": b"ddd"},

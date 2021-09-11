@@ -4,6 +4,8 @@ Changes
 Unreleased
 ----------
 
+- Allow int type version for Key.new. `#33 <https://github.com/dajiaji/pyseto/pull/33>`__
+
 Version 0.5.0
 -------------
 

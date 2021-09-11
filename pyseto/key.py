@@ -18,17 +18,29 @@ from .versions.v4 import V4Local, V4Public
 
 class Key:
     @staticmethod
-    def new(version: str, type: str, key: Union[bytes, str] = b""):
+    def new(version: Union[int, str], type: str, key: Union[bytes, str] = b""):
+
+        if isinstance(version, str):
+            if version == "v1":
+                version = 1
+            elif version == "v2":
+                version = 2
+            elif version == "v3":
+                version = 3
+            elif version == "v4":
+                version = 4
+            else:
+                raise ValueError(f"Invalid version: {version}.")
 
         bkey = key if isinstance(key, bytes) else key.encode("utf-8")
         if type == "local":
-            if version == "v1":
+            if version == 1:
                 return V1Local(bkey)
-            if version == "v2":
+            if version == 2:
                 return V2Local(bkey)
-            if version == "v3":
+            if version == 3:
                 return V3Local(bkey)
-            if version == "v4":
+            if version == 4:
                 return V4Local(bkey)
             raise ValueError(f"Invalid version: {version}.")
 
@@ -44,13 +56,13 @@ class Key:
                 k = load_pem_private_key(bkey, password=None)
             else:
                 raise ValueError("Invalid or unsupported PEM format.")
-            if version == "v1":
+            if version == 1:
                 return V1Public(k)
-            if version == "v2":
+            if version == 2:
                 return V2Public(k)
-            if version == "v3":
+            if version == 3:
                 return V3Public(k)
-            if version == "v4":
+            if version == 4:
                 return V4Public(k)
             raise ValueError(f"Invalid version: {version}.")
 
@@ -58,14 +70,27 @@ class Key:
 
     @staticmethod
     def from_asymmetric_key_params(
-        version: str, x: bytes = b"", y: bytes = b"", d: bytes = b""
+        version: Union[int, str], x: bytes = b"", y: bytes = b"", d: bytes = b""
     ):
 
         k: Any = None
-        if version == "v1":
+
+        if isinstance(version, str):
+            if version == "v1":
+                version = 1
+            elif version == "v2":
+                version = 2
+            elif version == "v3":
+                version = 3
+            elif version == "v4":
+                version = 4
+            else:
+                raise ValueError(f"Invalid version: {version}.")
+
+        if version == 1:
             raise ValueError("v1.public is not supported on from_key_parameters.")
 
-        if version == "v2":
+        if version == 2:
             if x and d:
                 raise ValueError("Only one of x or d should be set for v2.public.")
             if x:
@@ -82,7 +107,7 @@ class Key:
                 return V2Public(k)
             raise ValueError("x or d should be set for v2.public.")
 
-        if version == "v3":
+        if version == 3:
             if not x or not y:
                 raise ValueError("x and y (and d) should be set for v3.public.")
             try:
@@ -105,7 +130,7 @@ class Key:
                 raise ValueError("Failed to load key.") from err
             return V3Public(k)
 
-        if version == "v4":
+        if version == 4:
             if x and d:
                 raise ValueError("Only one of x or d should be set for v4.public.")
             if x:

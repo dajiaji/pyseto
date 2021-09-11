@@ -21,7 +21,7 @@ class V1Local(KeyInterface):
 
     def __init__(self, key: Union[str, bytes]):
 
-        super().__init__("v1", "local", key)
+        super().__init__(1, "local", key)
         return
 
     def encrypt(
@@ -116,7 +116,7 @@ class V1Public(KeyInterface):
 
     def __init__(self, key: Union[str, bytes]):
 
-        super().__init__("v1", "public", key)
+        super().__init__(1, "public", key)
         self._sig_size = 256
 
         if not isinstance(self._key, (RSAPublicKey, RSAPrivateKey)):

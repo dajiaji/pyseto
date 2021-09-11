@@ -28,7 +28,7 @@ class V3Local(KeyInterface):
 
     def __init__(self, key: Union[str, bytes]):
 
-        super().__init__("v3", "local", key)
+        super().__init__(3, "local", key)
         return
 
     def encrypt(
@@ -120,7 +120,7 @@ class V3Public(KeyInterface):
 
     def __init__(self, key: Union[str, bytes]):
 
-        super().__init__("v3", "public", key)
+        super().__init__(3, "public", key)
         self._sig_size = 96
 
         if not isinstance(self._key, (EllipticCurvePublicKey, EllipticCurvePrivateKey)):
