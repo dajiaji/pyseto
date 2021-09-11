@@ -20,6 +20,20 @@ class Key:
     @staticmethod
     def new(version: Union[int, str], type: str, key: Union[bytes, str] = b""):
 
+        """
+        Constructor of a PASETO key object which has :class:`KeyInterface <pyseto.key_interface.KeyInterface>`.
+
+        Args:
+            version(Union[int, str]): The version of the key. It will be ``1``,
+                ``2``, ``3`` or ``4``. ``str`` type of version (e.g., ``"v1"``)
+                can also be used but it will be DEPRECATED on ``v1.0.0``.
+            type (str): The type (purpose) of the key.
+            key (Union[bytes, str]): A key itself or keying material.
+        Returns:
+            KeyInterface: A PASETO key object.
+        Raise:
+            ValueError: Invalid arguments.
+        """
         if isinstance(version, str):
             if version == "v1":
                 version = 1
@@ -73,6 +87,25 @@ class Key:
         version: Union[int, str], x: bytes = b"", y: bytes = b"", d: bytes = b""
     ):
 
+        """
+        Constructor of a PASETO key object which has
+        :class:`KeyInterface <pyseto.key_interface.KeyInterface>` wth
+        asymmetric key parameters (x-coordinate, y-coordinate, and/or private
+        key). This is intended to be used to generate keys for PASETO from JWK
+        and other sources.
+
+        Args:
+            version(Union[int, str]): The version of the key. It will be ``1``,
+                ``2``, ``3`` or ``4``. ``str`` type of version (e.g., ``"v1"``)
+                can also be used but it will be DEPRECATED on ``v1.0.0``.
+            x (bytes): The x coordinate of the key.
+            y (bytes): The y coordinate of the key.
+            d (bytes): The private key component of the key.
+        Returns:
+            KeyInterface: A PASETO key object.
+        Raise:
+            ValueError: Invalid arguments.
+        """
         k: Any = None
 
         if isinstance(version, str):
