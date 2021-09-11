@@ -77,7 +77,7 @@ class KeyInterface:
         """
         Decrypts an encrypted PASETO token with the key.
 
-        This function is calld in :func:`pyseto.encode <pyseto.decode>`  so you
+        This function is calld in :func:`pyseto.decode <pyseto.decode>`  so you
         don't need to call it directly.
 
         Args:
@@ -126,7 +126,7 @@ class KeyInterface:
         """
         Verifies and decodes a signed PASETO token with the key.
 
-        This function is calld in :func:`pyseto.encode <pyseto.decode>`  so you
+        This function is calld in :func:`pyseto.decode <pyseto.decode>`  so you
         don't need to call it directly.
 
         Args:
