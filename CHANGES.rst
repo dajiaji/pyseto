@@ -4,17 +4,26 @@ Changes
 Unreleased
 ----------
 
+Version 0.6.0
+-------------
+
+Released 2021-09-11
+
 - Add tests for sample code. `#34 <https://github.com/dajiaji/pyseto/pull/34>`__
 - Allow int type version for Key.new. `#33 <https://github.com/dajiaji/pyseto/pull/33>`__
 
 Version 0.5.0
 -------------
 
+Released 2021-09-11
+
 - Add API reference about Token. `#30 <https://github.com/dajiaji/pyseto/pull/30>`__
 - Add support for multiple keys on decode. `#29 <https://github.com/dajiaji/pyseto/pull/29>`__
 
 Version 0.4.0
 -------------
+
+Released 2021-09-10
 
 - Add tests for public and fix error message. `#26 <https://github.com/dajiaji/pyseto/pull/26>`__
 - Add tests for local and fix error message. `#25 <https://github.com/dajiaji/pyseto/pull/25>`__
