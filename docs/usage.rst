@@ -7,16 +7,16 @@ The following is a simple sample code using PySETO:
 
     >>> import pyseto
     >>> from pyseto import Key
-    >>> secret_key_pem = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
-    >>> public_key_pem = "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
-    >>> secret_key = Key.new("v4", "public", secret_key_pem)
+    >>> private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+    >>> public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+    >>> private_key = Key.new(version=4, type="public", key=private_key_pem)
     >>> token = pyseto.encode(
-    ...     secret_key,
-    ...     '{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+    ...     private_key,
+    ...     b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
     ... )
     >>> token
     B'v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg'
-    >>> public_key = Key.new("v4", "public", public_key_pem)
+    >>> public_key = Key.new(version=4, type="public", key=public_key_pem)
     >>> decoded = pyseto.decode(public_key, token)
     >>> decoded.payload
     B'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
@@ -26,17 +26,209 @@ This page shows various examples to use PySETO.
 .. contents::
    :local:
 
-v4.local
---------
+v4.public
+---------
+
+Asymmetric Authentication (Public-Key Signatures) with Ed25519 (EdDSA over Curve25519).
+
+
+You can create an Ed25519 key pair by using openssl as follows:
+
+.. code-block:: console
+
+    $ openssl genpkey -algorithm ed25519 -out private_key.pem
+    $ openssl pkey -in private_key.pem -pubout -out public_key.pem
+
+
+Use the key pair to generate and consume `v4.public` PASETO tokens as follows:
 
 .. code-block:: python
 
     import pyseto
     from pyseto import Key
 
-    key = Key.new("v4", "local", b"our-secret")
+    with open("./private_key.pem") as key_file:
+        private_key = Key.new(4, "public", key_file.read())
     token = pyseto.encode(
-        key, '{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        private_key,
+        payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        footer=b"This is a footer",  # Optional
+        implicit_assertion=b"xyz",  # Optional
+    )
+
+    with open("./public_key.pem") as key_file:
+        public_key = Key.new(4, "public", key_file.read())
+    decoded = pyseto.decode(public_key, token, implicit_assertion=b"xyz")
+
+    assert (
+        decoded.payload
+        == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+    )
+    assert decoded.footer == b"This is a footer"
+    assert decoded.version == "v4"
+    assert decoded.purpose == "public"
+
+
+v4.local
+--------
+
+Symmetric Authenticated Encryption with AES-256-CTR + HMAC-SHA384 (Encrypt-then-MAC).
+
+.. code-block:: python
+
+    import pyseto
+    from pyseto import Key
+
+    key = Key.new(version=4, type="local", key=b"our-secret")
+    token = pyseto.encode(
+        key,
+        payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        footer=b"This is a footer",  # Optional
+        implicit_assertion=b"xyz",  # Optional
+    )
+
+    decoded = pyseto.decode(key, token, implicit_assertion=b"xyz")
+
+    assert (
+        decoded.payload
+        == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+    )
+    assert decoded.footer == b"This is a footer"
+    assert decoded.version == "v4"
+    assert decoded.purpose == "local"
+
+v3.public
+---------
+
+Asymmetric Authentication (Public-Key Signatures) with ECDSA over NIST P-384,
+with SHA-384, using RFC 6979 deterministic k-values.
+
+You can create an ECDSA over NIST P-384 key pair by using openssl as follows:
+
+.. code-block:: console
+
+    $ openssl ecparam -genkey -name secp384r1 -noout -out private_key.pem
+    $ openssl ec -in private_key.pem -pubout -out public_key.pem
+
+Use the key pair to generate and consume v3.public PASETO tokens as follows:
+
+.. code-block:: python
+
+    import pyseto
+    from pyseto import Key
+
+    with open("./private_key.pem") as key_file:
+        private_key = Key.new(3, "public", key_file.read())
+    token = pyseto.encode(
+        private_key,
+        payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        footer=b"This is a footer",  # Optional
+        implicit_assertion=b"xyz",  # Optional
+    )
+
+    with open("./public_key.pem") as key_file:
+        public_key = Key.new(3, "public", key_file.read())
+    decoded = pyseto.decode(public_key, token, implicit_assertion=b"xyz")
+
+    assert (
+        decoded.payload
+        == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+    )
+    assert decoded.footer == b"This is a footer"
+    assert decoded.version == "v3"
+    assert decoded.purpose == "public"
+
+v3.local
+--------
+
+Symmetric Authenticated Encryption with AES-256-CTR + HMAC-SHA384 (Encrypt-then-MAC).
+
+.. code-block:: python
+
+    import pyseto
+    from pyseto import Key
+
+    key = Key.new(version=3, type="local", key=b"our-secret")
+    token = pyseto.encode(
+        key,
+        payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        footer=b"This is a footer",  # Optional
+        implicit_assertion=b"xyz",  # Optional
+    )
+
+    decoded = pyseto.decode(key, token, implicit_assertion=b"xyz")
+
+    assert (
+        decoded.payload
+        == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+    )
+    assert decoded.footer == b"This is a footer"
+    assert decoded.version == "v3"
+    assert decoded.purpose == "local"
+
+
+v2.public
+---------
+
+Asymmetric Authentication (Public-Key Signatures) with Ed25519.
+
+
+Create an Ed25519 key pair by using openssl as follows:
+
+.. code-block:: console
+
+    $ openssl genpkey -algorithm ed25519 -out private_key.pem
+    $ openssl pkey -in private_key.pem -pubout -out public_key.pem
+
+
+Use the key pair to generate and consume v2.public PASETO tokens as follows:
+
+.. code-block:: python
+
+    import pyseto
+    from pyseto import Key
+
+    with open("./private_key.pem") as key_file:
+        private_key = Key.new(2, "public", key_file.read())
+    token = pyseto.encode(
+        private_key,
+        payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        footer=b"This is a footer",  # Optional
+    )
+
+    with open("./public_key.pem") as key_file:
+        public_key = Key.new(2, "public", key_file.read())
+    decoded = pyseto.decode(public_key, token)
+
+    assert (
+        decoded.payload
+        == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+    )
+    assert decoded.footer == b"This is a footer"
+    assert decoded.version == "v2"
+    assert decoded.purpose == "public"
+
+
+v2.local
+--------
+
+Symmetric Authenticated Encryption with XChaCha20-Poly1305 (192-bit nonce,
+256-bit key and 128-bit authentication tag).
+
+
+In this case, you must use 32 byte key as follows:
+
+.. code-block:: python
+
+    import pyseto
+    from pyseto import Key
+    from secrets import token_bytes
+
+    key = Key.new(version=2, type="local", key=token_bytes(32))
+    token = pyseto.encode(
+        key,
+        payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        footer=b"This is a footer",  # Optional
     )
 
     decoded = pyseto.decode(key, token)
@@ -45,65 +237,78 @@ v4.local
         decoded.payload
         == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
     )
-    assert decoded.footer == b""
-    assert decoded.version == "v4"
+    assert decoded.footer == b"This is a footer"
+    assert decoded.version == "v2"
     assert decoded.purpose == "local"
 
-v4.public
+
+v1.public
 ---------
+
+Asymmetric Authentication (Public-Key Signatures) with RSASSA-PSS 2048-bit key,
+SHA384 hashing and MGF1+SHA384.
+
+
+Create an RSA key pair by using openssl as follows:
+
+.. code-block:: console
+
+    $ openssl genrsa -out private_key.pem 2048
+    $ openssl rsa -in private_key.pem -outform PEM -pubout -out public_key.pem
+
+
+Use the key pair to generate and consume v1.public PASETO tokens as follows:
 
 .. code-block:: python
 
     import pyseto
     from pyseto import Key
 
-    secret_key_pem = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
-    public_key_pem = "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
-
-    secret_key = Key.new("v4", "public", secret_key_pem)
+    with open("./private_key.pem") as key_file:
+        private_key = Key.new(1, "public", key_file.read())
     token = pyseto.encode(
-        secret_key,
-        '{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        private_key,
+        payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        footer=b"This is a footer",  # Optional
     )
 
-    public_key = Key.new("v4", "public", public_key_pem)
+    with open("./public_key.pem") as key_file:
+        public_key = Key.new(1, "public", key_file.read())
     decoded = pyseto.decode(public_key, token)
 
     assert (
         decoded.payload
         == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
     )
-    assert decoded.footer == b""
-    assert decoded.version == "v4"
+    assert decoded.footer == b"This is a footer"
+    assert decoded.version == "v1"
     assert decoded.purpose == "public"
 
-v3.local
---------
-
-Under Construction
-
-v3.public
----------
-
-Under Construction
-
-
-v2.local
---------
-
-Under Construction
-
-v2.public
----------
-
-Under Construction
 
 v1.local
 --------
 
-Under Construction
+Symmetric Authenticated Encryption with AES-256-CTR + HMAC-SHA384 (Encrypt-then-MAC).
 
-v1.public
----------
+.. code-block:: python
 
-Under Construction
+    import pyseto
+    from pyseto import Key
+    from secrets import token_bytes
+
+    key = Key.new(version=1, type="local", key=b"our-secret")
+    token = pyseto.encode(
+        key,
+        payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        footer=b"This is a footer",  # Optional
+    )
+
+    decoded = pyseto.decode(key, token)
+
+    assert (
+        decoded.payload
+        == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+    )
+    assert decoded.footer == b"This is a footer"
+    assert decoded.version == "v1"
+    assert decoded.purpose == "local"
