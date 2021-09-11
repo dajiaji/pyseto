@@ -1,5 +1,9 @@
+from secrets import token_bytes
+
 import pyseto
 from pyseto import Key
+
+from .utils import get_path
 
 
 class TestSample:
@@ -22,12 +26,13 @@ class TestSample:
         )
 
     def test_sample_v4_public_old(self):
-        secret_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
 
-        secret_key = Key.new("v4", "public", secret_key_pem)
+        private_key = Key.new("v4", "public", private_key_pem)
         token = pyseto.encode(
-            secret_key,
+            private_key,
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
         )
         public_key = Key.new("v4", "public", public_key_pem)
@@ -57,12 +62,13 @@ class TestSample:
         )
 
     def test_sample_v4_public(self):
-        secret_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
 
-        secret_key = Key.new(version=4, type="public", key=secret_key_pem)
+        private_key = Key.new(version=4, type="public", key=private_key_pem)
         token = pyseto.encode(
-            secret_key,
+            private_key,
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
         )
         public_key = Key.new(version=4, type="public", key=public_key_pem)
@@ -76,3 +82,171 @@ class TestSample:
             decoded.payload
             == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         )
+
+    def test_sample_rtd_v4_public(self):
+
+        with open(get_path("keys/private_key_ed25519.pem")) as key_file:
+            private_key = Key.new(4, "public", key_file.read())
+        token = pyseto.encode(
+            private_key,
+            payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+            footer=b"This is a footer",  # Optional
+            implicit_assertion=b"xyz",  # Optional
+        )
+
+        with open(get_path("keys/public_key_ed25519.pem")) as key_file:
+            public_key = Key.new(4, "public", key_file.read())
+        decoded = pyseto.decode(public_key, token, implicit_assertion=b"xyz")
+
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+        assert decoded.footer == b"This is a footer"
+        assert decoded.version == "v4"
+        assert decoded.purpose == "public"
+
+    def test_sample_rtd_v4_local(self):
+
+        key = Key.new(version=4, type="local", key=b"our-secret")
+        token = pyseto.encode(
+            key,
+            payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+            footer=b"This is a footer",  # Optional
+            implicit_assertion=b"xyz",  # Optional
+        )
+
+        decoded = pyseto.decode(key, token, implicit_assertion=b"xyz")
+
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+        assert decoded.footer == b"This is a footer"
+        assert decoded.version == "v4"
+        assert decoded.purpose == "local"
+
+    def test_sample_rtd_v3_public(self):
+
+        with open(get_path("keys/private_key_ecdsa_p384.pem")) as key_file:
+            private_key = Key.new(3, "public", key_file.read())
+        token = pyseto.encode(
+            private_key,
+            payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+            footer=b"This is a footer",  # Optional
+            implicit_assertion=b"xyz",  # Optional
+        )
+
+        with open(get_path("keys/public_key_ecdsa_p384.pem")) as key_file:
+            public_key = Key.new(3, "public", key_file.read())
+        decoded = pyseto.decode(public_key, token, implicit_assertion=b"xyz")
+
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+        assert decoded.footer == b"This is a footer"
+        assert decoded.version == "v3"
+        assert decoded.purpose == "public"
+
+    def test_sample_rtd_v3_local(self):
+
+        key = Key.new(version=3, type="local", key=b"our-secret")
+        token = pyseto.encode(
+            key,
+            payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+            footer=b"This is a footer",  # Optional
+            implicit_assertion=b"xyz",  # Optional
+        )
+
+        decoded = pyseto.decode(key, token, implicit_assertion=b"xyz")
+
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+        assert decoded.footer == b"This is a footer"
+        assert decoded.version == "v3"
+        assert decoded.purpose == "local"
+
+    def test_sample_rtd_v2_public(self):
+
+        with open(get_path("keys/private_key_ed25519.pem")) as key_file:
+            private_key = Key.new(2, "public", key_file.read())
+        token = pyseto.encode(
+            private_key,
+            payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+            footer=b"This is a footer",  # Optional
+        )
+
+        with open(get_path("keys/public_key_ed25519.pem")) as key_file:
+            public_key = Key.new(2, "public", key_file.read())
+        decoded = pyseto.decode(public_key, token)
+
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        )
+        assert decoded.footer == b"This is a footer"
+        assert decoded.version == "v2"
+        assert decoded.purpose == "public"
+
+    def test_sample_rtd_v2_local(self):
+
+        key = Key.new(version=2, type="local", key=token_bytes(32))
+        token = pyseto.encode(
+            key,
+            payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+            footer=b"This is a footer",  # Optional
+        )
+
+        decoded = pyseto.decode(key, token)
+
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+        assert decoded.footer == b"This is a footer"
+        assert decoded.version == "v2"
+        assert decoded.purpose == "local"
+
+    def test_sample_rtd_v1_public(self):
+
+        with open(get_path("keys/private_key_rsa.pem")) as key_file:
+            private_key = Key.new(1, "public", key_file.read())
+        token = pyseto.encode(
+            private_key,
+            payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+            footer=b"This is a footer",  # Optional
+        )
+
+        with open(get_path("keys/public_key_rsa.pem")) as key_file:
+            public_key = Key.new(1, "public", key_file.read())
+        decoded = pyseto.decode(public_key, token)
+
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+        assert decoded.footer == b"This is a footer"
+        assert decoded.version == "v1"
+        assert decoded.purpose == "public"
+
+    def test_sample_rtd_v1_local(self):
+
+        key = Key.new(version=1, type="local", key=b"our-secret")
+        token = pyseto.encode(
+            key,
+            payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+            footer=b"This is a footer",  # Optional
+        )
+
+        decoded = pyseto.decode(key, token)
+
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+        assert decoded.footer == b"This is a footer"
+        assert decoded.version == "v1"
+        assert decoded.purpose == "local"
