@@ -4,6 +4,8 @@ Changes
 Unreleased
 ----------
 
+- Add usage examples and related tests. `#36 <https://github.com/dajiaji/pyseto/pull/36>`__
+
 Version 0.6.0
 -------------
 
