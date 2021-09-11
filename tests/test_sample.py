@@ -185,7 +185,7 @@ class TestSample:
 
         assert (
             decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         )
         assert decoded.footer == b"This is a footer"
         assert decoded.version == "v2"
