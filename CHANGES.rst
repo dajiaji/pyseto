@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Add tests for sample code. `#34 <https://github.com/dajiaji/pyseto/pull/34>`__
 - Allow int type version for Key.new. `#33 <https://github.com/dajiaji/pyseto/pull/33>`__
 
 Version 0.5.0
