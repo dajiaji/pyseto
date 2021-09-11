@@ -21,7 +21,7 @@ class V2Local(KeyInterface):
 
     def __init__(self, key: Union[str, bytes]):
 
-        super().__init__("v2", "local", key)
+        super().__init__(2, "local", key)
         if len(self._key) != 32:
             raise ValueError("key must be 32 bytes long.")
         return
@@ -87,7 +87,7 @@ class V2Public(KeyInterface):
 
     def __init__(self, key: Union[str, bytes]):
 
-        super().__init__("v2", "public", key)
+        super().__init__(2, "public", key)
         self._sig_size = 64
 
         if not isinstance(self._key, (Ed25519PublicKey, Ed25519PrivateKey)):

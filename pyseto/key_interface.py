@@ -10,10 +10,10 @@ class KeyInterface:
     :func:`pyseto.Key.new <pyseto.Key.new>` returns an object which has this interface.
     """
 
-    def __init__(self, version: str, type: str, key: Any):
+    def __init__(self, version: int, type: str, key: Any):
         self._version = version
         self._type = type
-        self._header = (self._version + "." + self._type + ".").encode("utf-8")
+        self._header = (f"v{self._version}." + self._type + ".").encode("utf-8")
         self._sig_size = 0
         self._key: Any = key
         if not self._key:
@@ -21,9 +21,9 @@ class KeyInterface:
         return
 
     @property
-    def version(self) -> str:
+    def version(self) -> int:
         """
-        The version of the key. It will be ``"v1"``, ``"v2"``, ``"v3"`` or ``"v4"``.
+        The version of the key. It will be ``1``, ``2``, ``3`` or ``4``.
         """
         return self._version
 
@@ -37,7 +37,7 @@ class KeyInterface:
     @property
     def header(self) -> bytes:
         """
-        The header value for a PASETO token. It will be ``"<version>.<type>."``.
+        The header value for a PASETO token. It will be ``"v<version>.<type>."``.
         For example, ``"v1.local."``.
         """
         return self._header

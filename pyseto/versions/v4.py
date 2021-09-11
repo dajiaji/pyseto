@@ -20,7 +20,7 @@ class V4Local(KeyInterface):
 
     def __init__(self, key: Union[str, bytes]):
 
-        super().__init__("v4", "local", key)
+        super().__init__(4, "local", key)
 
         if len(self._key) > 64:
             raise ValueError("key length must be up to 64 bytes.")
@@ -94,7 +94,7 @@ class V4Public(KeyInterface):
 
     def __init__(self, key: Union[str, bytes]):
 
-        super().__init__("v4", "public", key)
+        super().__init__(4, "public", key)
 
         self._sig_size = 64
 
