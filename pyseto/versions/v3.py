@@ -127,6 +127,14 @@ class V3Public(KeyInterface):
             raise ValueError("The key is not ECDSA key.")
         return
 
+    @classmethod
+    def from_public_bytes(cls, key: bytes):
+        try:
+            k = EllipticCurvePublicKey.from_encoded_point(ec.SECP384R1(), key)
+        except Exception as err:
+            raise ValueError("Invalid bytes for the key.") from err
+        return cls(k)
+
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:

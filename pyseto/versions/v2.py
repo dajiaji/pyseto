@@ -95,6 +95,14 @@ class V2Public(KeyInterface):
             raise ValueError("The key is not Ed25519 key.")
         return
 
+    # @classmethod
+    # def from_public_bytes(cls, key: bytes):
+    #     try:
+    #         k = Ed25519PublicKey.from_public_bytes(key)
+    #     except Exception as err:
+    #         raise ValueError("Invalid bytes for the key.") from err
+    #     return cls(k)
+
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:
