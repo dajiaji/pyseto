@@ -169,7 +169,7 @@ class V3Public(KeyInterface):
 
     def _public_key_compress(self, x: int, y: int) -> bytes:
 
-        bx = x.to_bytes((x.bit_length() + 7) // 8, byteorder="big")
+        bx = x.to_bytes(48, byteorder="big")
         by = y.to_bytes((y.bit_length() + 7) // 8, byteorder="big")
         s = bytearray(1)
         s[0] = 0x02 + (by[len(by) - 1] & 1)
