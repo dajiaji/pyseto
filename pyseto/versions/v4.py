@@ -1,6 +1,6 @@
 import hashlib
 from secrets import token_bytes
-from typing import Union
+from typing import Any, Union
 
 from Cryptodome.Cipher import ChaCha20
 from cryptography.hazmat.primitives import serialization
@@ -93,7 +93,7 @@ class V4Public(KeyInterface):
     The key object for v4.public.
     """
 
-    def __init__(self, key: Union[str, bytes]):
+    def __init__(self, key: Any):
 
         super().__init__(4, "public", key)
 
@@ -147,16 +147,22 @@ class V4Public(KeyInterface):
 
     def to_paserk(self) -> str:
         if isinstance(self._key, Ed25519PublicKey):
-            return "k4.public." + base64url_encode(
-                self._key.public_bytes(
+            return (
+                "k4.public."
+                + base64url_encode(
+                    self._key.public_bytes(
+                        encoding=serialization.Encoding.Raw,
+                        format=serialization.PublicFormat.Raw,
+                    )
+                ).decode("utf-8")
+            )
+        return (
+            "k4.secret."
+            + base64url_encode(
+                self._key.private_bytes(
                     encoding=serialization.Encoding.Raw,
-                    format=serialization.PublicFormat.Raw,
+                    format=serialization.PrivateFormat.Raw,
+                    encryption_algorithm=serialization.NoEncryption(),
                 )
             ).decode("utf-8")
-        return "k4.secret." + base64url_encode(
-            self._key.private_bytes(
-                encoding=serialization.Encoding.Raw,
-                format=serialization.PrivateFormat.Raw,
-                encryption_algorithm=serialization.NoEncryption(),
-            )
-        ).decode("utf-8")
+        )
