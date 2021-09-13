@@ -5,6 +5,12 @@ Unreleased
 ----------
 
 - Fix public key compression for v3.
+
+Version 0.6.1
+-------------
+
+Released 2021-09-12
+
 - Add usage examples and related tests. `#36 <https://github.com/dajiaji/pyseto/pull/36>`__
 
 Version 0.6.0
