@@ -3,6 +3,7 @@ from secrets import token_bytes
 from typing import Union
 
 from Cryptodome.Cipher import ChaCha20
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
@@ -135,3 +136,19 @@ class V4Public(KeyInterface):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
+
+    def to_paserk(self) -> str:
+        if isinstance(self._key, Ed25519PublicKey):
+            return "k4.public." + base64url_encode(
+                self._key.public_bytes(
+                    encoding=serialization.Encoding.Raw,
+                    format=serialization.PublicFormat.Raw,
+                )
+            ).decode("utf-8")
+        return "k4.secret." + base64url_encode(
+            self._key.private_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PrivateFormat.Raw,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+        ).decode("utf-8")

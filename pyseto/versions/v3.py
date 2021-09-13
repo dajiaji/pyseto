@@ -3,7 +3,7 @@ import hmac
 from secrets import token_bytes
 from typing import Union
 
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ec import (
     EllipticCurvePrivateKey,
@@ -166,6 +166,21 @@ class V3Public(KeyInterface):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
+
+    def to_paserk(self, seed: bytes = b"") -> str:
+        if isinstance(self._key, EllipticCurvePublicKey):
+            data = self._public_key_compress(
+                self._key.public_numbers().x, self._key.public_numbers().y
+            )
+            return "k3.public." + base64url_encode(data).decode("utf-8")
+        return "k3.secret." + base64url_encode(
+            seed
+            + self._key.private_bytes(
+                encoding=serialization.Encoding.DER,
+                format=serialization.PrivateFormat.SubjectPrivateKeyInfo,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+        ).decode("utf-8")
 
     def _public_key_compress(self, x: int, y: int) -> bytes:
 

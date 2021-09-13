@@ -4,6 +4,7 @@ from typing import Union
 
 # from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from Cryptodome.Cipher import ChaCha20_Poly1305
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
@@ -126,3 +127,19 @@ class V2Public(KeyInterface):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
+
+    def to_paserk(self) -> str:
+        if isinstance(self._key, Ed25519PublicKey):
+            return "k2.public." + base64url_encode(
+                self._key.public_bytes(
+                    encoding=serialization.Encoding.Raw,
+                    format=serialization.PublicFormat.Raw,
+                )
+            ).decode("utf-8")
+        return "k2.secret." + base64url_encode(
+            self._key.private_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PrivateFormat.Raw,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+        ).decode("utf-8")
