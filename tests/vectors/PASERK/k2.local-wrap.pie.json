@@ -1,0 +1,17 @@
+{
+  "name": "PASERK k2.local-wrap.pie Test Vectors",
+  "tests": [
+    {
+      "name": "k2.local-wrap.pie-1",
+      "unwrapped": "0000000000000000000000000000000000000000000000000000000000000000",
+      "wrapping-key":"707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f",
+      "paserk": "k2.local-wrap.pie.KSwNnZjKHll5ON5FXI9-rJ_4WVTA9mBvEDeiZ_ThU0vVrPCM7d2hLOqoPF09hCqAbX460a8En1qjInyQ9Rxr4Jvb3ish_Z90RY8lYRCX9q9ehcY3-M87HEXpb9el4YrG"
+    },
+    {
+      "name": "k2.local-wrap.pie-2",
+      "unwrapped": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "wrapping-key": "707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f",
+      "paserk": "k2.local-wrap.pie.Sjnrhha_9ZO77xOIrkL6wioU4cHiIxqS2dLYj6L2dnxPSSBeTN5yUjLbNyku35ct550gQeaIdDaBTrNBwEohbrM_FIG6zit_D4ba25xU5jjUtNg6xN7wD0bRT2ucHF8W"
+    }
+  ]
+}

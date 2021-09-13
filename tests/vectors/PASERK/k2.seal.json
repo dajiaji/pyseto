@@ -1,0 +1,19 @@
+{
+  "name": "PASERK k2.seal Test Vectors",
+  "tests": [
+    {
+      "name": "k2.seal-1",
+      "sealing-secret-key": "407796f4bc4b8184e9fe0c54b336822d34823092ad873d87ba14c3efb9db8c1db7715bd661458d928654d3e832f53ff5c9480542e0e3d4c9b032c768c7ce6023",
+      "sealing-public-key": "b7715bd661458d928654d3e832f53ff5c9480542e0e3d4c9b032c768c7ce6023",
+      "unsealed": "0000000000000000000000000000000000000000000000000000000000000000",
+      "paserk": "k2.seal.10ES-djeXd_5XMrznfTJGDf1zJKWQ0pjvcGyb--vQf-ApdP6zthkiyIX5lR3zfpVzVuZJ4WwWIIXuCtqiTFpeEQmrTch_G91TvQfxOLU2nEBW9_4VeIiFHrQuwL3IdxB"
+    },
+    {
+      "name": "k2.seal-2",
+      "sealing-secret-key": "a770cf90f55d8a6dec51190eb640cb25ce31f7e5eb87a00ca9859022e6da9518a0fbc3dc2f99a538b40fb7616a83cf4276b6cf223fff5a2c2d3236235eb87dc7",
+      "sealing-public-key": "a0fbc3dc2f99a538b40fb7616a83cf4276b6cf223fff5a2c2d3236235eb87dc7",
+      "unsealed": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "paserk": "k2.seal.rJZgCJrVrUFRPehByeSoO1wAUxG072_yZcyHKARrNU_ShbDBbW6xKtQl7se_PZZ9z1z484vcWmp0iTWGcVplCj2oZClme5JBCQeYSqc2lDev3xTFgOiRxX71gnnxSBkO"
+    }
+  ]
+}
