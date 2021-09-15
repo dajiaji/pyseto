@@ -8,10 +8,4 @@ class LocalKey(KeyInterface):
     """
 
     def to_paserk(self) -> str:
-        """
-        Returns the PASERK expression of the key.
-
-        Returns:
-            str: A PASERK string.
-        """
         return f"k{self.version}.local." + base64url_encode(self._key).decode("utf-8")
