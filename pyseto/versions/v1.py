@@ -96,6 +96,14 @@ class V1Local(LocalKey):
         except Exception as err:
             raise DecryptError("Failed to decrypt.") from err
 
+    def to_paserk_id(self) -> str:
+        h = "k1.lid."
+        p = self.to_paserk()
+        digest = hashes.Hash(hashes.SHA384())
+        digest.update((h + p).encode("utf-8"))
+        d = digest.finalize()
+        return h + base64url_encode(d[0:33]).decode("utf-8")
+
     def _get_nonce(self, msg: bytes, nonce: bytes = b"") -> bytes:
 
         if nonce:

@@ -79,6 +79,14 @@ class V4Local(LocalKey):
         except Exception as err:
             raise DecryptError("Failed to decrypt.") from err
 
+    def to_paserk_id(self) -> str:
+        h = "k4.lid."
+        p = self.to_paserk()
+        b = hashlib.blake2b(digest_size=33)
+        b.update((h + p).encode("utf-8"))
+        d = b.digest()
+        return h + base64url_encode(d).decode("utf-8")
+
     def _generate_hash(self, key: bytes, msg: bytes, size: int) -> bytes:
 
         try:

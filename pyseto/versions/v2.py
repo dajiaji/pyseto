@@ -66,6 +66,14 @@ class V2Local(LocalKey):
         except Exception as err:
             raise DecryptError("Failed to decrypt.") from err
 
+    def to_paserk_id(self) -> str:
+        h = "k2.lid."
+        p = self.to_paserk()
+        b = hashlib.blake2b(digest_size=33)
+        b.update((h + p).encode("utf-8"))
+        d = b.digest()
+        return h + base64url_encode(d).decode("utf-8")
+
     def _generate_nonce(self, key: bytes, msg: bytes) -> bytes:
 
         if key:

@@ -113,6 +113,14 @@ class V3Local(LocalKey):
         except Exception as err:
             raise DecryptError("Failed to decrypt a message.") from err
 
+    def to_paserk_id(self) -> str:
+        h = "k3.lid."
+        p = self.to_paserk()
+        digest = hashes.Hash(hashes.SHA384())
+        digest.update((h + p).encode("utf-8"))
+        d = digest.finalize()
+        return h + base64url_encode(d[0:33]).decode("utf-8")
+
 
 class V3Public(KeyInterface):
     """
