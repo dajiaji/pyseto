@@ -243,3 +243,29 @@ class TestKey:
             Key.from_asymmetric_key_params(version, x=key["x"], y=key["y"], d=key["d"])
             pytest.fail("Key.from_asymmetric_key_params() should fail.")
         assert msg in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, type, key",
+        [
+            (1, "public", load_key("keys/public_key_rsa.pem")),
+            (2, "public", load_key("keys/public_key_ed25519.pem")),
+            (3, "public", load_key("keys/public_key_ecdsa_p384.pem")),
+            (4, "public", load_key("keys/public_key_ed25519.pem")),
+        ],
+    )
+    def test_key_to_paserk_public(self, version, type, key):
+        k = Key.new(version, type, key)
+        assert k.to_paserk().startswith(f"k{k.version}.public.")
+
+    @pytest.mark.parametrize(
+        "version, type, key",
+        [
+            (1, "public", load_key("keys/private_key_rsa.pem")),
+            (2, "public", load_key("keys/private_key_ed25519.pem")),
+            (3, "public", load_key("keys/private_key_ecdsa_p384.pem")),
+            (4, "public", load_key("keys/private_key_ed25519.pem")),
+        ],
+    )
+    def test_key_to_paserk_secret(self, version, type, key):
+        k = Key.new(version, type, key)
+        assert k.to_paserk().startswith(f"k{k.version}.secret.")
