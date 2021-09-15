@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Add support for paserk local. `#40 <https://github.com/dajiaji/pyseto/pull/40>`__
 - Add to_paserk_id to KeyInterface. `#39 <https://github.com/dajiaji/pyseto/pull/39>`__
 - Add to_paserk to KeyInterface. `#38 <https://github.com/dajiaji/pyseto/pull/38>`__
 - Fix public key compression for v3.

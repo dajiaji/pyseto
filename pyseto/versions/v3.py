@@ -18,10 +18,11 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
+from ..local_key import LocalKey
 from ..utils import base64url_encode, i2osp, os2ip, pae
 
 
-class V3Local(KeyInterface):
+class V3Local(LocalKey):
     """
     The key object for v3.local.
     """

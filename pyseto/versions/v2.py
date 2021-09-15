@@ -12,10 +12,11 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
+from ..local_key import LocalKey
 from ..utils import base64url_encode, pae
 
 
-class V2Local(KeyInterface):
+class V2Local(LocalKey):
     """
     The key object for v2.local.
     """

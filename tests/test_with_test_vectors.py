@@ -143,6 +143,23 @@ class TestWithTestVectors:
         "v",
         _load_tests(
             [
+                "vectors/PASERK/k1.local.json",
+                "vectors/PASERK/k2.local.json",
+                "vectors/PASERK/k3.local.json",
+                "vectors/PASERK/k4.local.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_local(self, v):
+
+        version = _name_to_version(v["name"])
+        k = Key.new(version, "local", bytes.fromhex(v["key"]))
+        assert k.to_paserk() == v["paserk"]
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
                 "vectors/PASERK/k1.pid.json",
                 "vectors/PASERK/k2.pid.json",
                 "vectors/PASERK/k3.pid.json",
