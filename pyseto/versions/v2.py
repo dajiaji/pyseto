@@ -12,10 +12,11 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
+from ..local_key import LocalKey
 from ..utils import base64url_encode, pae
 
 
-class V2Local(KeyInterface):
+class V2Local(LocalKey):
     """
     The key object for v2.local.
     """
@@ -64,6 +65,14 @@ class V2Local(KeyInterface):
             return cipher.decrypt_and_verify(c, tag)
         except Exception as err:
             raise DecryptError("Failed to decrypt.") from err
+
+    def to_paserk_id(self) -> str:
+        h = "k2.lid."
+        p = self.to_paserk()
+        b = hashlib.blake2b(digest_size=33)
+        b.update((h + p).encode("utf-8"))
+        d = b.digest()
+        return h + base64url_encode(d).decode("utf-8")
 
     def _generate_nonce(self, key: bytes, msg: bytes) -> bytes:
 

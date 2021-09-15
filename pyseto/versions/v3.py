@@ -18,10 +18,11 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
+from ..local_key import LocalKey
 from ..utils import base64url_encode, i2osp, os2ip, pae
 
 
-class V3Local(KeyInterface):
+class V3Local(LocalKey):
     """
     The key object for v3.local.
     """
@@ -111,6 +112,14 @@ class V3Local(KeyInterface):
             return Cipher(algorithms.AES(ek), modes.CTR(n2)).decryptor().update(c)
         except Exception as err:
             raise DecryptError("Failed to decrypt a message.") from err
+
+    def to_paserk_id(self) -> str:
+        h = "k3.lid."
+        p = self.to_paserk()
+        digest = hashes.Hash(hashes.SHA384())
+        digest.update((h + p).encode("utf-8"))
+        d = digest.finalize()
+        return h + base64url_encode(d[0:33]).decode("utf-8")
 
 
 class V3Public(KeyInterface):

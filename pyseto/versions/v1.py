@@ -11,10 +11,11 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
+from ..local_key import LocalKey
 from ..utils import base64url_encode, pae
 
 
-class V1Local(KeyInterface):
+class V1Local(LocalKey):
     """
     The key object for v1.local.
     """
@@ -94,6 +95,14 @@ class V1Local(KeyInterface):
             return Cipher(algorithms.AES(ek), modes.CTR(n[16:])).decryptor().update(c)
         except Exception as err:
             raise DecryptError("Failed to decrypt.") from err
+
+    def to_paserk_id(self) -> str:
+        h = "k1.lid."
+        p = self.to_paserk()
+        digest = hashes.Hash(hashes.SHA384())
+        digest.update((h + p).encode("utf-8"))
+        d = digest.finalize()
+        return h + base64url_encode(d[0:33]).decode("utf-8")
 
     def _get_nonce(self, msg: bytes, nonce: bytes = b"") -> bytes:
 
