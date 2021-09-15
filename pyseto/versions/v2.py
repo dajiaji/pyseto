@@ -157,3 +157,11 @@ class V2Public(KeyInterface):
                 )
             ).decode("utf-8")
         )
+
+    def to_paserk_id(self) -> str:
+        p = self.to_paserk()
+        h = "k2.pid." if isinstance(self._key, Ed25519PublicKey) else "k2.sid."
+        b = hashlib.blake2b(digest_size=33)
+        b.update((h + p).encode("utf-8"))
+        d = b.digest()
+        return h + base64url_encode(d).decode("utf-8")

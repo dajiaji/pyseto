@@ -138,3 +138,68 @@ class TestWithTestVectors:
         else:
             k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["key"]))
             assert k.to_paserk() == v["paserk"]
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                "vectors/PASERK/k1.pid.json",
+                "vectors/PASERK/k2.pid.json",
+                "vectors/PASERK/k3.pid.json",
+                "vectors/PASERK/k4.pid.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_pid(self, v):
+
+        version = _name_to_version(v["name"])
+        if version == 1:
+            k = Key.new(version, "public", v["key"])
+        elif version == 2 or version == 4:
+            k = Key.from_asymmetric_key_params(version, x=bytes.fromhex(v["key"]))
+        elif version == 3:
+            k = V3Public.from_public_bytes(bytes.fromhex(v["key"]))
+        else:
+            pytest.fail("Unsupported version.")
+        assert k.to_paserk_id() == v["paserk"]
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                "vectors/PASERK/k1.sid.json",
+                "vectors/PASERK/k2.sid.json",
+                # "vectors/PASERK/k3.sid.json",
+                "vectors/PASERK/k4.sid.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_sid(self, v):
+
+        version = _name_to_version(v["name"])
+        if version == 1:
+            k = Key.new(version, "public", v["key"])
+        elif version == 2 or version == 4:
+            k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["key"]))
+        elif version == 3:
+            k = Key.new(version, "public", bytes.fromhex(v["key"]))
+        else:
+            pytest.fail("Unsupported version.")
+        assert k.to_paserk_id() == v["paserk"]
+
+    # @pytest.mark.parametrize(
+    #     "v",
+    #     _load_tests(
+    #         [
+    #             "vectors/PASERK/k1.lid.json",
+    #             "vectors/PASERK/k2.lid.json",
+    #             "vectors/PASERK/k3.lid.json",
+    #             "vectors/PASERK/k4.lid.json",
+    #         ]
+    #     ),
+    # )
+    # def test_with_test_vectors_paserk_lid(self, v):
+
+    #     version = _name_to_version(v["name"])
+    #     k = Key.new(version, "local", bytes.fromhex(v["key"]))
+    #     assert k.to_paserk_id() == v["paserk"]

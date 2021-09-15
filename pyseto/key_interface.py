@@ -154,3 +154,12 @@ class KeyInterface:
         raise NotImplementedError(
             "The PASERK expression for the key is not supported yet."
         )
+
+    def to_paserk_id(self) -> str:
+        """
+        Returns the PASERK ID of the key.
+
+        Returns:
+            str: A PASERK ID string.
+        """
+        raise NotImplementedError("The PASERK ID for the key is not supported yet.")
