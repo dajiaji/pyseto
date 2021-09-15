@@ -1,9 +1,9 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Union
+from typing import Any, Union
 
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ec import (
     EllipticCurvePrivateKey,
@@ -118,7 +118,7 @@ class V3Public(KeyInterface):
     The key object for v3.public.
     """
 
-    def __init__(self, key: Union[str, bytes]):
+    def __init__(self, key: Any):
 
         super().__init__(3, "public", key)
         self._sig_size = 96
@@ -126,6 +126,14 @@ class V3Public(KeyInterface):
         if not isinstance(self._key, (EllipticCurvePublicKey, EllipticCurvePrivateKey)):
             raise ValueError("The key is not ECDSA key.")
         return
+
+    @classmethod
+    def from_public_bytes(cls, key: bytes):
+        try:
+            k = EllipticCurvePublicKey.from_encoded_point(ec.SECP384R1(), key)
+        except Exception as err:
+            raise ValueError("Invalid bytes for the key.") from err
+        return cls(k)
 
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
@@ -166,6 +174,23 @@ class V3Public(KeyInterface):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
+
+    def to_paserk(self) -> str:
+        if isinstance(self._key, EllipticCurvePublicKey):
+            data = self._public_key_compress(
+                self._key.public_numbers().x, self._key.public_numbers().y
+            )
+            return "k3.public." + base64url_encode(data).decode("utf-8")
+        return (
+            "k3.secret."
+            + base64url_encode(
+                self._key.private_bytes(
+                    encoding=serialization.Encoding.DER,
+                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+            ).decode("utf-8")
+        )
 
     def _public_key_compress(self, x: int, y: int) -> bytes:
 

@@ -1,9 +1,9 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Union
+from typing import Any, Union
 
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -114,7 +114,7 @@ class V1Public(KeyInterface):
     The key object for v1.public.
     """
 
-    def __init__(self, key: Union[str, bytes]):
+    def __init__(self, key: Any):
 
         super().__init__(1, "public", key)
         self._sig_size = 256
@@ -153,3 +153,26 @@ class V1Public(KeyInterface):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
+
+    def to_paserk(self, seed: bytes = b"") -> str:
+        if isinstance(self._key, RSAPublicKey):
+            return (
+                "k1.public."
+                + base64url_encode(
+                    self._key.public_bytes(
+                        encoding=serialization.Encoding.DER,
+                        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+                    )
+                ).decode("utf-8")
+            )
+        return (
+            "k1.secret."
+            + base64url_encode(
+                seed
+                + self._key.private_bytes(
+                    encoding=serialization.Encoding.DER,
+                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+            ).decode("utf-8")
+        )

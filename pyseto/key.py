@@ -10,6 +10,7 @@ from cryptography.hazmat.primitives.serialization import (
     load_pem_public_key,
 )
 
+from .key_interface import KeyInterface
 from .versions.v1 import V1Local, V1Public
 from .versions.v2 import V2Local, V2Public
 from .versions.v3 import V3Local, V3Public
@@ -17,11 +18,18 @@ from .versions.v4 import V4Local, V4Public
 
 
 class Key:
-    @staticmethod
-    def new(version: Union[int, str], type: str, key: Union[bytes, str] = b""):
+    """
+    Tha factory methods for PASETO keys.
+    """
+
+    @classmethod
+    def new(
+        cls, version: Union[int, str], type: str, key: Union[bytes, str] = b""
+    ) -> KeyInterface:
 
         """
-        Constructor of a PASETO key object which has :class:`KeyInterface <pyseto.key_interface.KeyInterface>`.
+        Constructor of a PASETO key object which has
+        :class:`KeyInterface <pyseto.key_interface.KeyInterface>`.
 
         Args:
             version(Union[int, str]): The version of the key. It will be ``1``,
@@ -48,15 +56,7 @@ class Key:
 
         bkey = key if isinstance(key, bytes) else key.encode("utf-8")
         if type == "local":
-            if version == 1:
-                return V1Local(bkey)
-            if version == 2:
-                return V2Local(bkey)
-            if version == 3:
-                return V3Local(bkey)
-            if version == 4:
-                return V4Local(bkey)
-            raise ValueError(f"Invalid version: {version}.")
+            return cls._create_private_key(version, bkey)
 
         elif type == "public":
             k: Any = None
@@ -70,22 +70,26 @@ class Key:
                 k = load_pem_private_key(bkey, password=None)
             else:
                 raise ValueError("Invalid or unsupported PEM format.")
-            if version == 1:
-                return V1Public(k)
-            if version == 2:
-                return V2Public(k)
-            if version == 3:
-                return V3Public(k)
-            if version == 4:
-                return V4Public(k)
-            raise ValueError(f"Invalid version: {version}.")
+            return cls._create_public_key(version, k)
 
         raise ValueError(f"Invalid type(purpose): {type}.")
+
+    # @classmethod
+    # def from_public_bytes(cls, version: int, key: bytes) -> KeyInterface:
+    #     if version == 1:
+    #         raise ValueError(f"RSA key is not supported.")
+    #     if version == 2:
+    #         return V2Public.from_public_bytes(key)
+    #     if version == 3:
+    #         return V3Public.from_public_bytes(key)
+    #     if version == 4:
+    #         return V4Public.from_public_bytes(key)
+    #     raise ValueError(f"Invalid version: {version}.")
 
     @staticmethod
     def from_asymmetric_key_params(
         version: Union[int, str], x: bytes = b"", y: bytes = b"", d: bytes = b""
-    ):
+    ) -> KeyInterface:
 
         """
         Constructor of a PASETO key object which has
@@ -180,4 +184,28 @@ class Key:
                 return V4Public(k)
             raise ValueError("x or d should be set for v4.public.")
 
+        raise ValueError(f"Invalid version: {version}.")
+
+    @staticmethod
+    def _create_public_key(version: int, key: Any) -> KeyInterface:
+        if version == 1:
+            return V1Public(key)
+        if version == 2:
+            return V2Public(key)
+        if version == 3:
+            return V3Public(key)
+        if version == 4:
+            return V4Public(key)
+        raise ValueError(f"Invalid version: {version}.")
+
+    @staticmethod
+    def _create_private_key(version: int, key: bytes) -> KeyInterface:
+        if version == 1:
+            return V1Local(key)
+        if version == 2:
+            return V2Local(key)
+        if version == 3:
+            return V3Local(key)
+        if version == 4:
+            return V4Local(key)
         raise ValueError(f"Invalid version: {version}.")

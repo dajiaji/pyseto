@@ -1,0 +1,19 @@
+{
+  "name": "PASERK k3.local-pw Test Vectors",
+  "tests": [
+    {
+      "name": "k3.local-pw-1",
+      "unwrapped": "707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f",
+      "password": "correct horse battery staple",
+      "options": {"iterations":  1000},
+      "paserk": "k3.local-pw.L4xcw6PFvnL9pJAuhaieAT8_Ko4YlQpx70uYSAa6WakAAAPorOFKZxUYOusjRpqLe7GShAQ2z7v38wL9tUvOP2ffCVmhznjyitHhEGjd1FywEFzIHuBypneYqVSej5J2ZB-8uSahQ2MW1fK5cV1ZMz3myN0CTNk9uxXSJvccR64low9P"
+    },
+    {
+      "name": "k3.local-pw-2",
+      "unwrapped": "707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f",
+      "password": "correct horse battery staple",
+      "options": {"iterations":  10000},
+      "paserk": "k3.local-pw.qGPZgNo3rrao2pzYAHhy911Ibvshfwob8BRmQmCpCHsAACcQLk7Whm1PPnC031Pm3zptY7WYpVRBmqWrvKeEUzFv2H2I5S7E7A84P1K2YNwIAeJiFLG8mwvw57VsYpgDBY2BhXXW9ak8bMkry0wtYg8ABr_BVFM_PutqvYq5cnAe7bsy"
+    }
+  ]
+}

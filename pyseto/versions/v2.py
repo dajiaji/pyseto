@@ -1,9 +1,10 @@
 import hashlib
 from secrets import token_bytes
-from typing import Union
+from typing import Any, Union
 
 # from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from Cryptodome.Cipher import ChaCha20_Poly1305
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
@@ -85,7 +86,7 @@ class V2Public(KeyInterface):
     The key object for v2.public.
     """
 
-    def __init__(self, key: Union[str, bytes]):
+    def __init__(self, key: Any):
 
         super().__init__(2, "public", key)
         self._sig_size = 64
@@ -93,6 +94,14 @@ class V2Public(KeyInterface):
         if not isinstance(self._key, (Ed25519PublicKey, Ed25519PrivateKey)):
             raise ValueError("The key is not Ed25519 key.")
         return
+
+    # @classmethod
+    # def from_public_bytes(cls, key: bytes):
+    #     try:
+    #         k = Ed25519PublicKey.from_public_bytes(key)
+    #     except Exception as err:
+    #         raise ValueError("Invalid bytes for the key.") from err
+    #     return cls(k)
 
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
@@ -126,3 +135,25 @@ class V2Public(KeyInterface):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
+
+    def to_paserk(self) -> str:
+        if isinstance(self._key, Ed25519PublicKey):
+            return (
+                "k2.public."
+                + base64url_encode(
+                    self._key.public_bytes(
+                        encoding=serialization.Encoding.Raw,
+                        format=serialization.PublicFormat.Raw,
+                    )
+                ).decode("utf-8")
+            )
+        return (
+            "k2.secret."
+            + base64url_encode(
+                self._key.private_bytes(
+                    encoding=serialization.Encoding.Raw,
+                    format=serialization.PrivateFormat.Raw,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+            ).decode("utf-8")
+        )

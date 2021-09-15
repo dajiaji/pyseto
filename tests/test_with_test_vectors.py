@@ -4,6 +4,7 @@ import pytest
 
 import pyseto
 from pyseto import Key
+from pyseto.versions.v3 import V3Public
 
 from .utils import get_path
 
@@ -15,6 +16,13 @@ def _load_tests(paths: list) -> list:
             tv = json.loads(tv_file.read())
         tests += tv["tests"]
     return tests
+
+
+def _name_to_version(name: str) -> int:
+    v = name.split(".")[0]
+    if len(v) != 2:
+        raise ValueError("Invalid PASERK test name.")
+    return int(v[1:])
 
 
 class TestWithTestVectors:
@@ -82,3 +90,51 @@ class TestWithTestVectors:
             assert payload == decoded_token.payload == decoded.payload
             return
         pytest.fail(f"Invalid test name: {v['name']}")
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                "vectors/PASERK/k1.public.json",
+                "vectors/PASERK/k2.public.json",
+                "vectors/PASERK/k3.public.json",
+                "vectors/PASERK/k4.public.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_public(self, v):
+
+        version = _name_to_version(v["name"])
+        if version == 1:
+            k = Key.new(version, "public", v["key"])
+        elif version == 2 or version == 4:
+            k = Key.from_asymmetric_key_params(version, x=bytes.fromhex(v["key"]))
+        elif version == 3:
+            k = V3Public.from_public_bytes(bytes.fromhex(v["key"]))
+        else:
+            pytest.fail("Unsupported version.")
+        assert k.to_paserk() == v["paserk"]
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                "vectors/PASERK/k1.secret.json",
+                "vectors/PASERK/k2.secret.json",
+                # "vectors/PASERK/k3.secret.json",
+                "vectors/PASERK/k4.secret.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_secret(self, v):
+
+        version = _name_to_version(v["name"])
+        if version == 1:
+            k = Key.new(version, "public", v["key"])
+            assert k.to_paserk() == v["paserk"]
+        elif version == 3:
+            k = Key.new(version, "public", bytes.fromhex(v["key"]))
+            assert k.to_paserk() == v["paserk"]
+        else:
+            k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["key"]))
+            assert k.to_paserk() == v["paserk"]

@@ -143,3 +143,14 @@ class KeyInterface:
             NotSupportedError: The key does not support the operation.
         """
         raise NotSupportedError("A key for local does not have verify().")
+
+    def to_paserk(self) -> str:
+        """
+        Returns the PASERK expression of the key.
+
+        Returns:
+            str: A PASERK string.
+        """
+        raise NotImplementedError(
+            "The PASERK expression for the key is not supported yet."
+        )
