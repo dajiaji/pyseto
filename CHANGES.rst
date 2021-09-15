@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Add to_paserk to KeyInterface. `#38 <https://github.com/dajiaji/pyseto/pull/38>`__
 - Fix public key compression for v3.
 
 Version 0.6.1
