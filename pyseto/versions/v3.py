@@ -192,6 +192,14 @@ class V3Public(KeyInterface):
             ).decode("utf-8")
         )
 
+    def to_paserk_id(self) -> str:
+        p = self.to_paserk()
+        h = "k3.pid." if isinstance(self._key, EllipticCurvePublicKey) else "k3.sid."
+        digest = hashes.Hash(hashes.SHA384())
+        digest.update((h + p).encode("utf-8"))
+        d = digest.finalize()
+        return h + base64url_encode(d[0:33]).decode("utf-8")
+
     def _public_key_compress(self, x: int, y: int) -> bytes:
 
         bx = x.to_bytes(48, byteorder="big")

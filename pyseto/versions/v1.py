@@ -176,3 +176,11 @@ class V1Public(KeyInterface):
                 )
             ).decode("utf-8")
         )
+
+    def to_paserk_id(self) -> str:
+        p = self.to_paserk()
+        h = "k1.pid." if isinstance(self._key, RSAPublicKey) else "k1.sid."
+        digest = hashes.Hash(hashes.SHA384())
+        digest.update((h + p).encode("utf-8"))
+        d = digest.finalize()
+        return h + base64url_encode(d[0:33]).decode("utf-8")

@@ -47,3 +47,7 @@ class TestKeyInterface:
         assert "The PASERK expression for the key is not supported yet." in str(
             err.value
         )
+        with pytest.raises(NotImplementedError) as err:
+            k.to_paserk_id()
+            pytest.fail("KeyInterface.to_paserk_id() should fail.")
+        assert "The PASERK ID for the key is not supported yet." in str(err.value)
