@@ -83,6 +83,42 @@ class TestSample:
             == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         )
 
+    def test_sample_paserk(self):
+        private_key = Key.from_paserk(
+            "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Q"
+        )
+        token = pyseto.encode(
+            private_key,
+            b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        )
+
+        public_key = Key.from_paserk(
+            "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
+        )
+        decoded = pyseto.decode(public_key, token)
+
+        assert (
+            private_key.to_paserk()
+            == "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Q"
+        )
+        assert (
+            public_key.to_paserk()
+            == "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
+        )
+
+        assert (
+            private_key.to_paserk_id()
+            == "k4.sid.Y7hM6P94W6lvFlPkgjV2SNjiuPlr_1RysAMVFM-eK_g3"
+        )
+        assert (
+            public_key.to_paserk_id()
+            == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
+        )
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+
     def test_sample_rtd_v4_public(self):
 
         with open(get_path("keys/private_key_ed25519.pem")) as key_file:
