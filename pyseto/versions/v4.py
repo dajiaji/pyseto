@@ -12,7 +12,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
 from ..local_key import LocalKey
-from ..utils import base64url_encode, pae
+from ..utils import base64url_decode, base64url_encode, pae
 
 
 class V4Local(LocalKey):
@@ -27,6 +27,15 @@ class V4Local(LocalKey):
         if len(self._key) > 64:
             raise ValueError("key length must be up to 64 bytes.")
         return
+
+    @classmethod
+    def from_paserk(cls, paserk: str) -> KeyInterface:
+        frags = paserk.split(".")
+        if frags[0] != "k4":
+            raise ValueError("Invalid PASERK version for a v4.local key.")
+        if frags[1] != "local":
+            raise ValueError("Invalid PASERK type for a v4.local key.")
+        return cls(base64url_decode(frags[2]))
 
     def encrypt(
         self,
@@ -111,6 +120,17 @@ class V4Public(KeyInterface):
         if not isinstance(self._key, (Ed25519PublicKey, Ed25519PrivateKey)):
             raise ValueError("The key is not Ed25519 key.")
         return
+
+    @classmethod
+    def from_paserk(cls, paserk: str) -> KeyInterface:
+        frags = paserk.split(".")
+        if frags[0] != "k4":
+            raise ValueError("Invalid PASERK version for a v4.public key.")
+        if frags[1] == "public":
+            return cls(Ed25519PublicKey.from_public_bytes(base64url_decode(frags[2])))
+        elif frags[1] == "secret":
+            return cls(Ed25519PrivateKey.from_private_bytes(base64url_decode(frags[2])))
+        raise ValueError("Invalid PASERK type for a v4.public key.")
 
     # @classmethod
     # def from_public_bytes(cls, key: bytes):

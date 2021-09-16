@@ -19,7 +19,7 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
 from ..local_key import LocalKey
-from ..utils import base64url_encode, i2osp, os2ip, pae
+from ..utils import base64url_decode, base64url_encode, i2osp, os2ip, pae
 
 
 class V3Local(LocalKey):
@@ -31,6 +31,15 @@ class V3Local(LocalKey):
 
         super().__init__(3, "local", key)
         return
+
+    @classmethod
+    def from_paserk(cls, paserk: str) -> KeyInterface:
+        frags = paserk.split(".")
+        if frags[0] != "k3":
+            raise ValueError("Invalid PASERK version for a v3.local key.")
+        if frags[1] != "local":
+            raise ValueError("Invalid PASERK type for a v3.local key.")
+        return cls(base64url_decode(frags[2]))
 
     def encrypt(
         self,
@@ -135,6 +144,21 @@ class V3Public(KeyInterface):
         if not isinstance(self._key, (EllipticCurvePublicKey, EllipticCurvePrivateKey)):
             raise ValueError("The key is not ECDSA key.")
         return
+
+    @classmethod
+    def from_paserk(cls, paserk: str) -> KeyInterface:
+        frags = paserk.split(".")
+        if frags[0] != "k3":
+            raise ValueError("Invalid PASERK version for a v3.public key.")
+        if frags[1] == "public":
+            return cls(
+                EllipticCurvePublicKey.from_encoded_point(
+                    ec.SECP384R1(), base64url_decode(frags[2])
+                )
+            )
+        # elif frags[1] == "secret":
+        #     return cls(Ed25519PrivateKey.from_private_bytes(base64url_decode(frags[2])))
+        raise ValueError("Invalid PASERK type for a v3.public key.")
 
     @classmethod
     def from_public_bytes(cls, key: bytes):

@@ -8,11 +8,15 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives.serialization import (
+    load_der_private_key,
+    load_der_public_key,
+)
 
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
 from ..local_key import LocalKey
-from ..utils import base64url_encode, pae
+from ..utils import base64url_decode, base64url_encode, pae
 
 
 class V1Local(LocalKey):
@@ -24,6 +28,15 @@ class V1Local(LocalKey):
 
         super().__init__(1, "local", key)
         return
+
+    @classmethod
+    def from_paserk(cls, paserk: str) -> KeyInterface:
+        frags = paserk.split(".")
+        if frags[0] != "k1":
+            raise ValueError("Invalid PASERK version for a v1.local key.")
+        if frags[1] != "local":
+            raise ValueError("Invalid PASERK type for a v1.local key.")
+        return cls(base64url_decode(frags[2]))
 
     def encrypt(
         self,
@@ -133,6 +146,17 @@ class V1Public(KeyInterface):
 
         self._padding = padding.PSS(mgf=padding.MGF1(hashes.SHA384()), salt_length=48)
         return
+
+    @classmethod
+    def from_paserk(cls, paserk: str) -> KeyInterface:
+        frags = paserk.split(".")
+        if frags[0] != "k1":
+            raise ValueError("Invalid PASERK version for a v1.public key.")
+        if frags[1] == "public":
+            return cls(load_der_public_key(base64url_decode(frags[2])))
+        elif frags[1] == "secret":
+            return cls(load_der_private_key(base64url_decode(frags[2]), password=None))
+        raise ValueError("Invalid PASERK type for a v1.public key.")
 
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
