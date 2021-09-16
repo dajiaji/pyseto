@@ -82,11 +82,6 @@ class TestSample:
             decoded.payload
             == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         )
-        print(private_key.to_paserk())
-        print(private_key.to_paserk_id())
-        print(public_key.to_paserk())
-        print(public_key.to_paserk_id())
-        assert False
 
     def test_sample_paserk(self):
         private_key = Key.from_paserk(
