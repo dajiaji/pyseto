@@ -30,6 +30,8 @@ PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/) imp
     - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
         - EdDSA over Curve25519.
 
+In addition, PySETO also supports [PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk).
+
 See [Document](https://pyseto.readthedocs.io/en/stable/) for details.
 
 ## Installation
@@ -44,17 +46,20 @@ $ pip install pyseto
 
 You can use it as follows:
 
-### `v4.public`
+### v4.public
+
+`v4.public` is one of current PASETO versions to be used for asymmetric authentication (public key signatures).
 
 ```py
 import pyseto
 from pyseto import Key
 
-secret_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
 public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
 
-secret_key = Key.new(version=4, type="public", key=secret_key_pem)
-token = pyseto.encode(secret_key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}')
+private_key = Key.new(version=4, type="public", key=private_key_pem)
+token = pyseto.encode(private_key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}')
+
 public_key = Key.new(version=4, type="public", key=public_key_pem)
 decoded = pyseto.decode(public_key, token)
 
@@ -62,7 +67,9 @@ assert token == b'v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJl
 assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 ```
 
-### `v4.local`
+### v4.local
+
+`v4.local` is one of current PASETO versions to be used for symmetric authenticated encryption.
 
 ```py
 import pyseto
@@ -73,6 +80,32 @@ token = pyseto.encode(key, b'{"data": "this is a signed message", "exp": "2022-0
 
 decoded = pyseto.decode(key, token)
 assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+```
+
+### PASERK
+
+As shown in the examples above, the `pyseto.Key` used for encryption and signature can be generated from PASERK or converted to PASERK (or PASERK ID) as follow:
+
+```py
+import pyseto
+from pyseto import Key
+
+# pyseto.Key can be generated from PASERK.
+private_key = Key.from_paserk("k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Q")
+public_key = Key.from_paserk("k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI")
+
+token = pyseto.encode(private_key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}')
+decoded = pyseto.decode(public_key, token)
+
+assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+
+# PASERK can be derived from pyseto.Key.
+assert private_key.to_paserk() == "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Q"
+assert public_key.to_paserk() == "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
+
+# PASERK ID can also be derived from pyseto.Key.
+assert private_key.to_paserk_id() == "k4.sid.Y7hM6P94W6lvFlPkgjV2SNjiuPlr_1RysAMVFM-eK_g3"
+assert public_key.to_paserk_id() == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
 ```
 
 ## API Reference
