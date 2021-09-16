@@ -178,6 +178,21 @@ class TestKey:
         assert k.type == "public"
 
     @pytest.mark.parametrize(
+        "paserk, msg",
+        [
+            ("v1.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version: v1."),
+            ("*.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version: *."),
+            ("k1.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK key type: xxx."),
+        ],
+    )
+    def test_key_from_paserk_with_invalid_args(self, paserk, msg):
+
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(paserk)
+            pytest.fail("Key.from_paserk should fail.")
+        assert msg in str(err.value)
+
+    @pytest.mark.parametrize(
         "version, key, msg",
         [
             (

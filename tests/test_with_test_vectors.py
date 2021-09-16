@@ -114,6 +114,8 @@ class TestWithTestVectors:
         else:
             pytest.fail("Unsupported version.")
         assert k.to_paserk() == v["paserk"]
+        k2 = Key.from_paserk(v["paserk"])
+        assert k2.to_paserk() == v["paserk"]
 
     @pytest.mark.parametrize(
         "v",
@@ -131,13 +133,15 @@ class TestWithTestVectors:
         version = _name_to_version(v["name"])
         if version == 1:
             k = Key.new(version, "public", v["key"])
-            assert k.to_paserk() == v["paserk"]
+        elif version == 2 or version == 4:
+            k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["key"]))
         elif version == 3:
             k = Key.new(version, "public", bytes.fromhex(v["key"]))
-            assert k.to_paserk() == v["paserk"]
         else:
-            k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["key"]))
-            assert k.to_paserk() == v["paserk"]
+            pytest.fail("Unsupported version.")
+        assert k.to_paserk() == v["paserk"]
+        k2 = Key.from_paserk(v["paserk"])
+        assert k2.to_paserk() == v["paserk"]
 
     @pytest.mark.parametrize(
         "v",
@@ -154,7 +158,9 @@ class TestWithTestVectors:
 
         version = _name_to_version(v["name"])
         k = Key.new(version, "local", bytes.fromhex(v["key"]))
+        k2 = Key.from_paserk(v["paserk"])
         assert k.to_paserk() == v["paserk"]
+        assert k2.to_paserk() == v["paserk"]
 
     @pytest.mark.parametrize(
         "v",

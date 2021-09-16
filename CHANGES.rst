@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Add from_paserk to Key. `#41 <https://github.com/dajiaji/pyseto/pull/41>`__
 - Add support for paserk lid. `#40 <https://github.com/dajiaji/pyseto/pull/40>`__
 - Add support for paserk local. `#40 <https://github.com/dajiaji/pyseto/pull/40>`__
 - Add to_paserk_id to KeyInterface. `#39 <https://github.com/dajiaji/pyseto/pull/39>`__

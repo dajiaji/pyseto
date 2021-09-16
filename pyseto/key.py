@@ -74,6 +74,39 @@ class Key:
 
         raise ValueError(f"Invalid type(purpose): {type}.")
 
+    @staticmethod
+    def from_paserk(paserk: str) -> KeyInterface:
+
+        frags = paserk.split(".")
+        if frags[1] not in ["local", "public", "secret"]:
+            raise ValueError(f"Invalid PASERK key type: {frags[1]}.")
+
+        if frags[0] == "k1":
+            return (
+                V1Local.from_paserk(paserk)
+                if frags[1] == "local"
+                else V1Public.from_paserk(paserk)
+            )
+        if frags[0] == "k2":
+            return (
+                V2Local.from_paserk(paserk)
+                if frags[1] == "local"
+                else V2Public.from_paserk(paserk)
+            )
+        if frags[0] == "k3":
+            return (
+                V3Local.from_paserk(paserk)
+                if frags[1] == "local"
+                else V3Public.from_paserk(paserk)
+            )
+        if frags[0] == "k4":
+            return (
+                V4Local.from_paserk(paserk)
+                if frags[1] == "local"
+                else V4Public.from_paserk(paserk)
+            )
+        raise ValueError(f"Invalid PASERK version: {frags[0]}.")
+
     # @classmethod
     # def from_public_bytes(cls, version: int, key: bytes) -> KeyInterface:
     #     if version == 1:
