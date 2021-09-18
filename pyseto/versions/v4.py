@@ -129,7 +129,9 @@ class V4Public(KeyInterface):
         if frags[1] == "public":
             return cls(Ed25519PublicKey.from_public_bytes(base64url_decode(frags[2])))
         elif frags[1] == "secret":
-            return cls(Ed25519PrivateKey.from_private_bytes(base64url_decode(frags[2])))
+            return cls(
+                Ed25519PrivateKey.from_private_bytes(base64url_decode(frags[2])[0:32])
+            )
         raise ValueError("Invalid PASERK type for a v4.public key.")
 
     # @classmethod
@@ -185,16 +187,16 @@ class V4Public(KeyInterface):
                     )
                 ).decode("utf-8")
             )
-        return (
-            "k4.secret."
-            + base64url_encode(
-                self._key.private_bytes(
-                    encoding=serialization.Encoding.Raw,
-                    format=serialization.PrivateFormat.Raw,
-                    encryption_algorithm=serialization.NoEncryption(),
-                )
-            ).decode("utf-8")
+        priv = self._key.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption(),
         )
+        pub = self._key.public_key().public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw,
+        )
+        return "k4.secret." + base64url_encode(priv + pub).decode("utf-8")
 
     def to_paserk_id(self) -> str:
         p = self.to_paserk()

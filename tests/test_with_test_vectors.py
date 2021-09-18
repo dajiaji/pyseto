@@ -134,7 +134,9 @@ class TestWithTestVectors:
         if version == 1:
             k = Key.new(version, "public", v["key"])
         elif version == 2 or version == 4:
-            k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["key"]))
+            k = Key.from_asymmetric_key_params(
+                version, d=bytes.fromhex(v["secret-key-seed"])
+            )
         elif version == 3:
             k = Key.new(version, "public", bytes.fromhex(v["key"]))
         else:
@@ -203,7 +205,7 @@ class TestWithTestVectors:
         if version == 1:
             k = Key.new(version, "public", v["key"])
         elif version == 2 or version == 4:
-            k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["key"]))
+            k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["seed"]))
         elif version == 3:
             k = Key.new(version, "public", bytes.fromhex(v["key"]))
         else:

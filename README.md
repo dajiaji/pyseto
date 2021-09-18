@@ -100,11 +100,11 @@ decoded = pyseto.decode(public_key, token)
 assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
 # PASERK can be derived from pyseto.Key.
-assert private_key.to_paserk() == "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Q"
+assert private_key.to_paserk() == "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
 assert public_key.to_paserk() == "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
 
 # PASERK ID can also be derived from pyseto.Key.
-assert private_key.to_paserk_id() == "k4.sid.Y7hM6P94W6lvFlPkgjV2SNjiuPlr_1RysAMVFM-eK_g3"
+assert private_key.to_paserk_id() == "k4.sid.9gZFsAQuXhu9lif2pV3rCDjOewsMF4qb4RHGhc0zUklt"
 assert public_key.to_paserk_id() == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
 ```
 
