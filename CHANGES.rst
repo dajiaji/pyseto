@@ -4,6 +4,8 @@ Changes
 Unreleased
 ----------
 
+- Make PASERK secret for Ed25519 compliant with PASERK spec. `#44 <https://github.com/dajiaji/pyseto/pull/44>`__
+
 Version 0.7.0
 -------------
 
