@@ -21,6 +21,9 @@ class V2Local(LocalKey):
     The key object for v2.local.
     """
 
+    _VERSION = 2
+    _TYPE = "local"
+
     def __init__(self, key: Union[str, bytes]):
 
         super().__init__(2, "local", key)
@@ -166,6 +169,9 @@ class V2Public(KeyInterface):
     """
     The key object for v2.public.
     """
+
+    _VERSION = 2
+    _TYPE = "public"
 
     def __init__(self, key: Any):
 

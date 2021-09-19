@@ -20,6 +20,9 @@ class V4Local(LocalKey):
     The key object for v4.local.
     """
 
+    _VERSION = 4
+    _TYPE = "local"
+
     def __init__(self, key: Union[str, bytes]):
 
         super().__init__(4, "local", key)
@@ -164,6 +167,9 @@ class V4Public(KeyInterface):
     """
     The key object for v4.public.
     """
+
+    _VERSION = 4
+    _TYPE = "public"
 
     def __init__(self, key: Any):
 

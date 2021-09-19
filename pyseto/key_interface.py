@@ -10,6 +10,9 @@ class KeyInterface:
     :func:`pyseto.Key.new <pyseto.Key.new>` returns an object which has this interface.
     """
 
+    _VERSION = 0
+    _TYPE = ""
+
     def __init__(self, version: int, type: str, key: Any):
         self._version = version
         self._type = type
