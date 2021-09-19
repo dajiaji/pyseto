@@ -228,3 +228,37 @@ class TestWithTestVectors:
         version = _name_to_version(v["name"])
         k = Key.new(version, "local", bytes.fromhex(v["key"]))
         assert k.to_paserk_id() == v["paserk"]
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                "vectors/PASERK/k1.local-wrap.pie.json",
+                "vectors/PASERK/k2.local-wrap.pie.json",
+                "vectors/PASERK/k3.local-wrap.pie.json",
+                "vectors/PASERK/k4.local-wrap.pie.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_local_wrap_pie(self, v):
+
+        version = _name_to_version(v["name"])
+        k = Key.from_paserk(v["paserk"], wrapping_key=bytes.fromhex(v["wrapping-key"]))
+
+        k1 = Key.new(version, "local", bytes.fromhex(v["unwrapped"]))
+        wpk = k1.to_paserk(wrapping_key=bytes.fromhex(v["wrapping-key"]))
+        k2 = Key.from_paserk(wpk, wrapping_key=bytes.fromhex(v["wrapping-key"]))
+
+        t = pyseto.encode(k, b"Hello world!")
+        d = pyseto.decode(k, t)
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d.payload == d1.payload == d2.payload == b"Hello world!"
+
+        t = pyseto.encode(k1, b"Hello world!")
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d1.payload == d2.payload == b"Hello world!"
+
+        d = pyseto.decode(k, t)
+        assert d.payload == b"Hello world!"
