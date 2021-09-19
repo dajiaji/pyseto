@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union
 
 from .exceptions import NotSupportedError
 
@@ -144,12 +144,18 @@ class KeyInterface:
         """
         raise NotSupportedError("A key for local does not have verify().")
 
-    def to_paserk(self) -> str:
+    def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
         """
         Returns the PASERK expression of the key.
 
+        Args:
+            wrapping_key (Union[bytes, str]): A wrapping key. If you want to wrap
+                the key, you have to specify this argument.
         Returns:
             str: A PASERK string.
+        Raise:
+            ValueError: Invalid arguments.
+            DecryptError: Failed to wrap the key.
         """
         raise NotImplementedError(
             "The PASERK expression for the key is not supported yet."
