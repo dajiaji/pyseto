@@ -11,11 +11,11 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
-from ..local_key import LocalKey
+from ..key_sodium import SodiumKey
 from ..utils import base64url_decode, base64url_encode, pae
 
 
-class V4Local(LocalKey):
+class V4Local(SodiumKey):
     """
     The key object for v4.local.
     """
@@ -25,39 +25,10 @@ class V4Local(LocalKey):
 
     def __init__(self, key: Union[str, bytes]):
 
-        super().__init__(4, "local", key)
-
+        super().__init__(key)
         if len(self._key) > 64:
             raise ValueError("key length must be up to 64 bytes.")
         return
-
-    @classmethod
-    def from_paserk(cls, paserk: str, wrapping_key: bytes = b"") -> KeyInterface:
-
-        frags = paserk.split(".")
-        if frags[0] != "k4":
-            raise ValueError("Invalid PASERK version for a v4.local key.")
-        if frags[1] == "local":
-            return cls(base64url_decode(frags[2]))
-        if frags[1] == "local-wrap":
-            if len(frags) != 4:
-                raise ValueError("Invalid PASERK format.")
-            if frags[2] != "pie":
-                raise ValueError("Unsupported or unknown wrapping algorithm.")
-            return cls(cls._decode_pie(wrapping_key, frags[3]))
-        else:
-            raise ValueError("Invalid PASERK type for a v4.local key.")
-
-    def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
-
-        if not wrapping_key:
-            return "k4.local." + base64url_encode(self._key).decode("utf-8")
-        bkey = (
-            wrapping_key
-            if isinstance(wrapping_key, bytes)
-            else wrapping_key.encode("utf-8")
-        )
-        return "k4.local-wrap.pie." + self._encode_pie(bkey, self._key)
 
     def encrypt(
         self,
@@ -117,50 +88,6 @@ class V4Local(LocalKey):
         b.update((h + p).encode("utf-8"))
         d = b.digest()
         return h + base64url_encode(d).decode("utf-8")
-
-    @staticmethod
-    def _generate_hash(key: bytes, msg: bytes, size: int) -> bytes:
-
-        try:
-            h = hashlib.blake2b(key=key, digest_size=size)
-            h.update(msg)
-            return h.digest()
-        except Exception as err:
-            raise EncryptError("Failed to generate hash.") from err
-
-    @classmethod
-    def _encode_pie(cls, wrapping_key: bytes, ptk: bytes) -> str:
-        n = token_bytes(32)
-        x = cls._generate_hash(wrapping_key, b"\x80" + n, 56)
-        ek = x[0:32]
-        n2 = x[32:]
-        ak = cls._generate_hash(wrapping_key, b"\x81" + n, 32)
-        try:
-            cipher = ChaCha20.new(key=ek, nonce=n2)
-            c = cipher.encrypt(ptk)
-        except Exception as err:
-            raise EncryptError("Failed to wrap a key.") from err
-        t = cls._generate_hash(ak, b"k4.local-wrap.pie." + n + c, 32)
-        return base64url_encode(t + n + c).decode("utf-8")
-
-    @classmethod
-    def _decode_pie(cls, wrapping_key: bytes, data: str) -> bytes:
-        d = base64url_decode(data)
-        t = d[0:32]
-        n = d[32:64]
-        c = d[64:]
-        ak = cls._generate_hash(wrapping_key, b"\x81" + n, 32)
-        t2 = cls._generate_hash(ak, b"k4.local-wrap.pie." + n + c, 32)
-        if t != t2:
-            raise DecryptError("Failed to unwrap a key.")
-        x = cls._generate_hash(wrapping_key, b"\x80" + n, 56)
-        ek = x[0:32]
-        n2 = x[32:]
-        try:
-            cipher = ChaCha20.new(key=ek, nonce=n2)
-            return cipher.decrypt(c)
-        except Exception as err:
-            raise DecryptError("Failed to unwrap a key.") from err
 
 
 class V4Public(KeyInterface):
