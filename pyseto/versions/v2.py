@@ -4,16 +4,14 @@ from typing import Any, Union
 
 # from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from Cryptodome.Cipher import ChaCha20_Poly1305
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
 
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
-from ..key_interface import KeyInterface
 from ..key_sodium import SodiumKey
-from ..utils import base64url_decode, base64url_encode, pae
+from ..utils import base64url_encode, pae
 
 
 class V2Local(SodiumKey):
@@ -94,7 +92,7 @@ class V2Local(SodiumKey):
             raise EncryptError("Failed to generate internal nonce.") from err
 
 
-class V2Public(KeyInterface):
+class V2Public(SodiumKey):
     """
     The key object for v2.public.
     """
@@ -104,25 +102,12 @@ class V2Public(KeyInterface):
 
     def __init__(self, key: Any):
 
-        super().__init__(2, "public", key)
+        super().__init__(key)
         self._sig_size = 64
 
         if not isinstance(self._key, (Ed25519PublicKey, Ed25519PrivateKey)):
             raise ValueError("The key is not Ed25519 key.")
         return
-
-    @classmethod
-    def from_paserk(cls, paserk: str, wrapping_key: bytes = b"") -> KeyInterface:
-        frags = paserk.split(".")
-        if frags[0] != "k2":
-            raise ValueError("Invalid PASERK version for a v2.public key.")
-        if frags[1] == "public":
-            return cls(Ed25519PublicKey.from_public_bytes(base64url_decode(frags[2])))
-        elif frags[1] == "secret":
-            return cls(
-                Ed25519PrivateKey.from_private_bytes(base64url_decode(frags[2])[0:32])
-            )
-        raise ValueError("Invalid PASERK type for a v2.public key.")
 
     # @classmethod
     # def from_public_bytes(cls, key: bytes):
@@ -164,28 +149,6 @@ class V2Public(KeyInterface):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
-
-    def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
-        if isinstance(self._key, Ed25519PublicKey):
-            return (
-                "k2.public."
-                + base64url_encode(
-                    self._key.public_bytes(
-                        encoding=serialization.Encoding.Raw,
-                        format=serialization.PublicFormat.Raw,
-                    )
-                ).decode("utf-8")
-            )
-        priv = self._key.private_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PrivateFormat.Raw,
-            encryption_algorithm=serialization.NoEncryption(),
-        )
-        pub = self._key.public_key().public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw,
-        )
-        return "k2.secret." + base64url_encode(priv + pub).decode("utf-8")
 
     def to_paserk_id(self) -> str:
         p = self.to_paserk()

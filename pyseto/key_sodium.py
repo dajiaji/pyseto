@@ -1,9 +1,14 @@
 import hashlib
 from secrets import token_bytes
-from typing import Union
+from typing import Any, Union
 
 # from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from Cryptodome.Cipher import ChaCha20
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    Ed25519PrivateKey,
+    Ed25519PublicKey,
+)
 
 from .exceptions import DecryptError, EncryptError
 from .key_interface import KeyInterface
@@ -18,7 +23,7 @@ class SodiumKey(KeyInterface):
     # _VERSION = 2 or 4
     # _TYPE = "local", "public" or "secret"
 
-    def __init__(self, key: Union[str, bytes]):
+    def __init__(self, key: Any):
 
         super().__init__(self._VERSION, self._TYPE, key)
         return
@@ -28,30 +33,93 @@ class SodiumKey(KeyInterface):
 
         frags = paserk.split(".")
         if frags[0] != f"k{cls._VERSION}":
-            raise ValueError(f"Invalid PASERK version for a v{cls._VERSION}.local key.")
-        if frags[1] == "local":
-            return cls(base64url_decode(frags[2]))
-        if frags[1] == "local-wrap":
-            if len(frags) != 4:
+            raise ValueError(
+                f"Invalid PASERK version for a v{cls._VERSION}.{cls._TYPE} key."
+            )
+
+        if not wrapping_key:
+            if len(frags) != 3:
                 raise ValueError("Invalid PASERK format.")
-            if frags[2] != "pie":
-                raise ValueError("Unsupported or unknown wrapping algorithm.")
-            header = frags[0] + "." + frags[1] + ".pie."
+            k = base64url_decode(frags[2])
+            if cls._TYPE == "local":
+                if frags[1] == "local":
+                    return cls(k)
+                raise ValueError(
+                    f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key."
+                )
+            if frags[1] == "public":
+                return cls(Ed25519PublicKey.from_public_bytes(k))
+            if frags[1] == "secret":
+                return cls(Ed25519PrivateKey.from_private_bytes(k[0:32]))
+            raise ValueError(
+                f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key."
+            )
+
+        # wrapped key
+        if len(frags) != 4:
+            raise ValueError("Invalid PASERK format.")
+        if frags[2] != "pie":
+            raise ValueError("Unsupported or unknown wrapping algorithm.")
+
+        header = frags[0] + "." + frags[1] + ".pie."
+        if frags[1] == "local-wrap":
             return cls(cls._decode_pie(header, wrapping_key, frags[3]))
-        raise ValueError(f"Invalid PASERK type for a v{cls._VERSION}.local key.")
+        if frags[1] == "secret-wrap":
+            return cls(cls._decode_pie(header, wrapping_key, frags[3])[0:32])
+        raise ValueError(f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key.")
 
     def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
 
         if not wrapping_key:
-            h = f"k{self.version}.local."
-            return h + base64url_encode(self._key).decode("utf-8")
+            if self.type == "local":
+                h = f"k{self.version}.local."
+                return h + base64url_encode(self._key).decode("utf-8")
+
+            if isinstance(self._key, Ed25519PublicKey):
+                h = f"k{self.version}.public."
+                pub = self._key.public_bytes(
+                    encoding=serialization.Encoding.Raw,
+                    format=serialization.PublicFormat.Raw,
+                )
+                return h + base64url_encode(pub).decode("utf-8")
+
+            h = f"k{self.version}.secret."
+            priv = self._key.private_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PrivateFormat.Raw,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+            pub = self._key.public_key().public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw,
+            )
+            return h + base64url_encode(priv + pub).decode("utf-8")
+
+        # wrapped key
         bkey = (
             wrapping_key
             if isinstance(wrapping_key, bytes)
             else wrapping_key.encode("utf-8")
         )
-        h = f"k{self.version}.local-wrap.pie."
-        return h + self._encode_pie(h, bkey, self._key)
+        if self.type == "local":
+            h = f"k{self.version}.local-wrap.pie."
+            return h + self._encode_pie(h, bkey, self._key)
+
+        if not isinstance(self._key, Ed25519PrivateKey):
+            raise ValueError("Public key cannot be wrapped.")
+
+        h = f"k{self.version}.secret-wrap.pie."
+        priv = self._key.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+        pub = self._key.public_key().public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw,
+        )
+        return h + self._encode_pie(h, bkey, priv + pub)
+        # return h + base64url_encode(priv + pub).decode("utf-8")
 
     @classmethod
     def _encode_pie(cls, header: str, wrapping_key: bytes, ptk: bytes) -> str:
