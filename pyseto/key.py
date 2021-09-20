@@ -28,6 +28,8 @@ class Key:
         "secret",
         "local-wrap",
         "secret-wrap",
+        "local-pw",
+        "secret-pw",
     ]
 
     @classmethod
@@ -84,7 +86,10 @@ class Key:
 
     @classmethod
     def from_paserk(
-        cls, paserk: str, wrapping_key: Union[bytes, str] = b""
+        cls,
+        paserk: str,
+        wrapping_key: Union[bytes, str] = b"",
+        password: Union[bytes, str] = b"",
     ) -> KeyInterface:
 
         """
@@ -93,7 +98,10 @@ class Key:
 
         Args:
             paserk (str): A PASERK string.
-            wrapping_key (Union[bytes, str]): A wrapping key.
+            wrapping_key (Union[bytes, str]): A wrapping key. If the
+                `wrapping_key` is specified, `password` should not be specified.
+            password (Union[bytes, str]): A password for key wrapping. If the
+                `password` is specified, `wrapping_key` should not be specified.
         Returns:
             KeyInterface: A PASETO key object.
         Raise:
@@ -108,30 +116,31 @@ class Key:
             if isinstance(wrapping_key, bytes)
             else wrapping_key.encode("utf-8")
         )
+        bpw = password if isinstance(password, bytes) else password.encode("utf-8")
 
         if frags[0] == "k1":
             return (
-                V1Local.from_paserk(paserk, bkey)
+                V1Local.from_paserk(paserk, bkey, bpw)
                 if frags[1].startswith("local")
-                else V1Public.from_paserk(paserk, bkey)
+                else V1Public.from_paserk(paserk, bkey, bpw)
             )
         if frags[0] == "k2":
             return (
-                V2Local.from_paserk(paserk, bkey)
+                V2Local.from_paserk(paserk, bkey, bpw)
                 if frags[1].startswith("local")
-                else V2Public.from_paserk(paserk, bkey)
+                else V2Public.from_paserk(paserk, bkey, bpw)
             )
         if frags[0] == "k3":
             return (
-                V3Local.from_paserk(paserk, bkey)
+                V3Local.from_paserk(paserk, bkey, bpw)
                 if frags[1].startswith("local")
-                else V3Public.from_paserk(paserk, bkey)
+                else V3Public.from_paserk(paserk, bkey, bpw)
             )
         if frags[0] == "k4":
             return (
-                V4Local.from_paserk(paserk, bkey)
+                V4Local.from_paserk(paserk, bkey, bpw)
                 if frags[1].startswith("local")
-                else V4Public.from_paserk(paserk, bkey)
+                else V4Public.from_paserk(paserk, bkey, bpw)
             )
         raise ValueError(f"Invalid PASERK version: {frags[0]}.")
 

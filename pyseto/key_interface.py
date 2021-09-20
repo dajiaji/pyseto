@@ -162,18 +162,32 @@ class KeyInterface:
         """
         raise NotSupportedError("A key for local does not have verify().")
 
-    def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
+    def to_paserk(
+        self,
+        wrapping_key: Union[bytes, str] = b"",
+        password: Union[bytes, str] = b"",
+        iteration: int = 100000,
+        memory_cost: int = 15 * 1024,
+        time_cost: int = 2,
+        parallelism: int = 1,
+    ) -> str:
         """
         Returns the PASERK expression of the key.
 
         Args:
-            wrapping_key (Union[bytes, str]): A wrapping key. If you want to wrap
-                the key, you have to specify this argument.
+            wrapping_key (Union[bytes, str]): A wrapping key to wrap the key.
+                If the `wrapping_key` is specified, `password` should not be
+                specified.
+            password (Union[bytes, str]): A password to wrap the key. If the
+                `password` is specified, `wrapping_key` should not be specified.
+            iteration (int): An iteration count used for password-based key
+                wrapping. This argument will only be used when the `password` is
+                specified.
         Returns:
             str: A PASERK string.
         Raise:
             ValueError: Invalid arguments.
-            DecryptError: Failed to wrap the key.
+            EncryptError: Failed to wrap the key.
         """
         raise NotImplementedError(
             "The PASERK expression for the key is not supported yet."
