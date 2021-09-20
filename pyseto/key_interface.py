@@ -45,6 +45,21 @@ class KeyInterface:
         """
         return self._header
 
+    # @property
+    # def key(self) -> Any:
+    #     """
+    #     Byte string or pyca/cryptography key object of the key.
+    #     If the key is ``public``, the key object is one of the pyca/cryptography objects bellow:
+
+    #     - ``RSAPrivateKey``
+    #     - ``RSAPublicKey``
+    #     - ``Ed25519PrivateKey``
+    #     - ``Ed25519PublicKey``
+    #     - ``EllipticCurvePrivateKey``
+    #     - ``EllipticCurvePublicKey``
+    #     """
+    #     return self._key
+
     def encrypt(
         self,
         payload: bytes,
