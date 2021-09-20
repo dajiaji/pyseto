@@ -31,6 +31,33 @@ class TestV2Local:
             pytest.fail("Key.new() should fail.")
         assert msg in str(err.value)
 
+    @pytest.mark.parametrize(
+        "key",
+        [
+            None,
+            0,
+            token_bytes(65),
+        ],
+    )
+    def test_v2_local__generate_hash_with_invalid_arg(self, key):
+        with pytest.raises(EncryptError) as err:
+            V2Local._generate_hash(key, b"Hello world!", 32)
+            pytest.fail("V2Local._generate_hash() should fail.")
+        assert "Failed to generate hash." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "ptk",
+        [
+            None,
+            0,
+        ],
+    )
+    def test_v2_local__encode_pie_with_invalid_ptk(self, ptk):
+        with pytest.raises(EncryptError) as err:
+            V2Local._encode_pie("v2.local-wrap.pie.", token_bytes(32), ptk)
+            pytest.fail("V2Local._encode_pie() should fail.")
+        assert "Failed to wrap a key." in str(err.value)
+
     def test_v2_local_decrypt_via_decode_with_wrong_key(self):
         k1 = Key.new("v2", "local", token_bytes(32))
         k2 = Key.new("v2", "local", token_bytes(32))
@@ -67,16 +94,42 @@ class TestV2Local:
     @pytest.mark.parametrize(
         "paserk, msg",
         [
-            ("xx.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version for a v2.local key."),
-            ("k3.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version for a v2.local key."),
-            ("k2.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v2.local key."),
-            ("k2.public.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v2.local key."),
+            ("xx.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version: xx."),
+            ("k3.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version: k3."),
+            ("k2.local.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k2.public.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k2.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
+            ("k2.public.AAAAAAAAAAAAAAAA", "Invalid PASERK type: public."),
+            (
+                "k2.local-wrap.AAAAAAAAAAAAAAAA",
+                "local-wrap needs wrapping_key.",
+            ),
+            (
+                "k2.secret-wrap.AAAAAAAAAAAAAAAA",
+                "Invalid PASERK type: secret-wrap.",
+            ),
         ],
     )
     def test_v2_local_from_paserk_with_invalid_args(self, paserk, msg):
 
         with pytest.raises(ValueError) as err:
             V2Local.from_paserk(paserk)
+            pytest.fail("Key.from_paserk should fail.")
+        assert msg in str(err.value)
+
+    @pytest.mark.parametrize(
+        "paserk, msg",
+        [
+            ("xx.local-wrap.AAAAAAAAAAAAAAAA", "Invalid PASERK version: xx."),
+            ("k2.local-wrap.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k2.local-wrap.xxx.AAAAAAAAAAAAAAAA", "Unknown wrapping algorithm: xxx."),
+            ("k2.xxx.pie.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
+        ],
+    )
+    def test_v2_local_from_paserk_with_wrapping_key_and_invalid_args(self, paserk, msg):
+
+        with pytest.raises(ValueError) as err:
+            V2Local.from_paserk(paserk, wrapping_key=token_bytes(32))
             pytest.fail("Key.from_paserk should fail.")
         assert msg in str(err.value)
 
@@ -98,16 +151,20 @@ class TestV2Public:
     @pytest.mark.parametrize(
         "paserk, msg",
         [
+            ("xx.public.AAAAAAAAAAAAAAAA", "Invalid PASERK version: xx."),
+            ("k3.public.AAAAAAAAAAAAAAAA", "Invalid PASERK version: k3."),
+            ("k2.public.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k2.local.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k2.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
+            ("k2.local.AAAAAAAAAAAAAAAA", "Invalid PASERK type: local."),
             (
-                "xx.public.AAAAAAAAAAAAAAAA",
-                "Invalid PASERK version for a v2.public key.",
+                "k2.local-wrap.AAAAAAAAAAAAAAAA",
+                "Invalid PASERK type: local-wrap.",
             ),
             (
-                "k3.public.AAAAAAAAAAAAAAAA",
-                "Invalid PASERK version for a v2.public key.",
+                "k2.secret-wrap.AAAAAAAAAAAAAAAA",
+                "secret-wrap needs wrapping_key.",
             ),
-            ("k2.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v2.public key."),
-            ("k2.local.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v2.public key."),
         ],
     )
     def test_v2_public_from_paserk_with_invalid_args(self, paserk, msg):

@@ -28,31 +28,28 @@ class NISTKey(KeyInterface):
 
         frags = paserk.split(".")
         if frags[0] != f"k{cls._VERSION}":
-            raise ValueError(
-                f"Invalid PASERK version for a v{cls._VERSION}.{cls._TYPE} key."
-            )
+            raise ValueError(f"Invalid PASERK version: {frags[0]}.")
 
         if not wrapping_key:
             if len(frags) != 3:
                 raise ValueError("Invalid PASERK format.")
             k = base64url_decode(frags[2])
-            if cls._TYPE == "local":
-                if frags[1] == "local":
-                    return cls(k)
-            raise ValueError(
-                f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key."
-            )
+            if frags[1] == "local":
+                return cls(k)
+            if frags[1] == "local-wrap":
+                raise ValueError(f"{frags[1]} needs wrapping_key.")
+            raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
         # wrapped key
         if len(frags) != 4:
             raise ValueError("Invalid PASERK format.")
         if frags[2] != "pie":
-            raise ValueError("Unsupported or unknown wrapping algorithm.")
+            raise ValueError(f"Unknown wrapping algorithm: {frags[2]}.")
 
         h = frags[0] + "." + frags[1] + ".pie."
         if frags[1] == "local-wrap":
             return cls(cls._decode_pie(h, wrapping_key, frags[3]))
-        raise ValueError(f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key.")
+        raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
     def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
 
@@ -109,14 +106,8 @@ class NISTKey(KeyInterface):
     @staticmethod
     def _generate_hash(key: bytes, msg: bytes, size: int = 0) -> bytes:
 
-        if key:
-            if len(key) != 32:
-                raise ValueError("nonce must be 32 bytes long.")
-        else:
-            key = token_bytes(32)
-
         try:
             d = hmac.new(key, msg, hashlib.sha384).digest()
             return d[0:size] if size > 0 else d
         except Exception as err:
-            raise EncryptError("Failed to get nonce.") from err
+            raise EncryptError("Failed to generate hash.") from err

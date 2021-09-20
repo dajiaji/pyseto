@@ -147,9 +147,11 @@ class V3Public(NISTKey):
 
         frags = paserk.split(".")
         if frags[0] != "k3":
-            raise ValueError("Invalid PASERK version for a v3.public key.")
+            raise ValueError(f"Invalid PASERK version: {frags[0]}.")
 
         if not wrapping_key:
+            if len(frags) != 3:
+                raise ValueError("Invalid PASERK format.")
             k = base64url_decode(frags[2])
             if frags[1] == "public":
                 pub = EllipticCurvePublicKey.from_encoded_point(ec.SECP384R1(), k)
@@ -159,13 +161,15 @@ class V3Public(NISTKey):
                     int.from_bytes(k, byteorder="big"), ec.SECP384R1()
                 )
                 return cls(priv)
-            raise ValueError("Invalid PASERK type for a v3.public key.")
+            if frags[1] == "secret-wrap":
+                raise ValueError(f"{frags[1]} needs wrapping_key.")
+            raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
         # wrapped key
         if len(frags) != 4:
             raise ValueError("Invalid PASERK format.")
         if frags[2] != "pie":
-            raise ValueError("Unsupported or unknown wrapping algorithm.")
+            raise ValueError(f"Unknown wrapping algorithm: {frags[2]}.")
 
         if frags[1] == "secret-wrap":
             h = "k3.secret-wrap.pie."
@@ -174,7 +178,7 @@ class V3Public(NISTKey):
                 int.from_bytes(k, byteorder="big"), ec.SECP384R1()
             )
             return cls(priv)
-        raise ValueError("Invalid PASERK type for a v3.public key.")
+        raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
     @classmethod
     def from_public_bytes(cls, key: bytes):

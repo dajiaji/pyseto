@@ -33,9 +33,7 @@ class SodiumKey(KeyInterface):
 
         frags = paserk.split(".")
         if frags[0] != f"k{cls._VERSION}":
-            raise ValueError(
-                f"Invalid PASERK version for a v{cls._VERSION}.{cls._TYPE} key."
-            )
+            raise ValueError(f"Invalid PASERK version: {frags[0]}.")
 
         if not wrapping_key:
             if len(frags) != 3:
@@ -44,22 +42,22 @@ class SodiumKey(KeyInterface):
             if cls._TYPE == "local":
                 if frags[1] == "local":
                     return cls(k)
-                raise ValueError(
-                    f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key."
-                )
+                if frags[1] in ["local-wrap"]:
+                    raise ValueError(f"{frags[1]} needs wrapping_key.")
+                raise ValueError(f"Invalid PASERK type: {frags[1]}.")
             if frags[1] == "public":
                 return cls(Ed25519PublicKey.from_public_bytes(k))
             if frags[1] == "secret":
                 return cls(Ed25519PrivateKey.from_private_bytes(k[0:32]))
-            raise ValueError(
-                f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key."
-            )
+            if frags[1] == "secret-wrap":
+                raise ValueError(f"{frags[1]} needs wrapping_key.")
+            raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
         # wrapped key
         if len(frags) != 4:
             raise ValueError("Invalid PASERK format.")
         if frags[2] != "pie":
-            raise ValueError("Unsupported or unknown wrapping algorithm.")
+            raise ValueError(f"Unknown wrapping algorithm: {frags[2]}.")
 
         h = frags[0] + "." + frags[1] + ".pie."
         if frags[1] == "local-wrap":
@@ -67,7 +65,7 @@ class SodiumKey(KeyInterface):
         if frags[1] == "secret-wrap":
             k = cls._decode_pie(h, wrapping_key, frags[3])[0:32]
             return cls(Ed25519PrivateKey.from_private_bytes(k))
-        raise ValueError(f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key.")
+        raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
     def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
 
@@ -120,7 +118,6 @@ class SodiumKey(KeyInterface):
             format=serialization.PublicFormat.Raw,
         )
         return h + self._encode_pie(h, bkey, priv + pub)
-        # return h + base64url_encode(priv + pub).decode("utf-8")
 
     @classmethod
     def _encode_pie(cls, header: str, wrapping_key: bytes, ptk: bytes) -> str:

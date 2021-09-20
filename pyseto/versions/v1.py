@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+from secrets import token_bytes
 from typing import Any, Union
 
 from cryptography.hazmat.primitives import hashes, serialization
@@ -38,6 +39,12 @@ class V1Local(NISTKey):
         implicit_assertion: bytes = b"",
         nonce: bytes = b"",
     ) -> bytes:
+
+        if nonce:
+            if len(nonce) != 32:
+                raise ValueError("nonce must be 32 bytes long.")
+        else:
+            nonce = token_bytes(32)
 
         n = self._generate_hash(nonce, payload, 32)
         e = HKDF(
@@ -135,27 +142,31 @@ class V1Public(NISTKey):
 
         frags = paserk.split(".")
         if frags[0] != "k1":
-            raise ValueError("Invalid PASERK version for a v1.public key.")
+            raise ValueError(f"Invalid PASERK version: {frags[0]}.")
 
         if not wrapping_key:
+            if len(frags) != 3:
+                raise ValueError("Invalid PASERK format.")
             wrapped = base64url_decode(frags[2])
             if frags[1] == "public":
                 return cls(load_der_public_key(wrapped))
             if frags[1] == "secret":
                 return cls(load_der_private_key(wrapped, password=None))
-            raise ValueError("Invalid PASERK type for a v1.public key.")
+            if frags[1] == "secret-wrap":
+                raise ValueError(f"{frags[1]} needs wrapping_key.")
+            raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
         # wrapped key
         if len(frags) != 4:
             raise ValueError("Invalid PASERK format.")
         if frags[2] != "pie":
-            raise ValueError("Unsupported or unknown wrapping algorithm.")
+            raise ValueError(f"Unknown wrapping algorithm: {frags[2]}.")
 
         if frags[1] == "secret-wrap":
             h = "k1.secret-wrap.pie."
             k = cls._decode_pie(h, wrapping_key, frags[3])
             return cls(load_der_private_key(k, password=None))
-        raise ValueError("Invalid PASERK type for a v1.public key.")
+        raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
