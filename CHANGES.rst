@@ -9,6 +9,7 @@ Version 0.7.1
 
 Released 2021-09-18
 
+- Add support for PASERK key wrapping. `#46 <https://github.com/dajiaji/pyseto/pull/46>`__
 - Make PASERK secret for Ed25519 compliant with PASERK spec. `#44 <https://github.com/dajiaji/pyseto/pull/44>`__
 
 Version 0.7.0
