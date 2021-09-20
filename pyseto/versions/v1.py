@@ -111,7 +111,7 @@ class V1Local(NISTKey):
         return h + base64url_encode(d[0:33]).decode("utf-8")
 
 
-class V1Public(KeyInterface):
+class V1Public(NISTKey):
     """
     The key object for v1.public.
     """
@@ -121,9 +121,9 @@ class V1Public(KeyInterface):
 
     def __init__(self, key: Any):
 
-        super().__init__(1, "public", key)
-        self._sig_size = 256
+        super().__init__(key)
 
+        self._sig_size = 256
         if not isinstance(self._key, (RSAPublicKey, RSAPrivateKey)):
             raise ValueError("The key is not RSA key.")
 
@@ -132,13 +132,29 @@ class V1Public(KeyInterface):
 
     @classmethod
     def from_paserk(cls, paserk: str, wrapping_key: bytes = b"") -> KeyInterface:
+
         frags = paserk.split(".")
         if frags[0] != "k1":
             raise ValueError("Invalid PASERK version for a v1.public key.")
-        if frags[1] == "public":
-            return cls(load_der_public_key(base64url_decode(frags[2])))
-        elif frags[1] == "secret":
-            return cls(load_der_private_key(base64url_decode(frags[2]), password=None))
+
+        if not wrapping_key:
+            wrapped = base64url_decode(frags[2])
+            if frags[1] == "public":
+                return cls(load_der_public_key(wrapped))
+            if frags[1] == "secret":
+                return cls(load_der_private_key(wrapped, password=None))
+            raise ValueError("Invalid PASERK type for a v1.public key.")
+
+        # wrapped key
+        if len(frags) != 4:
+            raise ValueError("Invalid PASERK format.")
+        if frags[2] != "pie":
+            raise ValueError("Unsupported or unknown wrapping algorithm.")
+
+        if frags[1] == "secret-wrap":
+            h = "k1.secret-wrap.pie."
+            k = cls._decode_pie(h, wrapping_key, frags[3])
+            return cls(load_der_private_key(k, password=None))
         raise ValueError("Invalid PASERK type for a v1.public key.")
 
     def sign(
@@ -171,26 +187,37 @@ class V1Public(KeyInterface):
         return m
 
     def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
-        if isinstance(self._key, RSAPublicKey):
-            return (
-                "k1.public."
-                + base64url_encode(
-                    self._key.public_bytes(
-                        encoding=serialization.Encoding.DER,
-                        format=serialization.PublicFormat.SubjectPublicKeyInfo,
-                    )
-                ).decode("utf-8")
-            )
-        return (
-            "k1.secret."
-            + base64url_encode(
-                self._key.private_bytes(
+        if not wrapping_key:
+            if isinstance(self._key, RSAPublicKey):
+                pub = self._key.public_bytes(
                     encoding=serialization.Encoding.DER,
-                    format=serialization.PrivateFormat.TraditionalOpenSSL,
-                    encryption_algorithm=serialization.NoEncryption(),
+                    format=serialization.PublicFormat.SubjectPublicKeyInfo,
                 )
-            ).decode("utf-8")
+                return "k1.public." + base64url_encode(pub).decode("utf-8")
+
+            priv = self._key.private_bytes(
+                encoding=serialization.Encoding.DER,
+                format=serialization.PrivateFormat.TraditionalOpenSSL,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+            return "k1.secret." + base64url_encode(priv).decode("utf-8")
+
+        if isinstance(self._key, RSAPublicKey):
+            raise ValueError("Public key cannot be wrapped.")
+
+        # wrapped key
+        bkey = (
+            wrapping_key
+            if isinstance(wrapping_key, bytes)
+            else wrapping_key.encode("utf-8")
         )
+        h = "k1.secret-wrap.pie."
+        priv = self._key.private_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+        return h + self._encode_pie(h, bkey, priv)
 
     def to_paserk_id(self) -> str:
         p = self.to_paserk()

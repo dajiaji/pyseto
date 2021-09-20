@@ -3,7 +3,7 @@ import hmac
 from secrets import token_bytes
 from typing import Any, Union
 
-from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ec import (
     EllipticCurvePrivateKey,
@@ -125,7 +125,7 @@ class V3Local(NISTKey):
         return h + base64url_encode(d[0:33]).decode("utf-8")
 
 
-class V3Public(KeyInterface):
+class V3Public(NISTKey):
     """
     The key object for v3.public.
     """
@@ -135,26 +135,45 @@ class V3Public(KeyInterface):
 
     def __init__(self, key: Any):
 
-        super().__init__(3, "public", key)
-        self._sig_size = 96
+        super().__init__(key)
 
+        self._sig_size = 96
         if not isinstance(self._key, (EllipticCurvePublicKey, EllipticCurvePrivateKey)):
             raise ValueError("The key is not ECDSA key.")
         return
 
     @classmethod
     def from_paserk(cls, paserk: str, wrapping_key: bytes = b"") -> KeyInterface:
+
         frags = paserk.split(".")
         if frags[0] != "k3":
             raise ValueError("Invalid PASERK version for a v3.public key.")
-        if frags[1] == "public":
-            return cls(
-                EllipticCurvePublicKey.from_encoded_point(
-                    ec.SECP384R1(), base64url_decode(frags[2])
+
+        if not wrapping_key:
+            k = base64url_decode(frags[2])
+            if frags[1] == "public":
+                pub = EllipticCurvePublicKey.from_encoded_point(ec.SECP384R1(), k)
+                return cls(pub)
+            if frags[1] == "secret":
+                priv = ec.derive_private_key(
+                    int.from_bytes(k, byteorder="big"), ec.SECP384R1()
                 )
+                return cls(priv)
+            raise ValueError("Invalid PASERK type for a v3.public key.")
+
+        # wrapped key
+        if len(frags) != 4:
+            raise ValueError("Invalid PASERK format.")
+        if frags[2] != "pie":
+            raise ValueError("Unsupported or unknown wrapping algorithm.")
+
+        if frags[1] == "secret-wrap":
+            h = "k3.secret-wrap.pie."
+            k = cls._decode_pie(h, wrapping_key, frags[3])
+            priv = ec.derive_private_key(
+                int.from_bytes(k, byteorder="big"), ec.SECP384R1()
             )
-        # elif frags[1] == "secret":
-        #     return cls(Ed25519PrivateKey.from_private_bytes(base64url_decode(frags[2])))
+            return cls(priv)
         raise ValueError("Invalid PASERK type for a v3.public key.")
 
     @classmethod
@@ -206,21 +225,28 @@ class V3Public(KeyInterface):
         return m
 
     def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
-        if isinstance(self._key, EllipticCurvePublicKey):
-            data = self._public_key_compress(
-                self._key.public_numbers().x, self._key.public_numbers().y
-            )
-            return "k3.public." + base64url_encode(data).decode("utf-8")
-        return (
-            "k3.secret."
-            + base64url_encode(
-                self._key.private_bytes(
-                    encoding=serialization.Encoding.DER,
-                    format=serialization.PrivateFormat.TraditionalOpenSSL,
-                    encryption_algorithm=serialization.NoEncryption(),
+
+        if not wrapping_key:
+            if isinstance(self._key, EllipticCurvePublicKey):
+                k = self._public_key_compress(
+                    self._key.public_numbers().x, self._key.public_numbers().y
                 )
-            ).decode("utf-8")
+                return "k3.public." + base64url_encode(k).decode("utf-8")
+            k = self._key.private_numbers().private_value.to_bytes(48, byteorder="big")
+            return "k3.secret." + base64url_encode(k).decode("utf-8")
+
+        if isinstance(self._key, EllipticCurvePublicKey):
+            raise ValueError("Public key cannot be wrapped.")
+
+        # wrapped key
+        bkey = (
+            wrapping_key
+            if isinstance(wrapping_key, bytes)
+            else wrapping_key.encode("utf-8")
         )
+        h = "k3.secret-wrap.pie."
+        k = self._key.private_numbers().private_value.to_bytes(48, byteorder="big")
+        return h + self._encode_pie(h, bkey, k)
 
     def to_paserk_id(self) -> str:
         p = self.to_paserk()

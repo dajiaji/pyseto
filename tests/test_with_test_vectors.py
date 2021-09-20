@@ -141,7 +141,9 @@ class TestWithTestVectors:
             pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
             bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
             by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
-            k = Key.from_asymmetric_key_params(version, x=bx, y=by, d=bytes.fromhex(v["key"]))
+            k = Key.from_asymmetric_key_params(
+                version, x=bx, y=by, d=bytes.fromhex(v["key"])
+            )
         else:
             pytest.fail("Unsupported version.")
         assert k.to_paserk() == v["paserk"]
@@ -213,7 +215,9 @@ class TestWithTestVectors:
             pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
             bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
             by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
-            k = Key.from_asymmetric_key_params(version, x=bx, y=by, d=bytes.fromhex(v["key"]))
+            k = Key.from_asymmetric_key_params(
+                version, x=bx, y=by, d=bytes.fromhex(v["key"])
+            )
         else:
             pytest.fail("Unsupported version.")
         assert k.to_paserk_id() == v["paserk"]
@@ -273,9 +277,9 @@ class TestWithTestVectors:
         "v",
         _load_tests(
             [
-                # "vectors/PASERK/k1.secret-wrap.pie.json",
+                "vectors/PASERK/k1.secret-wrap.pie.json",
                 "vectors/PASERK/k2.secret-wrap.pie.json",
-                # "vectors/PASERK/k3.secret-wrap.pie.json",
+                "vectors/PASERK/k3.secret-wrap.pie.json",
                 "vectors/PASERK/k4.secret-wrap.pie.json",
             ]
         ),
@@ -293,7 +297,12 @@ class TestWithTestVectors:
                 version, d=bytes.fromhex(v["unwrapped"])[0:32]
             )
         elif version == 3:
-            k1 = Key.new(version, "public", bytes.fromhex(v["unwrapped"]))
+            pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
+            bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
+            by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
+            k1 = Key.from_asymmetric_key_params(
+                version, x=bx, y=by, d=bytes.fromhex(v["unwrapped"])
+            )
         else:
             pytest.fail("Unsupported version.")
         wpk = k1.to_paserk(wrapping_key=bytes.fromhex(v["wrapping-key"]))

@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Union
+from typing import Any, Union
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
@@ -18,7 +18,7 @@ class NISTKey(KeyInterface):
     # _VERSION = 1 or 3
     # _TYPE = "local", "public" or "secret"
 
-    def __init__(self, key: Union[str, bytes]):
+    def __init__(self, key: Any):
 
         super().__init__(self._VERSION, self._TYPE, key)
         return
@@ -28,24 +28,38 @@ class NISTKey(KeyInterface):
 
         frags = paserk.split(".")
         if frags[0] != f"k{cls._VERSION}":
-            raise ValueError(f"Invalid PASERK version for a v{cls._VERSION}.local key.")
-        if frags[1] == "local":
-            return cls(base64url_decode(frags[2]))
-        if frags[1] == "local-wrap":
-            if len(frags) != 4:
+            raise ValueError(
+                f"Invalid PASERK version for a v{cls._VERSION}.{cls._TYPE} key."
+            )
+
+        if not wrapping_key:
+            if len(frags) != 3:
                 raise ValueError("Invalid PASERK format.")
-            if frags[2] != "pie":
-                raise ValueError("Unsupported or unknown wrapping algorithm.")
-            header = frags[0] + "." + frags[1] + ".pie."
-            return cls(cls._decode_pie(header, wrapping_key, frags[3]))
-        raise ValueError(f"Invalid PASERK type for a v{cls._VERSION}.local key.")
+            k = base64url_decode(frags[2])
+            if cls._TYPE == "local":
+                if frags[1] == "local":
+                    return cls(k)
+            raise ValueError(
+                f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key."
+            )
+
+        # wrapped key
+        if len(frags) != 4:
+            raise ValueError("Invalid PASERK format.")
+        if frags[2] != "pie":
+            raise ValueError("Unsupported or unknown wrapping algorithm.")
+
+        h = frags[0] + "." + frags[1] + ".pie."
+        if frags[1] == "local-wrap":
+            return cls(cls._decode_pie(h, wrapping_key, frags[3]))
+        raise ValueError(f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key.")
 
     def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
 
         if not wrapping_key:
-            return f"k{self.version}.local." + base64url_encode(self._key).decode(
-                "utf-8"
-            )
+            h = f"k{self.version}.local."
+            return h + base64url_encode(self._key).decode("utf-8")
+
         bkey = (
             wrapping_key
             if isinstance(wrapping_key, bytes)
