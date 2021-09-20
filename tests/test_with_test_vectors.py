@@ -262,3 +262,47 @@ class TestWithTestVectors:
 
         d = pyseto.decode(k, t)
         assert d.payload == b"Hello world!"
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                # "vectors/PASERK/k1.secret-wrap.pie.json",
+                "vectors/PASERK/k2.secret-wrap.pie.json",
+                # "vectors/PASERK/k3.secret-wrap.pie.json",
+                "vectors/PASERK/k4.secret-wrap.pie.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_secret_wrap_pie(self, v):
+
+        version = _name_to_version(v["name"])
+
+        # k = Key.from_paserk(v["paserk"], wrapping_key=bytes.fromhex(v["wrapping-key"]))
+
+        if version == 1:
+            k1 = Key.new(version, "public", v["unwrapped"])
+        elif version == 2 or version == 4:
+            k1 = Key.from_asymmetric_key_params(
+                version, d=bytes.fromhex(v["unwrapped"])[0:32]
+            )
+        elif version == 3:
+            k1 = Key.new(version, "public", bytes.fromhex(v["unwrapped"]))
+        else:
+            pytest.fail("Unsupported version.")
+        wpk = k1.to_paserk(wrapping_key=bytes.fromhex(v["wrapping-key"]))
+        k2 = Key.from_paserk(wpk, wrapping_key=bytes.fromhex(v["wrapping-key"]))
+
+        # t = pyseto.encode(k, b"Hello world!")
+        # d = pyseto.decode(k, t)
+        # d1 = pyseto.decode(k1, t)
+        # d2 = pyseto.decode(k2, t)
+        # assert d.payload == d1.payload == d2.payload == b"Hello world!"
+
+        t = pyseto.encode(k1, b"Hello world!")
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d1.payload == d2.payload == b"Hello world!"
+
+        # d = pyseto.decode(k, t)
+        # assert d.payload == b"Hello world!"
