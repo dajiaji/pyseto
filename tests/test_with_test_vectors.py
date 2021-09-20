@@ -123,7 +123,7 @@ class TestWithTestVectors:
             [
                 "vectors/PASERK/k1.secret.json",
                 "vectors/PASERK/k2.secret.json",
-                # "vectors/PASERK/k3.secret.json",
+                "vectors/PASERK/k3.secret.json",
                 "vectors/PASERK/k4.secret.json",
             ]
         ),
@@ -138,7 +138,12 @@ class TestWithTestVectors:
                 version, d=bytes.fromhex(v["secret-key-seed"])
             )
         elif version == 3:
-            k = Key.new(version, "public", bytes.fromhex(v["key"]))
+            pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
+            bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
+            by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
+            k = Key.from_asymmetric_key_params(
+                version, x=bx, y=by, d=bytes.fromhex(v["key"])
+            )
         else:
             pytest.fail("Unsupported version.")
         assert k.to_paserk() == v["paserk"]
@@ -194,7 +199,7 @@ class TestWithTestVectors:
             [
                 "vectors/PASERK/k1.sid.json",
                 "vectors/PASERK/k2.sid.json",
-                # "vectors/PASERK/k3.sid.json",
+                "vectors/PASERK/k3.sid.json",
                 "vectors/PASERK/k4.sid.json",
             ]
         ),
@@ -207,7 +212,12 @@ class TestWithTestVectors:
         elif version == 2 or version == 4:
             k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["seed"]))
         elif version == 3:
-            k = Key.new(version, "public", bytes.fromhex(v["key"]))
+            pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
+            bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
+            by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
+            k = Key.from_asymmetric_key_params(
+                version, x=bx, y=by, d=bytes.fromhex(v["key"])
+            )
         else:
             pytest.fail("Unsupported version.")
         assert k.to_paserk_id() == v["paserk"]
@@ -228,3 +238,86 @@ class TestWithTestVectors:
         version = _name_to_version(v["name"])
         k = Key.new(version, "local", bytes.fromhex(v["key"]))
         assert k.to_paserk_id() == v["paserk"]
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                "vectors/PASERK/k1.local-wrap.pie.json",
+                "vectors/PASERK/k2.local-wrap.pie.json",
+                "vectors/PASERK/k3.local-wrap.pie.json",
+                "vectors/PASERK/k4.local-wrap.pie.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_local_wrap_pie(self, v):
+
+        version = _name_to_version(v["name"])
+        k = Key.from_paserk(v["paserk"], wrapping_key=bytes.fromhex(v["wrapping-key"]))
+
+        k1 = Key.new(version, "local", bytes.fromhex(v["unwrapped"]))
+        wpk = k1.to_paserk(wrapping_key=bytes.fromhex(v["wrapping-key"]))
+        k2 = Key.from_paserk(wpk, wrapping_key=bytes.fromhex(v["wrapping-key"]))
+
+        t = pyseto.encode(k, b"Hello world!")
+        d = pyseto.decode(k, t)
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d.payload == d1.payload == d2.payload == b"Hello world!"
+
+        t = pyseto.encode(k1, b"Hello world!")
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d1.payload == d2.payload == b"Hello world!"
+
+        d = pyseto.decode(k, t)
+        assert d.payload == b"Hello world!"
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                "vectors/PASERK/k1.secret-wrap.pie.json",
+                "vectors/PASERK/k2.secret-wrap.pie.json",
+                "vectors/PASERK/k3.secret-wrap.pie.json",
+                "vectors/PASERK/k4.secret-wrap.pie.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_secret_wrap_pie(self, v):
+
+        version = _name_to_version(v["name"])
+
+        # k = Key.from_paserk(v["paserk"], wrapping_key=bytes.fromhex(v["wrapping-key"]))
+
+        if version == 1:
+            k1 = Key.new(version, "public", v["unwrapped"])
+        elif version == 2 or version == 4:
+            k1 = Key.from_asymmetric_key_params(
+                version, d=bytes.fromhex(v["unwrapped"])[0:32]
+            )
+        elif version == 3:
+            pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
+            bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
+            by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
+            k1 = Key.from_asymmetric_key_params(
+                version, x=bx, y=by, d=bytes.fromhex(v["unwrapped"])
+            )
+        else:
+            pytest.fail("Unsupported version.")
+        wpk = k1.to_paserk(wrapping_key=bytes.fromhex(v["wrapping-key"]))
+        k2 = Key.from_paserk(wpk, wrapping_key=bytes.fromhex(v["wrapping-key"]))
+
+        # t = pyseto.encode(k, b"Hello world!")
+        # d = pyseto.decode(k, t)
+        # d1 = pyseto.decode(k1, t)
+        # d2 = pyseto.decode(k2, t)
+        # assert d.payload == d1.payload == d2.payload == b"Hello world!"
+
+        t = pyseto.encode(k1, b"Hello world!")
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d1.payload == d2.payload == b"Hello world!"
+
+        # d = pyseto.decode(k, t)
+        # assert d.payload == b"Hello world!"

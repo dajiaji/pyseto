@@ -62,16 +62,42 @@ class TestV3Local:
     @pytest.mark.parametrize(
         "paserk, msg",
         [
-            ("xx.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version for a v3.local key."),
-            ("k4.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version for a v3.local key."),
-            ("k3.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v3.local key."),
-            ("k3.public.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v3.local key."),
+            ("xx.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version: xx."),
+            ("k4.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version: k4."),
+            ("k3.local.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k3.public.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k3.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
+            ("k3.public.AAAAAAAAAAAAAAAA", "Invalid PASERK type: public."),
+            (
+                "k3.local-wrap.AAAAAAAAAAAAAAAA",
+                "local-wrap needs wrapping_key.",
+            ),
+            (
+                "k3.secret-wrap.AAAAAAAAAAAAAAAA",
+                "Invalid PASERK type: secret-wrap.",
+            ),
         ],
     )
     def test_v3_local_from_paserk_with_invalid_args(self, paserk, msg):
 
         with pytest.raises(ValueError) as err:
             V3Local.from_paserk(paserk)
+            pytest.fail("Key.from_paserk should fail.")
+        assert msg in str(err.value)
+
+    @pytest.mark.parametrize(
+        "paserk, msg",
+        [
+            ("xx.local-wrap.AAAAAAAAAAAAAAAA", "Invalid PASERK version: xx."),
+            ("k3.local-wrap.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k3.local-wrap.xxx.AAAAAAAAAAAAAAAA", "Unknown wrapping algorithm: xxx."),
+            ("k3.xxx.pie.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
+        ],
+    )
+    def test_v3_local_from_paserk_with_wrapping_key_and_invalid_args(self, paserk, msg):
+
+        with pytest.raises(ValueError) as err:
+            V3Local.from_paserk(paserk, wrapping_key=token_bytes(32))
             pytest.fail("Key.from_paserk should fail.")
         assert msg in str(err.value)
 
@@ -93,16 +119,20 @@ class TestV3Public:
     @pytest.mark.parametrize(
         "paserk, msg",
         [
+            ("xx.public.AAAAAAAAAAAAAAAA", "Invalid PASERK version: xx."),
+            ("k4.public.AAAAAAAAAAAAAAAA", "Invalid PASERK version: k4."),
+            ("k3.public.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k3.local.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k3.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
+            ("k3.local.AAAAAAAAAAAAAAAA", "Invalid PASERK type: local."),
             (
-                "xx.public.AAAAAAAAAAAAAAAA",
-                "Invalid PASERK version for a v3.public key.",
+                "k3.local-wrap.AAAAAAAAAAAAAAAA",
+                "Invalid PASERK type: local-wrap.",
             ),
             (
-                "k4.public.AAAAAAAAAAAAAAAA",
-                "Invalid PASERK version for a v3.public key.",
+                "k3.secret-wrap.AAAAAAAAAAAAAAAA",
+                "secret-wrap needs wrapping_key.",
             ),
-            ("k3.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v3.public key."),
-            ("k3.local.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v3.public key."),
         ],
     )
     def test_v3_public_from_paserk_with_invalid_args(self, paserk, msg):
@@ -111,3 +141,28 @@ class TestV3Public:
             V3Public.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")
         assert msg in str(err.value)
+
+    @pytest.mark.parametrize(
+        "paserk, msg",
+        [
+            ("xx.secret-wrap.pie.AAAAAAAAAAAAAAAA", "Invalid PASERK version: xx."),
+            ("k3.secret-wrap.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k3.secret-wrap.xxx.AAAAAAAAAAAAAAAA", "Unknown wrapping algorithm: xxx."),
+            ("k3.xxx.pie.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
+        ],
+    )
+    def test_v3_public_from_paserk_with_wrapping_key_and_invalid_args(
+        self, paserk, msg
+    ):
+
+        with pytest.raises(ValueError) as err:
+            V3Public.from_paserk(paserk, wrapping_key=token_bytes(32))
+            pytest.fail("Key.from_paserk should fail.")
+        assert msg in str(err.value)
+
+    def test_v3_public_from_public_bytes_with_invalid_args(self):
+
+        with pytest.raises(ValueError) as err:
+            V3Public.from_public_bytes(b"xxx")
+            pytest.fail("Key.from_paserk should fail.")
+        assert "Invalid bytes for the key." in str(err.value)

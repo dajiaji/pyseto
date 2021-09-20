@@ -63,10 +63,12 @@ class TestV4Local:
     @pytest.mark.parametrize(
         "paserk, msg",
         [
-            ("xx.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version for a v4.local key."),
-            ("k1.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version for a v4.local key."),
-            ("k4.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v4.local key."),
-            ("k4.public.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v4.local key."),
+            ("xx.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version: xx."),
+            ("k1.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version: k1."),
+            ("k4.local.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k4.public.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k4.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
+            ("k4.public.AAAAAAAAAAAAAAAA", "Invalid PASERK type: public."),
         ],
     )
     def test_v4_local_from_paserk_with_invalid_args(self, paserk, msg):
@@ -94,16 +96,12 @@ class TestV4Public:
     @pytest.mark.parametrize(
         "paserk, msg",
         [
-            (
-                "xx.public.AAAAAAAAAAAAAAAA",
-                "Invalid PASERK version for a v4.public key.",
-            ),
-            (
-                "k1.public.AAAAAAAAAAAAAAAA",
-                "Invalid PASERK version for a v4.public key.",
-            ),
-            ("k4.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v4.public key."),
-            ("k4.local.AAAAAAAAAAAAAAAA", "Invalid PASERK type for a v4.public key."),
+            ("xx.public.AAAAAAAAAAAAAAAA", "Invalid PASERK version: xx."),
+            ("k1.public.AAAAAAAAAAAAAAAA", "Invalid PASERK version: k1."),
+            ("k4.public.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k4.local.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK format."),
+            ("k4.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
+            ("k4.local.AAAAAAAAAAAAAAAA", "Invalid PASERK type: local."),
         ],
     )
     def test_v4_public_from_paserk_with_invalid_args(self, paserk, msg):

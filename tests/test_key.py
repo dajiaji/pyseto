@@ -2,7 +2,7 @@ from secrets import token_bytes
 
 import pytest
 
-from pyseto import Key, NotSupportedError
+from pyseto import DecryptError, Key, NotSupportedError
 from pyseto.key_interface import KeyInterface
 from pyseto.utils import base64url_decode
 
@@ -191,6 +191,63 @@ class TestKey:
             Key.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")
         assert msg in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            1,
+            2,
+            3,
+            4,
+        ],
+    )
+    def test_key_from_paserk_for_local_with_wrong_wrapping_key(self, version):
+        k = Key.new(version, "local", token_bytes(32))
+        wk1 = token_bytes(32)
+        wk2 = token_bytes(32)
+        wpk = k.to_paserk(wrapping_key=wk1)
+        with pytest.raises(DecryptError) as err:
+            Key.from_paserk(wpk, wrapping_key=wk2)
+            pytest.fail("Key.from_paserk() should fail.")
+        assert "Failed to unwrap a key." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, key",
+        [
+            (1, load_key("keys/private_key_rsa.pem")),
+            (2, load_key("keys/private_key_ed25519.pem")),
+            (3, load_key("keys/private_key_ecdsa_p384.pem")),
+            (4, load_key("keys/private_key_ed25519.pem")),
+        ],
+    )
+    def test_key_from_paserk_for_private_key_with_wrong_wrapping_key(
+        self, version, key
+    ):
+        k = Key.new(version, "public", key)
+        wk1 = token_bytes(32)
+        wk2 = token_bytes(32)
+        wpk = k.to_paserk(wrapping_key=wk1)
+        with pytest.raises(DecryptError) as err:
+            Key.from_paserk(wpk, wrapping_key=wk2)
+            pytest.fail("Key.from_paserk() should fail.")
+        assert "Failed to unwrap a key." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, key",
+        [
+            (1, load_key("keys/public_key_rsa.pem")),
+            (2, load_key("keys/public_key_ed25519.pem")),
+            (3, load_key("keys/public_key_ecdsa_p384.pem")),
+            (4, load_key("keys/public_key_ed25519.pem")),
+        ],
+    )
+    def test_key_from_paserk_for_public_key_with_wrapping_key(self, version, key):
+        k = Key.new(version, "public", key)
+        wk = token_bytes(32)
+        with pytest.raises(ValueError) as err:
+            k.to_paserk(wrapping_key=wk)
+            pytest.fail("to_paserk() should fail.")
+        assert "Public key cannot be wrapped." in str(err.value)
 
     @pytest.mark.parametrize(
         "version, key, msg",

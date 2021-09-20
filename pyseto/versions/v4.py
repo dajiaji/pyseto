@@ -3,39 +3,30 @@ from secrets import token_bytes
 from typing import Any, Union
 
 from Cryptodome.Cipher import ChaCha20
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
 
 from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
-from ..key_interface import KeyInterface
-from ..local_key import LocalKey
-from ..utils import base64url_decode, base64url_encode, pae
+from ..key_sodium import SodiumKey
+from ..utils import base64url_encode, pae
 
 
-class V4Local(LocalKey):
+class V4Local(SodiumKey):
     """
     The key object for v4.local.
     """
 
+    _VERSION = 4
+    _TYPE = "local"
+
     def __init__(self, key: Union[str, bytes]):
 
-        super().__init__(4, "local", key)
-
+        super().__init__(key)
         if len(self._key) > 64:
             raise ValueError("key length must be up to 64 bytes.")
         return
-
-    @classmethod
-    def from_paserk(cls, paserk: str) -> KeyInterface:
-        frags = paserk.split(".")
-        if frags[0] != "k4":
-            raise ValueError("Invalid PASERK version for a v4.local key.")
-        if frags[1] != "local":
-            raise ValueError("Invalid PASERK type for a v4.local key.")
-        return cls(base64url_decode(frags[2]))
 
     def encrypt(
         self,
@@ -96,43 +87,23 @@ class V4Local(LocalKey):
         d = b.digest()
         return h + base64url_encode(d).decode("utf-8")
 
-    def _generate_hash(self, key: bytes, msg: bytes, size: int) -> bytes:
 
-        try:
-            h = hashlib.blake2b(key=key, digest_size=size)
-            h.update(msg)
-            return h.digest()
-        except Exception as err:
-            raise EncryptError("Failed to generate hash.") from err
-
-
-class V4Public(KeyInterface):
+class V4Public(SodiumKey):
     """
     The key object for v4.public.
     """
 
+    _VERSION = 4
+    _TYPE = "public"
+
     def __init__(self, key: Any):
 
-        super().__init__(4, "public", key)
-
+        super().__init__(key)
         self._sig_size = 64
 
         if not isinstance(self._key, (Ed25519PublicKey, Ed25519PrivateKey)):
             raise ValueError("The key is not Ed25519 key.")
         return
-
-    @classmethod
-    def from_paserk(cls, paserk: str) -> KeyInterface:
-        frags = paserk.split(".")
-        if frags[0] != "k4":
-            raise ValueError("Invalid PASERK version for a v4.public key.")
-        if frags[1] == "public":
-            return cls(Ed25519PublicKey.from_public_bytes(base64url_decode(frags[2])))
-        elif frags[1] == "secret":
-            return cls(
-                Ed25519PrivateKey.from_private_bytes(base64url_decode(frags[2])[0:32])
-            )
-        raise ValueError("Invalid PASERK type for a v4.public key.")
 
     # @classmethod
     # def from_public_bytes(cls, key: bytes):
@@ -175,28 +146,6 @@ class V4Public(KeyInterface):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
-
-    def to_paserk(self) -> str:
-        if isinstance(self._key, Ed25519PublicKey):
-            return (
-                "k4.public."
-                + base64url_encode(
-                    self._key.public_bytes(
-                        encoding=serialization.Encoding.Raw,
-                        format=serialization.PublicFormat.Raw,
-                    )
-                ).decode("utf-8")
-            )
-        priv = self._key.private_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PrivateFormat.Raw,
-            encryption_algorithm=serialization.NoEncryption(),
-        )
-        pub = self._key.public_key().public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw,
-        )
-        return "k4.secret." + base64url_encode(priv + pub).decode("utf-8")
 
     def to_paserk_id(self) -> str:
         p = self.to_paserk()

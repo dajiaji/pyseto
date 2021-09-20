@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union
 
 from .exceptions import NotSupportedError
 
@@ -9,6 +9,9 @@ class KeyInterface:
 
     :func:`pyseto.Key.new <pyseto.Key.new>` returns an object which has this interface.
     """
+
+    _VERSION = 0
+    _TYPE = ""
 
     def __init__(self, version: int, type: str, key: Any):
         self._version = version
@@ -41,6 +44,21 @@ class KeyInterface:
         For example, ``"v1.local."``.
         """
         return self._header
+
+    # @property
+    # def key(self) -> Any:
+    #     """
+    #     Byte string or pyca/cryptography key object of the key.
+    #     If the key is ``public``, the key object is one of the pyca/cryptography objects bellow:
+
+    #     - ``RSAPrivateKey``
+    #     - ``RSAPublicKey``
+    #     - ``Ed25519PrivateKey``
+    #     - ``Ed25519PublicKey``
+    #     - ``EllipticCurvePrivateKey``
+    #     - ``EllipticCurvePublicKey``
+    #     """
+    #     return self._key
 
     def encrypt(
         self,
@@ -144,12 +162,18 @@ class KeyInterface:
         """
         raise NotSupportedError("A key for local does not have verify().")
 
-    def to_paserk(self) -> str:
+    def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
         """
         Returns the PASERK expression of the key.
 
+        Args:
+            wrapping_key (Union[bytes, str]): A wrapping key. If you want to wrap
+                the key, you have to specify this argument.
         Returns:
             str: A PASERK string.
+        Raise:
+            ValueError: Invalid arguments.
+            DecryptError: Failed to wrap the key.
         """
         raise NotImplementedError(
             "The PASERK expression for the key is not supported yet."
