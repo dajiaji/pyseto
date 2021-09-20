@@ -61,11 +61,12 @@ class SodiumKey(KeyInterface):
         if frags[2] != "pie":
             raise ValueError("Unsupported or unknown wrapping algorithm.")
 
-        header = frags[0] + "." + frags[1] + ".pie."
+        h = frags[0] + "." + frags[1] + ".pie."
         if frags[1] == "local-wrap":
-            return cls(cls._decode_pie(header, wrapping_key, frags[3]))
+            return cls(cls._decode_pie(h, wrapping_key, frags[3]))
         if frags[1] == "secret-wrap":
-            return cls(cls._decode_pie(header, wrapping_key, frags[3])[0:32])
+            k = cls._decode_pie(h, wrapping_key, frags[3])[0:32]
+            return cls(Ed25519PrivateKey.from_private_bytes(k))
         raise ValueError(f"Invalid PASERK type for a v{cls._VERSION}.{cls._TYPE} key.")
 
     def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
