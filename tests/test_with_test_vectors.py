@@ -123,7 +123,7 @@ class TestWithTestVectors:
             [
                 "vectors/PASERK/k1.secret.json",
                 "vectors/PASERK/k2.secret.json",
-                # "vectors/PASERK/k3.secret.json",
+                "vectors/PASERK/k3.secret.json",
                 "vectors/PASERK/k4.secret.json",
             ]
         ),
@@ -138,7 +138,10 @@ class TestWithTestVectors:
                 version, d=bytes.fromhex(v["secret-key-seed"])
             )
         elif version == 3:
-            k = Key.new(version, "public", bytes.fromhex(v["key"]))
+            pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
+            bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
+            by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
+            k = Key.from_asymmetric_key_params(version, x=bx, y=by, d=bytes.fromhex(v["key"]))
         else:
             pytest.fail("Unsupported version.")
         assert k.to_paserk() == v["paserk"]
@@ -194,7 +197,7 @@ class TestWithTestVectors:
             [
                 "vectors/PASERK/k1.sid.json",
                 "vectors/PASERK/k2.sid.json",
-                # "vectors/PASERK/k3.sid.json",
+                "vectors/PASERK/k3.sid.json",
                 "vectors/PASERK/k4.sid.json",
             ]
         ),
@@ -207,7 +210,10 @@ class TestWithTestVectors:
         elif version == 2 or version == 4:
             k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["seed"]))
         elif version == 3:
-            k = Key.new(version, "public", bytes.fromhex(v["key"]))
+            pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
+            bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
+            by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
+            k = Key.from_asymmetric_key_params(version, x=bx, y=by, d=bytes.fromhex(v["key"]))
         else:
             pytest.fail("Unsupported version.")
         assert k.to_paserk_id() == v["paserk"]
