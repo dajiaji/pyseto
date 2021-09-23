@@ -2,13 +2,12 @@ import hashlib
 from secrets import token_bytes
 from typing import Any, Union
 
-from Cryptodome.Cipher import ChaCha20
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
 
-from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
+from ..exceptions import DecryptError, SignError, VerifyError
 from ..key_sodium import SodiumKey
 from ..utils import base64url_encode, pae
 
