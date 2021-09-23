@@ -308,7 +308,7 @@ class SodiumKey(KeyInterface):
             cipher = ChaCha20.new(key=key, nonce=nonce)
             return cipher.encrypt(msg)
         except Exception as err:
-            raise EncryptError("Failed to wrap a key.") from err
+            raise EncryptError("Failed to encrypt.") from err
 
     @staticmethod
     def _decrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
@@ -316,4 +316,4 @@ class SodiumKey(KeyInterface):
             cipher = ChaCha20.new(key=key, nonce=nonce)
             return cipher.decrypt(msg)
         except Exception as err:
-            raise DecryptError("Failed to unwrap a key.") from err
+            raise DecryptError("Failed to decrypt.") from err

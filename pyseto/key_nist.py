@@ -68,7 +68,7 @@ class NISTKey(KeyInterface):
         if frags[1] == "local-wrap":
             raise ValueError(f"{frags[1]} needs wrapping_key.")
         if frags[1] == "local-pw":
-            raise ValueError(f"{frags[1]} needs wrapping_key.")
+            raise ValueError(f"{frags[1]} needs password.")
         raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
     def to_paserk(
@@ -115,11 +115,7 @@ class NISTKey(KeyInterface):
         ek = x[0:32]
         n2 = x[32:]
         ak = cls._generate_hash(wrapping_key, b"\x81" + n, 32)
-        try:
-            encryptor = Cipher(algorithms.AES(ek), modes.CTR(n2)).encryptor()
-            c = encryptor.update(ptk)
-        except Exception as err:
-            raise EncryptError("Failed to wrap a key.") from err
+        c = cls._encrypt(ek, n2, ptk)
         t = cls._generate_hash(ak, h + n + c, 48)
         return base64url_encode(t + n + c).decode("utf-8")
 
@@ -138,11 +134,7 @@ class NISTKey(KeyInterface):
         x = cls._generate_hash(wrapping_key, b"\x80" + n)
         ek = x[0:32]
         n2 = x[32:]
-        try:
-            decryptor = Cipher(algorithms.AES(ek), modes.CTR(n2)).decryptor()
-            return decryptor.update(c)
-        except Exception as err:
-            raise DecryptError("Failed to unwrap a key.") from err
+        return cls._decrypt(ek, n2, c)
 
     @classmethod
     def _encode_pbkw(
@@ -161,11 +153,7 @@ class NISTKey(KeyInterface):
         ek = cls._digest(b"\xff" + k)[0:32]
         ak = cls._digest(b"\xfe" + k)
         n = token_bytes(16)
-        try:
-            encryptor = Cipher(algorithms.AES(ek), modes.CTR(n)).encryptor()
-            edk = encryptor.update(ptk)
-        except Exception as err:
-            raise EncryptError("Failed to wrap a key.") from err
+        edk = cls._encrypt(ek, n, ptk)
         bi = iteration.to_bytes(4, byteorder="big")
         t = cls._generate_hash(ak, h + s + bi + n + edk, 48)
         return base64url_encode(s + bi + n + edk + t).decode("utf-8")
@@ -196,11 +184,7 @@ class NISTKey(KeyInterface):
             raise DecryptError("Failed to unwrap a key.")
 
         ek = cls._digest(b"\xff" + k)[0:32]
-        try:
-            decryptor = Cipher(algorithms.AES(ek), modes.CTR(n)).decryptor()
-            return decryptor.update(edk)
-        except Exception as err:
-            raise DecryptError("Failed to unwrap a key.") from err
+        return cls._decrypt(ek, n, edk)
 
     @staticmethod
     def _generate_hash(key: bytes, msg: bytes, size: int = 0) -> bytes:
@@ -216,3 +200,19 @@ class NISTKey(KeyInterface):
         digest = hashes.Hash(hashes.SHA384())
         digest.update(msg)
         return digest.finalize()
+
+    @staticmethod
+    def _encrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
+        try:
+            encryptor = Cipher(algorithms.AES(key), modes.CTR(nonce)).encryptor()
+            return encryptor.update(msg)
+        except Exception as err:
+            raise EncryptError("Failed to encrypt.") from err
+
+    @staticmethod
+    def _decrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
+        try:
+            decryptor = Cipher(algorithms.AES(key), modes.CTR(nonce)).decryptor()
+            return decryptor.update(msg)
+        except Exception as err:
+            raise DecryptError("Failed to decrypt.") from err

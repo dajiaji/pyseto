@@ -13,10 +13,9 @@ from cryptography.hazmat.primitives.asymmetric.utils import (
     decode_dss_signature,
     encode_dss_signature,
 )
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
-from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
+from ..exceptions import DecryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
 from ..key_nist import NISTKey
 from ..utils import base64url_decode, base64url_encode, i2osp, os2ip, pae
@@ -68,16 +67,13 @@ class V3Local(NISTKey):
         except Exception as err:
             raise DecryptError("Failed to derive keys.") from err
 
-        try:
-            c = Cipher(algorithms.AES(ek), modes.CTR(n2)).encryptor().update(payload)
-            pre_auth = pae([self.header, nonce, c, footer, implicit_assertion])
-            t = hmac.new(ak, pre_auth, hashlib.sha384).digest()
-            token = self._header + base64url_encode(nonce + c + t)
-            if footer:
-                token += b"." + base64url_encode(footer)
-            return token
-        except Exception as err:
-            raise EncryptError("Failed to encrypt.") from err
+        c = self._encrypt(ek, n2, payload)
+        pre_auth = pae([self.header, nonce, c, footer, implicit_assertion])
+        t = hmac.new(ak, pre_auth, hashlib.sha384).digest()
+        token = self._header + base64url_encode(nonce + c + t)
+        if footer:
+            token += b"." + base64url_encode(footer)
+        return token
 
     def decrypt(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
@@ -110,11 +106,7 @@ class V3Local(NISTKey):
         t2 = hmac.new(ak, pre_auth, hashlib.sha384).digest()
         if t != t2:
             raise DecryptError("Failed to decrypt.")
-
-        try:
-            return Cipher(algorithms.AES(ek), modes.CTR(n2)).decryptor().update(c)
-        except Exception as err:
-            raise DecryptError("Failed to decrypt a message.") from err
+        return self._decrypt(ek, n2, c)
 
     def to_paserk_id(self) -> str:
 
@@ -260,6 +252,11 @@ class V3Public(NISTKey):
         time_cost: int = 2,
         parallelism: int = 1,
     ) -> str:
+
+        if wrapping_key and password:
+            raise ValueError(
+                "Only one of wrapping_key or password should be specified."
+            )
 
         if wrapping_key:
             # secret-wrap

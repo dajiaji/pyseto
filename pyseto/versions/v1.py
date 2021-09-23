@@ -6,14 +6,13 @@ from typing import Any, Union
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.serialization import (
     load_der_private_key,
     load_der_public_key,
 )
 
-from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
+from ..exceptions import DecryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
 from ..key_nist import NISTKey
 from ..utils import base64url_decode, base64url_encode, pae
@@ -62,20 +61,13 @@ class V1Local(NISTKey):
         ek = e.derive(self._key)
         ak = a.derive(self._key)
 
-        try:
-            c = (
-                Cipher(algorithms.AES(ek), modes.CTR(n[16:]))
-                .encryptor()
-                .update(payload)
-            )
-            pre_auth = pae([self.header, n, c, footer])
-            t = hmac.new(ak, pre_auth, hashlib.sha384).digest()
-            token = self._header + base64url_encode(n + c + t)
-            if footer:
-                token += b"." + base64url_encode(footer)
-            return token
-        except Exception as err:
-            raise EncryptError("Failed to encrypt.") from err
+        c = self._encrypt(ek, n[16:], payload)
+        pre_auth = pae([self.header, n, c, footer])
+        t = hmac.new(ak, pre_auth, hashlib.sha384).digest()
+        token = self._header + base64url_encode(n + c + t)
+        if footer:
+            token += b"." + base64url_encode(footer)
+        return token
 
     def decrypt(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
@@ -103,11 +95,7 @@ class V1Local(NISTKey):
         t2 = hmac.new(ak, pre_auth, hashlib.sha384).digest()
         if t != t2:
             raise DecryptError("Failed to decrypt.")
-
-        try:
-            return Cipher(algorithms.AES(ek), modes.CTR(n[16:])).decryptor().update(c)
-        except Exception as err:
-            raise DecryptError("Failed to decrypt.") from err
+        return self._decrypt(ek, n[16:], c)
 
     def to_paserk_id(self) -> str:
         h = "k1.lid."
