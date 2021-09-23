@@ -136,6 +136,14 @@ class V3Public(NISTKey):
         return
 
     @classmethod
+    def from_public_bytes(cls, key: bytes):
+        try:
+            k = EllipticCurvePublicKey.from_encoded_point(ec.SECP384R1(), key)
+        except Exception as err:
+            raise ValueError("Invalid bytes for the key.") from err
+        return cls(k)
+
+    @classmethod
     def from_paserk(
         cls, paserk: str, wrapping_key: bytes = b"", password: bytes = b""
     ) -> KeyInterface:
@@ -195,54 +203,6 @@ class V3Public(NISTKey):
             raise ValueError(f"{frags[1]} needs wrapping_key.")
         raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
-    @classmethod
-    def from_public_bytes(cls, key: bytes):
-        try:
-            k = EllipticCurvePublicKey.from_encoded_point(ec.SECP384R1(), key)
-        except Exception as err:
-            raise ValueError("Invalid bytes for the key.") from err
-        return cls(k)
-
-    def sign(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
-
-        if isinstance(self._key, EllipticCurvePublicKey):
-            raise ValueError("A public key cannot be used for signing.")
-        pk = self._public_key_compress(
-            self._key.private_numbers().public_numbers.x,
-            self._key.private_numbers().public_numbers.y,
-        )
-        m2 = pae([pk, self.header, payload, footer, implicit_assertion])
-        try:
-            sig = self._key.sign(m2, ec.ECDSA(hashes.SHA384()))
-            return self._der_to_os(self._key.curve.key_size, sig)
-        except Exception as err:
-            raise SignError("Failed to sign.") from err
-
-    def verify(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ):
-
-        if len(payload) <= self._sig_size:
-            raise ValueError("Invalid payload.")
-
-        sig = payload[-self._sig_size :]
-        m = payload[: len(payload) - self._sig_size]
-        k = (
-            self._key
-            if isinstance(self._key, EllipticCurvePublicKey)
-            else self._key.public_key()
-        )
-        pk = self._public_key_compress(k.public_numbers().x, k.public_numbers().y)
-        m2 = pae([pk, self.header, m, footer, implicit_assertion])
-        try:
-            der_sig = self._os_to_der(self._key.curve.key_size, sig)
-            k.verify(der_sig, m2, ec.ECDSA(hashes.SHA384()))
-        except Exception as err:
-            raise VerifyError("Failed to verify.") from err
-        return m
-
     def to_paserk(
         self,
         wrapping_key: Union[bytes, str] = b"",
@@ -300,6 +260,46 @@ class V3Public(NISTKey):
         digest.update((h + p).encode("utf-8"))
         d = digest.finalize()
         return h + base64url_encode(d[0:33]).decode("utf-8")
+
+    def sign(
+        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
+    ) -> bytes:
+
+        if isinstance(self._key, EllipticCurvePublicKey):
+            raise ValueError("A public key cannot be used for signing.")
+        pk = self._public_key_compress(
+            self._key.private_numbers().public_numbers.x,
+            self._key.private_numbers().public_numbers.y,
+        )
+        m2 = pae([pk, self.header, payload, footer, implicit_assertion])
+        try:
+            sig = self._key.sign(m2, ec.ECDSA(hashes.SHA384()))
+            return self._der_to_os(self._key.curve.key_size, sig)
+        except Exception as err:
+            raise SignError("Failed to sign.") from err
+
+    def verify(
+        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
+    ):
+
+        if len(payload) <= self._sig_size:
+            raise ValueError("Invalid payload.")
+
+        sig = payload[-self._sig_size :]
+        m = payload[: len(payload) - self._sig_size]
+        k = (
+            self._key
+            if isinstance(self._key, EllipticCurvePublicKey)
+            else self._key.public_key()
+        )
+        pk = self._public_key_compress(k.public_numbers().x, k.public_numbers().y)
+        m2 = pae([pk, self.header, m, footer, implicit_assertion])
+        try:
+            der_sig = self._os_to_der(self._key.curve.key_size, sig)
+            k.verify(der_sig, m2, ec.ECDSA(hashes.SHA384()))
+        except Exception as err:
+            raise VerifyError("Failed to verify.") from err
+        return m
 
     def _public_key_compress(self, x: int, y: int) -> bytes:
 

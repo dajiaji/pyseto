@@ -29,6 +29,14 @@ class V2Local(SodiumKey):
             raise ValueError("key must be 32 bytes long.")
         return
 
+    def to_paserk_id(self) -> str:
+        h = "k2.lid."
+        p = self.to_paserk()
+        b = hashlib.blake2b(digest_size=33)
+        b.update((h + p).encode("utf-8"))
+        d = b.digest()
+        return h + base64url_encode(d).decode("utf-8")
+
     def encrypt(
         self,
         payload: bytes,
@@ -67,14 +75,6 @@ class V2Local(SodiumKey):
         except Exception as err:
             raise DecryptError("Failed to decrypt.") from err
 
-    def to_paserk_id(self) -> str:
-        h = "k2.lid."
-        p = self.to_paserk()
-        b = hashlib.blake2b(digest_size=33)
-        b.update((h + p).encode("utf-8"))
-        d = b.digest()
-        return h + base64url_encode(d).decode("utf-8")
-
     @staticmethod
     def _generate_nonce(key: bytes, msg: bytes) -> bytes:
 
@@ -108,6 +108,14 @@ class V2Public(SodiumKey):
         if not isinstance(self._key, (Ed25519PublicKey, Ed25519PrivateKey)):
             raise ValueError("The key is not Ed25519 key.")
         return
+
+    def to_paserk_id(self) -> str:
+        p = self.to_paserk()
+        h = "k2.pid." if isinstance(self._key, Ed25519PublicKey) else "k2.sid."
+        b = hashlib.blake2b(digest_size=33)
+        b.update((h + p).encode("utf-8"))
+        d = b.digest()
+        return h + base64url_encode(d).decode("utf-8")
 
     # @classmethod
     # def from_public_bytes(cls, key: bytes):
@@ -149,11 +157,3 @@ class V2Public(SodiumKey):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
-
-    def to_paserk_id(self) -> str:
-        p = self.to_paserk()
-        h = "k2.pid." if isinstance(self._key, Ed25519PublicKey) else "k2.sid."
-        b = hashlib.blake2b(digest_size=33)
-        b.update((h + p).encode("utf-8"))
-        d = b.digest()
-        return h + base64url_encode(d).decode("utf-8")
