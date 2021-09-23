@@ -178,6 +178,48 @@ class TestKey:
         assert k.type == "public"
 
     @pytest.mark.parametrize(
+        "paserk",
+        [
+            "k1.local.AAAAAAAAAAAAAAAA",
+            "k1.public.AAAAAAAAAAAAAAAA",
+            "k2.local.AAAAAAAAAAAAAAAA",
+            "k2.public.AAAAAAAAAAAAAAAA",
+            "k3.local.AAAAAAAAAAAAAAAA",
+            "k3.public.AAAAAAAAAAAAAAAA",
+            "k4.local.AAAAAAAAAAAAAAAA",
+            "k4.public.AAAAAAAAAAAAAAAA",
+        ],
+    )
+    def test_key_from_paserk_with_wrapping_key_and_password(self, paserk):
+
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(paserk, wrapping_key="xxx", password="yyy")
+            pytest.fail("Key.from_paserk should fail.")
+        assert "Only one of wrapping_key or password should be specified." in str(
+            err.value
+        )
+
+    @pytest.mark.parametrize(
+        "paserk, msg",
+        [
+            ("k1.local.AAAAAAAAAAAAAAAA", "Invalid PASERK type: local."),
+            ("k1.public.AAAAAAAAAAAAAAAA", "Invalid PASERK type: public."),
+            ("k2.local.AAAAAAAAAAAAAAAA", "Invalid PASERK type: local."),
+            ("k2.public.AAAAAAAAAAAAAAAA", "Invalid PASERK type: public."),
+            ("k3.local.AAAAAAAAAAAAAAAA", "Invalid PASERK type: local."),
+            ("k3.public.AAAAAAAAAAAAAAAA", "Invalid PASERK type: public."),
+            ("k4.local.AAAAAAAAAAAAAAAA", "Invalid PASERK type: local."),
+            ("k4.public.AAAAAAAAAAAAAAAA", "Invalid PASERK type: public."),
+        ],
+    )
+    def test_key_from_paserk_with_password_for_wrong_paserk(self, paserk, msg):
+
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(paserk, password="yyy")
+            pytest.fail("Key.from_paserk should fail.")
+        assert msg in str(err.value)
+
+    @pytest.mark.parametrize(
         "paserk, msg",
         [
             ("v1.local.AAAAAAAAAAAAAAAA", "Invalid PASERK version: v1."),
@@ -208,6 +250,25 @@ class TestKey:
         wpk = k.to_paserk(wrapping_key=wk1)
         with pytest.raises(DecryptError) as err:
             Key.from_paserk(wpk, wrapping_key=wk2)
+            pytest.fail("Key.from_paserk() should fail.")
+        assert "Failed to unwrap a key." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            1,
+            2,
+            3,
+            4,
+        ],
+    )
+    def test_key_from_paserk_for_local_with_wrong_password(self, version):
+        k = Key.new(version, "local", token_bytes(32))
+        wk1 = token_bytes(32)
+        wk2 = token_bytes(32)
+        wpk = k.to_paserk(password=wk1)
+        with pytest.raises(DecryptError) as err:
+            Key.from_paserk(wpk, password=wk2)
             pytest.fail("Key.from_paserk() should fail.")
         assert "Failed to unwrap a key." in str(err.value)
 
@@ -246,6 +307,23 @@ class TestKey:
         wk = token_bytes(32)
         with pytest.raises(ValueError) as err:
             k.to_paserk(wrapping_key=wk)
+            pytest.fail("to_paserk() should fail.")
+        assert "Public key cannot be wrapped." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, key",
+        [
+            (1, load_key("keys/public_key_rsa.pem")),
+            (2, load_key("keys/public_key_ed25519.pem")),
+            (3, load_key("keys/public_key_ecdsa_p384.pem")),
+            (4, load_key("keys/public_key_ed25519.pem")),
+        ],
+    )
+    def test_key_from_paserk_for_public_key_with_password(self, version, key):
+        k = Key.new(version, "public", key)
+        wk = token_bytes(32)
+        with pytest.raises(ValueError) as err:
+            k.to_paserk(password=wk)
             pytest.fail("to_paserk() should fail.")
         assert "Public key cannot be wrapped." in str(err.value)
 
@@ -341,3 +419,27 @@ class TestKey:
     def test_key_to_paserk_secret(self, version, type, key):
         k = Key.new(version, type, key)
         assert k.to_paserk().startswith(f"k{k.version}.secret.")
+
+    @pytest.mark.parametrize(
+        "version, type, key",
+        [
+            (1, "local", token_bytes(32)),
+            (2, "local", token_bytes(32)),
+            (3, "local", token_bytes(32)),
+            (4, "local", token_bytes(32)),
+            (1, "public", load_key("keys/private_key_rsa.pem")),
+            (2, "public", load_key("keys/private_key_ed25519.pem")),
+            (3, "public", load_key("keys/private_key_ecdsa_p384.pem")),
+            (4, "public", load_key("keys/private_key_ed25519.pem")),
+        ],
+    )
+    def test_key_to_paserk_secret_with_wrapping_key_and_password(
+        self, version, type, key
+    ):
+        k = Key.new(version, type, key)
+        with pytest.raises(ValueError) as err:
+            k.to_paserk(wrapping_key="xxx", password="yyy")
+            pytest.fail("to_paserk() should fail.")
+        assert "Only one of wrapping_key or password should be specified." in str(
+            err.value
+        )
