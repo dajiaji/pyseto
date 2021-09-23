@@ -305,8 +305,121 @@ class TestWithTestVectors:
             )
         else:
             pytest.fail("Unsupported version.")
+
         wpk = k1.to_paserk(wrapping_key=bytes.fromhex(v["wrapping-key"]))
         k2 = Key.from_paserk(wpk, wrapping_key=bytes.fromhex(v["wrapping-key"]))
+
+        # t = pyseto.encode(k, b"Hello world!")
+        # d = pyseto.decode(k, t)
+        # d1 = pyseto.decode(k1, t)
+        # d2 = pyseto.decode(k2, t)
+        # assert d.payload == d1.payload == d2.payload == b"Hello world!"
+
+        t = pyseto.encode(k1, b"Hello world!")
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d1.payload == d2.payload == b"Hello world!"
+
+        # d = pyseto.decode(k, t)
+        # assert d.payload == b"Hello world!"
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                "vectors/PASERK/k1.local-pw.json",
+                "vectors/PASERK/k2.local-pw.json",
+                "vectors/PASERK/k3.local-pw.json",
+                "vectors/PASERK/k4.local-pw.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_local_pw(self, v):
+
+        version = _name_to_version(v["name"])
+
+        # k = Key.from_paserk(v["paserk"], password=v["password"])
+
+        k1 = Key.new(version, "local", bytes.fromhex(v["unwrapped"]))
+        if version in [1, 3]:
+            wpk = k1.to_paserk(
+                password=v["password"], iteration=v["options"]["iterations"]
+            )
+        elif version in [2, 4]:
+            wpk = k1.to_paserk(
+                password=v["password"],
+                memory_cost=int(v["options"]["memlimit"] / 1024),
+                time_cost=v["options"]["opslimit"],
+            )
+        else:
+            pytest.fail("Unsupported version.")
+
+        k2 = Key.from_paserk(wpk, password=v["password"])
+        assert k1._key == k2._key
+
+        # t = pyseto.encode(k, b"Hello world!")
+        # d = pyseto.decode(k, t)
+        # d1 = pyseto.decode(k1, t)
+        # d2 = pyseto.decode(k2, t)
+        # assert d.payload == d1.payload == d2.payload == b"Hello world!"
+
+        t = pyseto.encode(k1, b"Hello world!")
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d1.payload == d2.payload == b"Hello world!"
+
+        # d = pyseto.decode(k, t)
+        # assert d.payload == b"Hello world!"
+        # version = _name_to_version(v["name"])
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                "vectors/PASERK/k1.secret-pw.json",
+                "vectors/PASERK/k2.secret-pw.json",
+                "vectors/PASERK/k3.secret-pw.json",
+                "vectors/PASERK/k4.secret-pw.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_secret_pw(self, v):
+
+        version = _name_to_version(v["name"])
+
+        # k = Key.from_paserk(v["paserk"], password=v["password"])
+
+        if version == 1:
+            k1 = Key.new(version, "public", v["unwrapped"])
+        elif version == 2 or version == 4:
+            k1 = Key.from_asymmetric_key_params(
+                version, d=bytes.fromhex(v["unwrapped"])[0:32]
+            )
+        elif version == 3:
+            pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
+            bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
+            by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
+            k1 = Key.from_asymmetric_key_params(
+                version, x=bx, y=by, d=bytes.fromhex(v["unwrapped"])
+            )
+        else:
+            pytest.fail("Unsupported version.")
+
+        if version in [1, 3]:
+            wpk = k1.to_paserk(
+                password=v["password"], iteration=v["options"]["iterations"]
+            )
+        elif version in [2, 4]:
+            wpk = k1.to_paserk(
+                password=v["password"],
+                memory_cost=int(v["options"]["memlimit"] / 1024),
+                time_cost=v["options"]["opslimit"],
+            )
+        else:
+            pytest.fail("Unsupported version.")
+
+        k2 = Key.from_paserk(wpk, password=v["password"])
+        # assert k1._key == k2._key
 
         # t = pyseto.encode(k, b"Hello world!")
         # d = pyseto.decode(k, t)

@@ -76,6 +76,10 @@ class TestV3Local:
                 "k3.secret-wrap.AAAAAAAAAAAAAAAA",
                 "Invalid PASERK type: secret-wrap.",
             ),
+            (
+                "k3.local-pw.AAAAAAAAAAAAAAAA",
+                "local-pw needs password.",
+            ),
         ],
     )
     def test_v3_local_from_paserk_with_invalid_args(self, paserk, msg):

@@ -3,7 +3,9 @@ import hmac
 from secrets import token_bytes
 from typing import Any, Union
 
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from .exceptions import DecryptError, EncryptError
 from .key_interface import KeyInterface
@@ -24,46 +26,85 @@ class NISTKey(KeyInterface):
         return
 
     @classmethod
-    def from_paserk(cls, paserk: str, wrapping_key: bytes = b"") -> KeyInterface:
+    def from_paserk(
+        cls, paserk: str, wrapping_key: bytes = b"", password: bytes = b""
+    ) -> KeyInterface:
+
+        if wrapping_key and password:
+            raise ValueError(
+                "Only one of wrapping_key or password should be specified."
+            )
 
         frags = paserk.split(".")
         if frags[0] != f"k{cls._VERSION}":
             raise ValueError(f"Invalid PASERK version: {frags[0]}.")
 
-        if not wrapping_key:
-            if len(frags) != 3:
+        # local-wrap
+        if wrapping_key:
+            if len(frags) != 4:
                 raise ValueError("Invalid PASERK format.")
-            k = base64url_decode(frags[2])
-            if frags[1] == "local":
-                return cls(k)
+            if frags[2] != "pie":
+                raise ValueError(f"Unknown wrapping algorithm: {frags[2]}.")
+
+            h = frags[0] + "." + frags[1] + ".pie."
             if frags[1] == "local-wrap":
-                raise ValueError(f"{frags[1]} needs wrapping_key.")
+                return cls(cls._decode_pie(h, wrapping_key, frags[3]))
             raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
-        # wrapped key
-        if len(frags) != 4:
+        if len(frags) != 3:
             raise ValueError("Invalid PASERK format.")
-        if frags[2] != "pie":
-            raise ValueError(f"Unknown wrapping algorithm: {frags[2]}.")
 
-        h = frags[0] + "." + frags[1] + ".pie."
+        # local-pw
+        if password:
+            h = frags[0] + "." + frags[1] + "."
+            if frags[1] == "local-pw":
+                return cls(cls._decode_pbkw(h, password, frags[2]))
+            raise ValueError(f"Invalid PASERK type: {frags[1]}.")
+
+        # local
+        k = base64url_decode(frags[2])
+        if frags[1] == "local":
+            return cls(k)
         if frags[1] == "local-wrap":
-            return cls(cls._decode_pie(h, wrapping_key, frags[3]))
+            raise ValueError(f"{frags[1]} needs wrapping_key.")
+        if frags[1] == "local-pw":
+            raise ValueError(f"{frags[1]} needs password.")
         raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
-    def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
+    def to_paserk(
+        self,
+        wrapping_key: Union[bytes, str] = b"",
+        password: Union[bytes, str] = b"",
+        iteration: int = 100000,
+        memory_cost: int = 15 * 1024,
+        time_cost: int = 2,
+        parallelism: int = 1,
+    ) -> str:
 
-        if not wrapping_key:
-            h = f"k{self.version}.local."
-            return h + base64url_encode(self._key).decode("utf-8")
+        if wrapping_key and password:
+            raise ValueError(
+                "Only one of wrapping_key or password should be specified."
+            )
 
-        bkey = (
-            wrapping_key
-            if isinstance(wrapping_key, bytes)
-            else wrapping_key.encode("utf-8")
-        )
-        h = f"k{self.version}.local-wrap.pie."
-        return h + self._encode_pie(h, bkey, self._key)
+        # local-wrap
+        if wrapping_key:
+            bkey = (
+                wrapping_key
+                if isinstance(wrapping_key, bytes)
+                else wrapping_key.encode("utf-8")
+            )
+            h = f"k{self.version}.local-wrap.pie."
+            return h + self._encode_pie(h, bkey, self._key)
+
+        # local-pw
+        if password:
+            bpw = password if isinstance(password, bytes) else password.encode("utf-8")
+            h = f"k{self.version}.local-pw."
+            return h + self._encode_pbkw(h, bpw, self._key, iteration)
+
+        # local
+        h = f"k{self.version}.local."
+        return h + base64url_encode(self._key).decode("utf-8")
 
     @classmethod
     def _encode_pie(cls, header: str, wrapping_key: bytes, ptk: bytes) -> str:
@@ -74,11 +115,7 @@ class NISTKey(KeyInterface):
         ek = x[0:32]
         n2 = x[32:]
         ak = cls._generate_hash(wrapping_key, b"\x81" + n, 32)
-        try:
-            encryptor = Cipher(algorithms.AES(ek), modes.CTR(n2)).encryptor()
-            c = encryptor.update(ptk)
-        except Exception as err:
-            raise EncryptError("Failed to wrap a key.") from err
+        c = cls._encrypt(ek, n2, ptk)
         t = cls._generate_hash(ak, h + n + c, 48)
         return base64url_encode(t + n + c).decode("utf-8")
 
@@ -97,11 +134,57 @@ class NISTKey(KeyInterface):
         x = cls._generate_hash(wrapping_key, b"\x80" + n)
         ek = x[0:32]
         n2 = x[32:]
-        try:
-            decryptor = Cipher(algorithms.AES(ek), modes.CTR(n2)).decryptor()
-            return decryptor.update(c)
-        except Exception as err:
-            raise DecryptError("Failed to unwrap a key.") from err
+        return cls._decrypt(ek, n2, c)
+
+    @classmethod
+    def _encode_pbkw(
+        cls, header: str, password: bytes, ptk: bytes, iteration: int = 100000
+    ) -> str:
+
+        h = header.encode("utf-8")
+
+        s = token_bytes(32)
+        k = PBKDF2HMAC(
+            algorithm=hashes.SHA384(),
+            length=32,
+            salt=s,
+            iterations=iteration,
+        ).derive(password)
+        ek = cls._digest(b"\xff" + k)[0:32]
+        ak = cls._digest(b"\xfe" + k)
+        n = token_bytes(16)
+        edk = cls._encrypt(ek, n, ptk)
+        bi = iteration.to_bytes(4, byteorder="big")
+        t = cls._generate_hash(ak, h + s + bi + n + edk, 48)
+        return base64url_encode(s + bi + n + edk + t).decode("utf-8")
+
+    @classmethod
+    def _decode_pbkw(cls, header: str, password: bytes, data: str) -> bytes:
+
+        h = header.encode("utf-8")
+        d = base64url_decode(data)
+
+        s = d[0:32]
+        bi = d[32:36]
+        n = d[36:52]
+        edk = d[52 : len(d) - 48]
+        t = d[-48:]
+        i = int.from_bytes(bi, byteorder="big")
+
+        k = PBKDF2HMAC(
+            algorithm=hashes.SHA384(),
+            length=32,
+            salt=s,
+            iterations=i,
+        ).derive(password)
+
+        ak = cls._digest(b"\xfe" + k)
+        t2 = cls._generate_hash(ak, h + s + bi + n + edk, 48)
+        if t != t2:
+            raise DecryptError("Failed to unwrap a key.")
+
+        ek = cls._digest(b"\xff" + k)[0:32]
+        return cls._decrypt(ek, n, edk)
 
     @staticmethod
     def _generate_hash(key: bytes, msg: bytes, size: int = 0) -> bytes:
@@ -111,3 +194,25 @@ class NISTKey(KeyInterface):
             return d[0:size] if size > 0 else d
         except Exception as err:
             raise EncryptError("Failed to generate hash.") from err
+
+    @staticmethod
+    def _digest(msg: bytes) -> bytes:
+        digest = hashes.Hash(hashes.SHA384())
+        digest.update(msg)
+        return digest.finalize()
+
+    @staticmethod
+    def _encrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
+        try:
+            encryptor = Cipher(algorithms.AES(key), modes.CTR(nonce)).encryptor()
+            return encryptor.update(msg)
+        except Exception as err:
+            raise EncryptError("Failed to encrypt.") from err
+
+    @staticmethod
+    def _decrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
+        try:
+            decryptor = Cipher(algorithms.AES(key), modes.CTR(nonce)).decryptor()
+            return decryptor.update(msg)
+        except Exception as err:
+            raise DecryptError("Failed to decrypt.") from err

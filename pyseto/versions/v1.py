@@ -6,14 +6,13 @@ from typing import Any, Union
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.serialization import (
     load_der_private_key,
     load_der_public_key,
 )
 
-from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
+from ..exceptions import DecryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
 from ..key_nist import NISTKey
 from ..utils import base64url_decode, base64url_encode, pae
@@ -62,20 +61,13 @@ class V1Local(NISTKey):
         ek = e.derive(self._key)
         ak = a.derive(self._key)
 
-        try:
-            c = (
-                Cipher(algorithms.AES(ek), modes.CTR(n[16:]))
-                .encryptor()
-                .update(payload)
-            )
-            pre_auth = pae([self.header, n, c, footer])
-            t = hmac.new(ak, pre_auth, hashlib.sha384).digest()
-            token = self._header + base64url_encode(n + c + t)
-            if footer:
-                token += b"." + base64url_encode(footer)
-            return token
-        except Exception as err:
-            raise EncryptError("Failed to encrypt.") from err
+        c = self._encrypt(ek, n[16:], payload)
+        pre_auth = pae([self.header, n, c, footer])
+        t = hmac.new(ak, pre_auth, hashlib.sha384).digest()
+        token = self._header + base64url_encode(n + c + t)
+        if footer:
+            token += b"." + base64url_encode(footer)
+        return token
 
     def decrypt(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
@@ -103,11 +95,7 @@ class V1Local(NISTKey):
         t2 = hmac.new(ak, pre_auth, hashlib.sha384).digest()
         if t != t2:
             raise DecryptError("Failed to decrypt.")
-
-        try:
-            return Cipher(algorithms.AES(ek), modes.CTR(n[16:])).decryptor().update(c)
-        except Exception as err:
-            raise DecryptError("Failed to decrypt.") from err
+        return self._decrypt(ek, n[16:], c)
 
     def to_paserk_id(self) -> str:
         h = "k1.lid."
@@ -138,34 +126,51 @@ class V1Public(NISTKey):
         return
 
     @classmethod
-    def from_paserk(cls, paserk: str, wrapping_key: bytes = b"") -> KeyInterface:
+    def from_paserk(
+        cls, paserk: str, wrapping_key: bytes = b"", password: bytes = b""
+    ) -> KeyInterface:
+
+        if wrapping_key and password:
+            raise ValueError(
+                "Only one of wrapping_key or password should be specified."
+            )
 
         frags = paserk.split(".")
         if frags[0] != "k1":
             raise ValueError(f"Invalid PASERK version: {frags[0]}.")
 
-        if not wrapping_key:
-            if len(frags) != 3:
+        if wrapping_key:
+            if len(frags) != 4:
                 raise ValueError("Invalid PASERK format.")
-            wrapped = base64url_decode(frags[2])
-            if frags[1] == "public":
-                return cls(load_der_public_key(wrapped))
-            if frags[1] == "secret":
-                return cls(load_der_private_key(wrapped, password=None))
+            if frags[2] != "pie":
+                raise ValueError(f"Unknown wrapping algorithm: {frags[2]}.")
+
             if frags[1] == "secret-wrap":
-                raise ValueError(f"{frags[1]} needs wrapping_key.")
+                h = "k1.secret-wrap.pie."
+                k = cls._decode_pie(h, wrapping_key, frags[3])
+                return cls(load_der_private_key(k, password=None))
             raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
-        # wrapped key
-        if len(frags) != 4:
+        if len(frags) != 3:
             raise ValueError("Invalid PASERK format.")
-        if frags[2] != "pie":
-            raise ValueError(f"Unknown wrapping algorithm: {frags[2]}.")
 
+        if password:
+            if len(frags) != 3:
+                raise ValueError("Invalid PASERK format.")
+
+            if frags[1] == "secret-pw":
+                h = "k1.secret-pw."
+                k = cls._decode_pbkw(h, password, frags[2])
+                return cls(load_der_private_key(k, password=None))
+            raise ValueError(f"Invalid PASERK type: {frags[1]}.")
+
+        wrapped = base64url_decode(frags[2])
+        if frags[1] == "public":
+            return cls(load_der_public_key(wrapped))
+        if frags[1] == "secret":
+            return cls(load_der_private_key(wrapped, password=None))
         if frags[1] == "secret-wrap":
-            h = "k1.secret-wrap.pie."
-            k = cls._decode_pie(h, wrapping_key, frags[3])
-            return cls(load_der_private_key(k, password=None))
+            raise ValueError(f"{frags[1]} needs wrapping_key.")
         raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
     def sign(
@@ -197,38 +202,68 @@ class V1Public(NISTKey):
             raise VerifyError("Failed to verify.") from err
         return m
 
-    def to_paserk(self, wrapping_key: Union[bytes, str] = b"") -> str:
-        if not wrapping_key:
-            if isinstance(self._key, RSAPublicKey):
-                pub = self._key.public_bytes(
-                    encoding=serialization.Encoding.DER,
-                    format=serialization.PublicFormat.SubjectPublicKeyInfo,
-                )
-                return "k1.public." + base64url_encode(pub).decode("utf-8")
+    def to_paserk(
+        self,
+        wrapping_key: Union[bytes, str] = b"",
+        password: Union[bytes, str] = b"",
+        iteration: int = 100000,
+        memory_cost: int = 15 * 1024,
+        time_cost: int = 2,
+        parallelism: int = 1,
+    ) -> str:
 
+        if wrapping_key and password:
+            raise ValueError(
+                "Only one of wrapping_key or password should be specified."
+            )
+
+        if wrapping_key:
+            # secret-wrap
+            if not isinstance(self._key, RSAPrivateKey):
+                raise ValueError("Public key cannot be wrapped.")
+
+            bkey = (
+                wrapping_key
+                if isinstance(wrapping_key, bytes)
+                else wrapping_key.encode("utf-8")
+            )
+            h = "k1.secret-wrap.pie."
             priv = self._key.private_bytes(
                 encoding=serialization.Encoding.DER,
                 format=serialization.PrivateFormat.TraditionalOpenSSL,
                 encryption_algorithm=serialization.NoEncryption(),
             )
-            return "k1.secret." + base64url_encode(priv).decode("utf-8")
+            return h + self._encode_pie(h, bkey, priv)
 
+        if password:
+            # secret-pw
+            if not isinstance(self._key, RSAPrivateKey):
+                raise ValueError("Public key cannot be wrapped.")
+
+            bpw = password if isinstance(password, bytes) else password.encode("utf-8")
+            h = "k1.secret-pw."
+            priv = self._key.private_bytes(
+                encoding=serialization.Encoding.DER,
+                format=serialization.PrivateFormat.TraditionalOpenSSL,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+            return h + self._encode_pbkw(h, bpw, priv, iteration)
+
+        # public
         if isinstance(self._key, RSAPublicKey):
-            raise ValueError("Public key cannot be wrapped.")
+            pub = self._key.public_bytes(
+                encoding=serialization.Encoding.DER,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
+            )
+            return "k1.public." + base64url_encode(pub).decode("utf-8")
 
-        # wrapped key
-        bkey = (
-            wrapping_key
-            if isinstance(wrapping_key, bytes)
-            else wrapping_key.encode("utf-8")
-        )
-        h = "k1.secret-wrap.pie."
+        # secret
         priv = self._key.private_bytes(
             encoding=serialization.Encoding.DER,
             format=serialization.PrivateFormat.TraditionalOpenSSL,
             encryption_algorithm=serialization.NoEncryption(),
         )
-        return h + self._encode_pie(h, bkey, priv)
+        return "k1.secret." + base64url_encode(priv).decode("utf-8")
 
     def to_paserk_id(self) -> str:
         p = self.to_paserk()

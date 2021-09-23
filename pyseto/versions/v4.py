@@ -2,13 +2,12 @@ import hashlib
 from secrets import token_bytes
 from typing import Any, Union
 
-from Cryptodome.Cipher import ChaCha20
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
 
-from ..exceptions import DecryptError, EncryptError, SignError, VerifyError
+from ..exceptions import DecryptError, SignError, VerifyError
 from ..key_sodium import SodiumKey
 from ..utils import base64url_encode, pae
 
@@ -46,17 +45,13 @@ class V4Local(SodiumKey):
         n2 = tmp[32:]
         ak = self._generate_hash(self._key, b"paseto-auth-key-for-aead" + nonce, 32)
 
-        try:
-            cipher = ChaCha20.new(key=ek, nonce=n2)
-            c = cipher.encrypt(payload)
-            pre_auth = pae([self.header, nonce, c, footer, implicit_assertion])
-            t = self._generate_hash(ak, pre_auth, 32)
-            token = self._header + base64url_encode(nonce + c + t)
-            if footer:
-                token += b"." + base64url_encode(footer)
-            return token
-        except Exception as err:
-            raise EncryptError("Failed to encrypt.") from err
+        c = self._encrypt(ek, n2, payload)
+        pre_auth = pae([self.header, nonce, c, footer, implicit_assertion])
+        t = self._generate_hash(ak, pre_auth, 32)
+        token = self._header + base64url_encode(nonce + c + t)
+        if footer:
+            token += b"." + base64url_encode(footer)
+        return token
 
     def decrypt(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
@@ -73,11 +68,7 @@ class V4Local(SodiumKey):
         t2 = self._generate_hash(ak, pre_auth, 32)
         if t != t2:
             raise DecryptError("Failed to decrypt.")
-        try:
-            cipher = ChaCha20.new(key=ek, nonce=n2)
-            return cipher.decrypt(c)
-        except Exception as err:
-            raise DecryptError("Failed to decrypt.") from err
+        return self._decrypt(ek, n2, c)
 
     def to_paserk_id(self) -> str:
         h = "k4.lid."

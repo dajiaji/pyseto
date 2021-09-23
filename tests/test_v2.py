@@ -56,7 +56,7 @@ class TestV2Local:
         with pytest.raises(EncryptError) as err:
             V2Local._encode_pie("v2.local-wrap.pie.", token_bytes(32), ptk)
             pytest.fail("V2Local._encode_pie() should fail.")
-        assert "Failed to wrap a key." in str(err.value)
+        assert "Failed to encrypt." in str(err.value)
 
     def test_v2_local_decrypt_via_decode_with_wrong_key(self):
         k1 = Key.new("v2", "local", token_bytes(32))
@@ -107,6 +107,10 @@ class TestV2Local:
             (
                 "k2.secret-wrap.AAAAAAAAAAAAAAAA",
                 "Invalid PASERK type: secret-wrap.",
+            ),
+            (
+                "k2.local-pw.AAAAAAAAAAAAAAAA",
+                "local-pw needs password.",
             ),
         ],
     )
@@ -164,6 +168,10 @@ class TestV2Public:
             (
                 "k2.secret-wrap.AAAAAAAAAAAAAAAA",
                 "secret-wrap needs wrapping_key.",
+            ),
+            (
+                "k2.secret-pw.AAAAAAAAAAAAAAAA",
+                "secret-pw needs password.",
             ),
         ],
     )
