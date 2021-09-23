@@ -31,6 +31,14 @@ class V1Local(NISTKey):
         super().__init__(key)
         return
 
+    def to_paserk_id(self) -> str:
+        h = "k1.lid."
+        p = self.to_paserk()
+        digest = hashes.Hash(hashes.SHA384())
+        digest.update((h + p).encode("utf-8"))
+        d = digest.finalize()
+        return h + base64url_encode(d[0:33]).decode("utf-8")
+
     def encrypt(
         self,
         payload: bytes,
@@ -96,14 +104,6 @@ class V1Local(NISTKey):
         if t != t2:
             raise DecryptError("Failed to decrypt.")
         return self._decrypt(ek, n[16:], c)
-
-    def to_paserk_id(self) -> str:
-        h = "k1.lid."
-        p = self.to_paserk()
-        digest = hashes.Hash(hashes.SHA384())
-        digest.update((h + p).encode("utf-8"))
-        d = digest.finalize()
-        return h + base64url_encode(d[0:33]).decode("utf-8")
 
 
 class V1Public(NISTKey):
@@ -172,35 +172,6 @@ class V1Public(NISTKey):
         if frags[1] == "secret-wrap":
             raise ValueError(f"{frags[1]} needs wrapping_key.")
         raise ValueError(f"Invalid PASERK type: {frags[1]}.")
-
-    def sign(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
-
-        if isinstance(self._key, RSAPublicKey):
-            raise ValueError("A public key cannot be used for signing.")
-        m2 = pae([self.header, payload, footer])
-        try:
-            return self._key.sign(m2, self._padding, hashes.SHA384())
-        except Exception as err:
-            raise SignError("Failed to sign.") from err
-
-    def verify(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ):
-
-        if len(payload) <= self._sig_size:
-            raise ValueError("Invalid payload.")
-
-        sig = payload[-self._sig_size :]
-        m = payload[: len(payload) - self._sig_size]
-        k = self._key if isinstance(self._key, RSAPublicKey) else self._key.public_key()
-        m2 = pae([self.header, m, footer])
-        try:
-            k.verify(sig, m2, self._padding, hashes.SHA384())
-        except Exception as err:
-            raise VerifyError("Failed to verify.") from err
-        return m
 
     def to_paserk(
         self,
@@ -272,3 +243,32 @@ class V1Public(NISTKey):
         digest.update((h + p).encode("utf-8"))
         d = digest.finalize()
         return h + base64url_encode(d[0:33]).decode("utf-8")
+
+    def sign(
+        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
+    ) -> bytes:
+
+        if isinstance(self._key, RSAPublicKey):
+            raise ValueError("A public key cannot be used for signing.")
+        m2 = pae([self.header, payload, footer])
+        try:
+            return self._key.sign(m2, self._padding, hashes.SHA384())
+        except Exception as err:
+            raise SignError("Failed to sign.") from err
+
+    def verify(
+        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
+    ):
+
+        if len(payload) <= self._sig_size:
+            raise ValueError("Invalid payload.")
+
+        sig = payload[-self._sig_size :]
+        m = payload[: len(payload) - self._sig_size]
+        k = self._key if isinstance(self._key, RSAPublicKey) else self._key.public_key()
+        m2 = pae([self.header, m, footer])
+        try:
+            k.verify(sig, m2, self._padding, hashes.SHA384())
+        except Exception as err:
+            raise VerifyError("Failed to verify.") from err
+        return m

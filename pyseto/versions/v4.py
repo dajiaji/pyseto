@@ -27,6 +27,14 @@ class V4Local(SodiumKey):
             raise ValueError("key length must be up to 64 bytes.")
         return
 
+    def to_paserk_id(self) -> str:
+        h = "k4.lid."
+        p = self.to_paserk()
+        b = hashlib.blake2b(digest_size=33)
+        b.update((h + p).encode("utf-8"))
+        d = b.digest()
+        return h + base64url_encode(d).decode("utf-8")
+
     def encrypt(
         self,
         payload: bytes,
@@ -70,14 +78,6 @@ class V4Local(SodiumKey):
             raise DecryptError("Failed to decrypt.")
         return self._decrypt(ek, n2, c)
 
-    def to_paserk_id(self) -> str:
-        h = "k4.lid."
-        p = self.to_paserk()
-        b = hashlib.blake2b(digest_size=33)
-        b.update((h + p).encode("utf-8"))
-        d = b.digest()
-        return h + base64url_encode(d).decode("utf-8")
-
 
 class V4Public(SodiumKey):
     """
@@ -103,6 +103,14 @@ class V4Public(SodiumKey):
     #     except Exception as err:
     #         raise ValueError("Invalid bytes for the key.") from err
     #     return cls(k)
+
+    def to_paserk_id(self) -> str:
+        p = self.to_paserk()
+        h = "k4.pid." if isinstance(self._key, Ed25519PublicKey) else "k4.sid."
+        b = hashlib.blake2b(digest_size=33)
+        b.update((h + p).encode("utf-8"))
+        d = b.digest()
+        return h + base64url_encode(d).decode("utf-8")
 
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
@@ -137,11 +145,3 @@ class V4Public(SodiumKey):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
-
-    def to_paserk_id(self) -> str:
-        p = self.to_paserk()
-        h = "k4.pid." if isinstance(self._key, Ed25519PublicKey) else "k4.sid."
-        b = hashlib.blake2b(digest_size=33)
-        b.update((h + p).encode("utf-8"))
-        d = b.digest()
-        return h + base64url_encode(d).decode("utf-8")
