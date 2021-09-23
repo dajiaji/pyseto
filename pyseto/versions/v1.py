@@ -243,6 +243,7 @@ class V1Public(NISTKey):
         digest.update((h + p).encode("utf-8"))
         d = digest.finalize()
         return h + base64url_encode(d[0:33]).decode("utf-8")
+
     def sign(
         self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
     ) -> bytes:
