@@ -1,5 +1,5 @@
-Usage Examples
-==============
+PASETO Usage Examples
+=====================
 
 The following is a simple sample code using PySETO:
 

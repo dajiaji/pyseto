@@ -84,19 +84,26 @@ class TestSample:
         )
 
     def test_sample_paserk(self):
+
+        symmetric_key = Key.new(version=4, type="local", key=b"our-secret")
         private_key = Key.from_paserk(
-            "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Q"
+            "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
         )
+        public_key = Key.from_paserk(
+            "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
+        )
+
         token = pyseto.encode(
             private_key,
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
         )
-
-        public_key = Key.from_paserk(
-            "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
-        )
         decoded = pyseto.decode(public_key, token)
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
 
+        assert symmetric_key.to_paserk() == "k4.local.b3VyLXNlY3JldA"
         assert (
             private_key.to_paserk()
             == "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
@@ -104,6 +111,21 @@ class TestSample:
         assert (
             public_key.to_paserk()
             == "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
+        )
+
+    def test_sample_paserk_id(self):
+
+        symmetric_key = Key.new(version=4, type="local", key=b"our-secret")
+        private_key = Key.from_paserk(
+            "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
+        )
+        public_key = Key.from_paserk(
+            "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
+        )
+
+        assert (
+            symmetric_key.to_paserk_id()
+            == "k4.lid._D6kgTzxgiPGk35gMj9bukgj4En2H94u22wVX9zaoh05"
         )
         assert (
             private_key.to_paserk_id()
@@ -113,6 +135,86 @@ class TestSample:
             public_key.to_paserk_id()
             == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
         )
+
+    def test_sample_paserk_key_wrapping_local(self):
+
+        raw_key = Key.new(version=4, type="local", key=b"our-secret")
+        wrapping_key = token_bytes(32)
+        wpk = raw_key.to_paserk(wrapping_key=wrapping_key)
+
+        # assert wpk == "k4.local-wrap.pie.TNKEwC4K1xBcgJ_GiwWAoRlQFE33HJO3oN9DHEZ05pieSCd-W7bgAL64VG9TZ_pBkuNBFHNrfOGHtnfnhYGdbz5-x3CxShhPJxg"
+
+        unwrapped_key = Key.from_paserk(wpk, wrapping_key=wrapping_key)
+        token = pyseto.encode(
+            raw_key,
+            b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        )
+        decoded = pyseto.decode(unwrapped_key, token)
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+
+    def test_sample_paserk_key_wrapping_public(self):
+
+        raw_private_key = Key.from_paserk(
+            "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
+        )
+        public_key = Key.from_paserk(
+            "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
+        )
+        wrapping_key = token_bytes(32)
+        wpk = raw_private_key.to_paserk(wrapping_key=wrapping_key)
+
+        # assert wpk == "k4.secret-wrap.pie.excv7V4-NaECy5hpji-tkSkMvyjsAgNxA-mGALgdjyvGNyDlTb89bJ35R1e3tILgbMpEW5WXMXzySe2T-sBz-ZAcs1j7rbD3ZWvsBTM6K5N9wWfAxbR4ppCXH_H5__9yY-kBaF2NimyAJyduhOhSmqLm6TTSucpAOakEJOXePW8"
+
+        unwrapped_private_key = Key.from_paserk(wpk, wrapping_key=wrapping_key)
+        token = pyseto.encode(
+            unwrapped_private_key,
+            b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        )
+        decoded = pyseto.decode(public_key, token)
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+
+    def test_sample_paserk_password_local(self):
+
+        raw_key = Key.new(version=4, type="local", key=b"our-secret")
+        wpk = raw_key.to_paserk(password="our-secret")
+
+        # assert wpk == "k4.local-pw.HrCs9Pu-2LB0l7jkHB-x2gAAAAAA8AAAAAAAAgAAAAGttW0IHZjQCHJdg-Vc3tqO_GSLR4vzLl-yrKk2I-l8YHj6jWpC0lQB2Z7uzTtVyV1rd_EZQPzHdw5VOtyucP0FkCU"
+
+        unwrapped_key = Key.from_paserk(wpk, password="our-secret")
+        token = pyseto.encode(
+            raw_key,
+            b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        )
+        decoded = pyseto.decode(unwrapped_key, token)
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+
+    def test_sample_paserk_password_public(self):
+
+        raw_private_key = Key.from_paserk(
+            "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
+        )
+        public_key = Key.from_paserk(
+            "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
+        )
+        wpk = raw_private_key.to_paserk(password="our-secret")
+
+        # assert wpk == "k4.secret-pw.MEMW4K1MaD5nWigCLyEyFAAAAAAA8AAAAAAAAgAAAAFU-tArtryNVjS2n2hCYiM11V6tOyuIog69Bjb0yNZanrLJ3afGclb3kPzQ6IhK8ob9E4QgRdEALGWCizZ0RCPFF_M95IQDfmdYKC0Er656UgKUK4UKG9JlxP4o81UwoJoZYz_D1zTlltipEa5RiNvUtNU8vLKoGSY"
+
+        unwrapped_private_key = Key.from_paserk(wpk, password="our-secret")
+        token = pyseto.encode(
+            unwrapped_private_key,
+            b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        )
+        decoded = pyseto.decode(public_key, token)
         assert (
             decoded.payload
             == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
