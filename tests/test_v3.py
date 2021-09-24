@@ -3,7 +3,7 @@ from secrets import token_bytes
 import pytest
 
 import pyseto
-from pyseto import DecryptError, EncryptError, Key, VerifyError
+from pyseto import DecryptError, EncryptError, Key, SignError, VerifyError
 from pyseto.versions.v3 import V3Local, V3Public
 
 from .utils import load_key
@@ -170,3 +170,14 @@ class TestV3Public:
             V3Public.from_public_bytes(b"xxx")
             pytest.fail("Key.from_paserk should fail.")
         assert "Invalid bytes for the key." in str(err.value)
+
+    def test_v3_public_sign_via_encode_with_invalid_key(self):
+
+        k = Key.from_paserk(
+            "k3.secret-pw.mXsR2qVqmcDxmSWeQCnCwNeIxe5RDQ3ehnQvdXFj-YgAAAPoFI8eRXCL8PFpVW_CWOvGHnvMPy0BkMlKF1AtmBYGKold9i-ALC2oflkemYdbncrHbiKGd8zfjTQu2tTo2ayOMHybk_-hhopwJ2IUallYfLfUzPuqvtOQfVxXLtUBPnmR75dhRiPDgzdIO1OMbqa3Z1LDevvzbrcPyhHqmJSZioeJ7j1Mu8DJOvrIK0pWHmjDq_eg4YFnaOgz7I3Tkxx89A",
+            password="correct horse battery staple".encode("utf-8").hex(),
+        )
+        with pytest.raises(SignError) as err:
+            pyseto.encode(k, b"Hello world!")
+            pytest.fail("pyseto.sign() should fail.")
+        assert "Failed to sign." in str(err.value)

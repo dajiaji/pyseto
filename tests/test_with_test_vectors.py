@@ -288,7 +288,7 @@ class TestWithTestVectors:
 
         version = _name_to_version(v["name"])
 
-        # k = Key.from_paserk(v["paserk"], wrapping_key=bytes.fromhex(v["wrapping-key"]))
+        k = Key.from_paserk(v["paserk"], wrapping_key=bytes.fromhex(v["wrapping-key"]))
 
         if version == 1:
             k1 = Key.new(version, "public", v["unwrapped"])
@@ -309,19 +309,19 @@ class TestWithTestVectors:
         wpk = k1.to_paserk(wrapping_key=bytes.fromhex(v["wrapping-key"]))
         k2 = Key.from_paserk(wpk, wrapping_key=bytes.fromhex(v["wrapping-key"]))
 
-        # t = pyseto.encode(k, b"Hello world!")
-        # d = pyseto.decode(k, t)
-        # d1 = pyseto.decode(k1, t)
-        # d2 = pyseto.decode(k2, t)
-        # assert d.payload == d1.payload == d2.payload == b"Hello world!"
+        t = pyseto.encode(k, b"Hello world!")
+        d = pyseto.decode(k, t)
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d.payload == d1.payload == d2.payload == b"Hello world!"
 
         t = pyseto.encode(k1, b"Hello world!")
         d1 = pyseto.decode(k1, t)
         d2 = pyseto.decode(k2, t)
         assert d1.payload == d2.payload == b"Hello world!"
 
-        # d = pyseto.decode(k, t)
-        # assert d.payload == b"Hello world!"
+        d = pyseto.decode(k, t)
+        assert d.payload == b"Hello world!"
 
     @pytest.mark.parametrize(
         "v",
@@ -338,7 +338,7 @@ class TestWithTestVectors:
 
         version = _name_to_version(v["name"])
 
-        # k = Key.from_paserk(v["paserk"], password=v["password"])
+        k = Key.from_paserk(v["paserk"], password=v["password"])
 
         k1 = Key.new(version, "local", bytes.fromhex(v["unwrapped"]))
         if version in [1, 3]:
@@ -357,20 +357,20 @@ class TestWithTestVectors:
         k2 = Key.from_paserk(wpk, password=v["password"])
         assert k1._key == k2._key
 
-        # t = pyseto.encode(k, b"Hello world!")
-        # d = pyseto.decode(k, t)
-        # d1 = pyseto.decode(k1, t)
-        # d2 = pyseto.decode(k2, t)
-        # assert d.payload == d1.payload == d2.payload == b"Hello world!"
+        t = pyseto.encode(k, b"Hello world!")
+        d = pyseto.decode(k, t)
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d.payload == d1.payload == d2.payload == b"Hello world!"
 
         t = pyseto.encode(k1, b"Hello world!")
         d1 = pyseto.decode(k1, t)
         d2 = pyseto.decode(k2, t)
         assert d1.payload == d2.payload == b"Hello world!"
 
-        # d = pyseto.decode(k, t)
-        # assert d.payload == b"Hello world!"
-        # version = _name_to_version(v["name"])
+        d = pyseto.decode(k, t)
+        assert d.payload == b"Hello world!"
+        version = _name_to_version(v["name"])
 
     @pytest.mark.parametrize(
         "v",
@@ -383,11 +383,11 @@ class TestWithTestVectors:
             ]
         ),
     )
-    def test_with_test_vectors_paserk_secret_pw(self, v):
+    def test_with_test_vectors_paserk_secret_pw_fixed(self, v):
 
         version = _name_to_version(v["name"])
 
-        # k = Key.from_paserk(v["paserk"], password=v["password"])
+        k = Key.from_paserk(v["paserk"], password=v["password"])
 
         if version == 1:
             k1 = Key.new(version, "public", v["unwrapped"])
@@ -419,18 +419,17 @@ class TestWithTestVectors:
             pytest.fail("Unsupported version.")
 
         k2 = Key.from_paserk(wpk, password=v["password"])
-        # assert k1._key == k2._key
 
-        # t = pyseto.encode(k, b"Hello world!")
-        # d = pyseto.decode(k, t)
-        # d1 = pyseto.decode(k1, t)
-        # d2 = pyseto.decode(k2, t)
-        # assert d.payload == d1.payload == d2.payload == b"Hello world!"
+        t = pyseto.encode(k, b"Hello world!")
+        d = pyseto.decode(k, t)
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d.payload == d1.payload == d2.payload == b"Hello world!"
 
         t = pyseto.encode(k1, b"Hello world!")
         d1 = pyseto.decode(k1, t)
         d2 = pyseto.decode(k2, t)
         assert d1.payload == d2.payload == b"Hello world!"
 
-        # d = pyseto.decode(k, t)
-        # assert d.payload == b"Hello world!"
+        d = pyseto.decode(k, t)
+        assert d.payload == b"Hello world!"
