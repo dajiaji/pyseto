@@ -25,6 +25,8 @@ in Python which supports all of the versions and purposes below:
     - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
         - EdDSA over Curve25519.
 
+In addition, PySETO also supports `PASERK (Platform-Agnostic Serialized Keys)`_.
+
 You can install PySETO with pip:
 
 .. code-block:: console
@@ -81,7 +83,8 @@ Index
    :maxdepth: 2
 
    installation
-   usage
+   paseto_usage
+   paserk_usage
    api
    changes
 
@@ -91,3 +94,4 @@ Index
 .. _`Version 3: NIST Modern`: https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version3.md
 .. _`Version 4: Sodium Modern`: https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version4.md
 .. _`RFC 6979 deterministic k-values`: https://datatracker.ietf.org/doc/html/rfc6979
+.. _`PASERK (Platform-Agnostic Serialized Keys)`: https://github.com/paseto-standard/paserk.
