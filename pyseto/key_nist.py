@@ -197,9 +197,7 @@ class NISTKey(KeyInterface):
 
     @staticmethod
     def _digest(msg: bytes) -> bytes:
-        digest = hashes.Hash(hashes.SHA384())
-        digest.update(msg)
-        return digest.finalize()
+        return hashlib.sha384(msg).digest()
 
     @staticmethod
     def _encrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
