@@ -383,7 +383,7 @@ class TestWithTestVectors:
             ]
         ),
     )
-    def test_with_test_vectors_paserk_secret_pw_fixed(self, v):
+    def test_with_test_vectors_paserk_secret_pw(self, v):
 
         version = _name_to_version(v["name"])
 
