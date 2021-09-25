@@ -115,7 +115,7 @@ class SodiumKey(KeyInterface):
                 if isinstance(wrapping_key, bytes)
                 else wrapping_key.encode("utf-8")
             )
-            if self.type == "local":
+            if self.purpose == "local":
                 h = f"k{self.version}.local-wrap.pie."
                 return h + self._encode_pie(h, bkey, self._key)
 
@@ -138,7 +138,7 @@ class SodiumKey(KeyInterface):
         if password:
             # local-pw
             bpw = password if isinstance(password, bytes) else password.encode("utf-8")
-            if self.type == "local":
+            if self.purpose == "local":
                 h = f"k{self.version}.local-pw."
                 return h + self._encode_pbkw(
                     h, bpw, self._key, memory_cost, time_cost, parallelism
@@ -163,7 +163,7 @@ class SodiumKey(KeyInterface):
             )
 
         # local
-        if self.type == "local":
+        if self.purpose == "local":
             h = f"k{self.version}.local."
             return h + base64url_encode(self._key).decode("utf-8")
 

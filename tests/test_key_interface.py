@@ -12,7 +12,7 @@ class TestKeyInterface:
     """
 
     @pytest.mark.parametrize(
-        "version, type, key",
+        "version, purpose, key",
         [
             (1, "local", token_bytes(32)),
             (2, "local", token_bytes(32)),
@@ -20,11 +20,11 @@ class TestKeyInterface:
             (4, "local", token_bytes(32)),
         ],
     )
-    def test_key_interface_constructor_local(self, version, type, key):
-        k = KeyInterface(version, type, key)
+    def test_key_interface_constructor_local(self, version, purpose, key):
+        k = KeyInterface(version, purpose, key)
         assert isinstance(k, KeyInterface)
         assert k.version == version
-        assert k.type == type
+        assert k.purpose == purpose
         with pytest.raises(NotSupportedError) as err:
             k.encrypt(b"Hello world!")
             pytest.fail("KeyInterface.encrypt() should fail.")

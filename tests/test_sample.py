@@ -49,7 +49,7 @@ class TestSample:
 
     def test_sample_v4_local(self):
 
-        key = Key.new(version=4, type="local", key=b"our-secret")
+        key = Key.new(version=4, purpose="local", key=b"our-secret")
         token = pyseto.encode(
             key,
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
@@ -66,12 +66,12 @@ class TestSample:
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
 
-        private_key = Key.new(version=4, type="public", key=private_key_pem)
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
         token = pyseto.encode(
             private_key,
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
         )
-        public_key = Key.new(version=4, type="public", key=public_key_pem)
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
         decoded = pyseto.decode(public_key, token)
 
         assert (
@@ -85,7 +85,7 @@ class TestSample:
 
     def test_sample_paserk(self):
 
-        symmetric_key = Key.new(version=4, type="local", key=b"our-secret")
+        symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
         private_key = Key.from_paserk(
             "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
         )
@@ -115,7 +115,7 @@ class TestSample:
 
     def test_sample_paserk_id(self):
 
-        symmetric_key = Key.new(version=4, type="local", key=b"our-secret")
+        symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
         private_key = Key.from_paserk(
             "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
         )
@@ -138,7 +138,7 @@ class TestSample:
 
     def test_sample_paserk_key_wrapping_local(self):
 
-        raw_key = Key.new(version=4, type="local", key=b"our-secret")
+        raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
         wrapping_key = token_bytes(32)
         wpk = raw_key.to_paserk(wrapping_key=wrapping_key)
 
@@ -181,7 +181,7 @@ class TestSample:
 
     def test_sample_paserk_password_local(self):
 
-        raw_key = Key.new(version=4, type="local", key=b"our-secret")
+        raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
         wpk = raw_key.to_paserk(password="our-secret")
 
         # assert wpk == "k4.local-pw.HrCs9Pu-2LB0l7jkHB-x2gAAAAAA8AAAAAAAAgAAAAGttW0IHZjQCHJdg-Vc3tqO_GSLR4vzLl-yrKk2I-l8YHj6jWpC0lQB2Z7uzTtVyV1rd_EZQPzHdw5VOtyucP0FkCU"
@@ -245,7 +245,7 @@ class TestSample:
 
     def test_sample_rtd_v4_local(self):
 
-        key = Key.new(version=4, type="local", key=b"our-secret")
+        key = Key.new(version=4, purpose="local", key=b"our-secret")
         token = pyseto.encode(
             key,
             payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
@@ -288,7 +288,7 @@ class TestSample:
 
     def test_sample_rtd_v3_local(self):
 
-        key = Key.new(version=3, type="local", key=b"our-secret")
+        key = Key.new(version=3, purpose="local", key=b"our-secret")
         token = pyseto.encode(
             key,
             payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
@@ -330,7 +330,7 @@ class TestSample:
 
     def test_sample_rtd_v2_local(self):
 
-        key = Key.new(version=2, type="local", key=token_bytes(32))
+        key = Key.new(version=2, purpose="local", key=token_bytes(32))
         token = pyseto.encode(
             key,
             payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
@@ -371,7 +371,7 @@ class TestSample:
 
     def test_sample_rtd_v1_local(self):
 
-        key = Key.new(version=1, type="local", key=b"our-secret")
+        key = Key.new(version=1, purpose="local", key=b"our-secret")
         token = pyseto.encode(
             key,
             payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',

@@ -9,14 +9,14 @@ The following is a simple sample code using PySETO:
     >>> from pyseto import Key
     >>> private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
     >>> public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
-    >>> private_key = Key.new(version=4, type="public", key=private_key_pem)
+    >>> private_key = Key.new(version=4, purpose="public", key=private_key_pem)
     >>> token = pyseto.encode(
     ...     private_key,
     ...     b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
     ... )
     >>> token
     B'v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg'
-    >>> public_key = Key.new(version=4, type="public", key=public_key_pem)
+    >>> public_key = Key.new(version=4, purpose="public", key=public_key_pem)
     >>> decoded = pyseto.decode(public_key, token)
     >>> decoded.payload
     B'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
@@ -79,7 +79,7 @@ Symmetric Authenticated Encryption with AES-256-CTR + HMAC-SHA384 (Encrypt-then-
     import pyseto
     from pyseto import Key
 
-    key = Key.new(version=4, type="local", key=b"our-secret")
+    key = Key.new(version=4, purpose="local", key=b"our-secret")
     token = pyseto.encode(
         key,
         payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
@@ -148,7 +148,7 @@ Symmetric Authenticated Encryption with AES-256-CTR + HMAC-SHA384 (Encrypt-then-
     import pyseto
     from pyseto import Key
 
-    key = Key.new(version=3, type="local", key=b"our-secret")
+    key = Key.new(version=3, purpose="local", key=b"our-secret")
     token = pyseto.encode(
         key,
         payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
@@ -224,7 +224,7 @@ In this case, you must use 32 byte key as follows:
     from pyseto import Key
     from secrets import token_bytes
 
-    key = Key.new(version=2, type="local", key=token_bytes(32))
+    key = Key.new(version=2, purpose="local", key=token_bytes(32))
     token = pyseto.encode(
         key,
         payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
@@ -296,7 +296,7 @@ Symmetric Authenticated Encryption with AES-256-CTR + HMAC-SHA384 (Encrypt-then-
     from pyseto import Key
     from secrets import token_bytes
 
-    key = Key.new(version=1, type="local", key=b"our-secret")
+    key = Key.new(version=1, purpose="local", key=b"our-secret")
     token = pyseto.encode(
         key,
         payload=b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',

@@ -34,7 +34,7 @@ class Key:
 
     @classmethod
     def new(
-        cls, version: Union[int, str], type: str, key: Union[bytes, str] = b""
+        cls, version: Union[int, str], purpose: str, key: Union[bytes, str] = b""
     ) -> KeyInterface:
 
         """
@@ -45,7 +45,8 @@ class Key:
             version(Union[int, str]): The version of the key. It will be ``1``,
                 ``2``, ``3`` or ``4``. ``str`` type of version (e.g., ``"v1"``)
                 can also be used but it will be DEPRECATED on ``v1.0.0``.
-            type (str): The type (purpose) of the key.
+            purpose (str): The purpose of the key. It will be ``public`` or
+                ``local``.
             key (Union[bytes, str]): A key itself or keying material.
         Returns:
             KeyInterface: A PASETO key object.
@@ -65,10 +66,10 @@ class Key:
                 raise ValueError(f"Invalid version: {version}.")
 
         bkey = key if isinstance(key, bytes) else key.encode("utf-8")
-        if type == "local":
+        if purpose == "local":
             return cls._create_private_key(version, bkey)
 
-        elif type == "public":
+        elif purpose == "public":
             k: Any = None
             if bkey.startswith(b"-----BEGIN EC PRIVATE"):
                 k = load_pem_private_key(bkey, password=None)
@@ -82,7 +83,7 @@ class Key:
                 raise ValueError("Invalid or unsupported PEM format.")
             return cls._create_public_key(version, k)
 
-        raise ValueError(f"Invalid type(purpose): {type}.")
+        raise ValueError(f"Invalid purpose: {purpose}.")
 
     @classmethod
     def from_paserk(

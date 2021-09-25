@@ -57,10 +57,10 @@ from pyseto import Key
 private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
 public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
 
-private_key = Key.new(version=4, type="public", key=private_key_pem)
+private_key = Key.new(version=4, purpose="public", key=private_key_pem)
 token = pyseto.encode(private_key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}')
 
-public_key = Key.new(version=4, type="public", key=public_key_pem)
+public_key = Key.new(version=4, purpose="public", key=public_key_pem)
 decoded = pyseto.decode(public_key, token)
 
 assert token == b'v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg'
@@ -75,7 +75,7 @@ assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01
 import pyseto
 from pyseto import Key
 
-key = Key.new(version=4, type="local", key=b"our-secret")
+key = Key.new(version=4, purpose="local", key=b"our-secret")
 token = pyseto.encode(key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}')
 
 decoded = pyseto.decode(key, token)
@@ -95,7 +95,7 @@ import pyseto
 from pyseto import Key
 
 # pyseto.Key can be generated from PASERK.
-symmetric_key = Key.new(version=4, type="local", key=b"our-secret")
+symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
 private_key = Key.from_paserk("k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog")
 public_key = Key.from_paserk("k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI")
 
@@ -119,7 +119,7 @@ import pyseto
 from pyseto import Key
 
 # pyseto.Key can be generated from PASERK.
-symmetric_key = Key.new(version=4, type="local", key=b"our-secret")
+symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
 private_key = Key.from_paserk("k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog")
 public_key = Key.from_paserk("k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI")
 
@@ -140,7 +140,7 @@ In case of `local-wrap.pie`:
 import pyseto
 from pyseto import Key
 
-raw_key = Key.new(version=4, type="local", key=b"our-secret")
+raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
 wrapping_key = token_bytes(32)
 wpk = raw_key.to_paserk(wrapping_key=wrapping_key)
 
@@ -186,7 +186,7 @@ In case of `local-pw`:
 import pyseto
 from pyseto import Key
 
-raw_key = Key.new(version=4, type="local", key=b"our-secret")
+raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
 wpk = raw_key.to_paserk(password="our-secret")
 
 # assert wpk == "k4.local-pw.HrCs9Pu-2LB0l7jkHB-x2gAAAAAA8AAAAAAAAgAAAAGttW0IHZjQCHJdg-Vc3tqO_GSLR4vzLl-yrKk2I-l8YHj6jWpC0lQB2Z7uzTtVyV1rd_EZQPzHdw5VOtyucP0FkCU"

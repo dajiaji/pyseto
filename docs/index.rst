@@ -46,7 +46,7 @@ v4.public
     >>> from pyseto import Key
     >>> secret_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
     >>> public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
-    >>> secret_key = Key.new(version=4, type="public", key=secret_key_pem)
+    >>> secret_key = Key.new(version=4, purpose="public", key=secret_key_pem)
     >>> token = pyseto.encode(
     ...     secret_key,
     ...     '{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
@@ -65,7 +65,7 @@ v4.local
 
     >>> import pyseto
     >>> from pyseto import Key
-    >>> key = Key.new(version=4, type="local", key=b"our-secret")
+    >>> key = Key.new(version=4, purpose="local", key=b"our-secret")
     >>> token = pyseto.encode(
     ...     key, '{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
     ... )

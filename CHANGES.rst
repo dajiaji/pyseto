@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- [Breaking Change] Rename type of Key.new to purpose. `#52 <https://github.com/dajiaji/pyseto/pull/52>`__
 - Add support for PASERK password-based key wrapping. `#47 <https://github.com/dajiaji/pyseto/pull/47>`__
 - Add support for PASERK key wrapping. `#46 <https://github.com/dajiaji/pyseto/pull/46>`__
 

@@ -19,7 +19,7 @@ Serializing/Deserializing PASERK
     from pyseto import Key
 
     # pyseto.Key can be generated from PASERK.
-    symmetric_key = Key.new(version=4, type="local", key=b"our-secret")
+    symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
     private_key = Key.from_paserk(
         "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
     )
@@ -55,7 +55,7 @@ Serializing PASERK ID
     from pyseto import Key
 
     # pyseto.Key can be generated from PASERK.
-    symmetric_key = Key.new(version=4, type="local", key=b"our-secret")
+    symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
     private_key = Key.from_paserk(
         "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
     )
@@ -87,7 +87,7 @@ In case of ``local-wrap.pie``:
     import pyseto
     from pyseto import Key
 
-    raw_key = Key.new(version=4, type="local", key=b"our-secret")
+    raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
     wrapping_key = token_bytes(32)
     wpk = raw_key.to_paserk(wrapping_key=wrapping_key)
 
@@ -143,7 +143,7 @@ In case of ``local-pw``:
     import pyseto
     from pyseto import Key
 
-    raw_key = Key.new(version=4, type="local", key=b"our-secret")
+    raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
     wpk = raw_key.to_paserk(password="our-secret")
 
     # assert wpk == "k4.local-pw.HrCs9Pu-2LB0l7jkHB-x2gAAAAAA8AAAAAAAAgAAAAGttW0IHZjQCHJdg-Vc3tqO_GSLR4vzLl-yrKk2I-l8YHj6jWpC0lQB2Z7uzTtVyV1rd_EZQPzHdw5VOtyucP0FkCU"

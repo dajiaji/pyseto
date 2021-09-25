@@ -39,7 +39,7 @@ def encode(
         if isinstance(implicit_assertion, bytes)
         else implicit_assertion.encode("utf-8")
     )
-    if key.type == "local":
+    if key.purpose == "local":
         return key.encrypt(bp, bf, bi, nonce)
 
     sig = key.sign(bp, bf, bi)
@@ -82,7 +82,7 @@ def decode(
         if k.header != t.header:
             continue
         try:
-            if k.type == "local":
+            if k.purpose == "local":
                 t.payload = k.decrypt(t.payload, t.footer, bi)
                 return t
             t.payload = k.verify(t.payload, t.footer, bi)
