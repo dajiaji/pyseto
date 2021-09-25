@@ -53,7 +53,7 @@ v4.public
     ... )
     >>> token
     B'v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg'
-    >>> public_key = Key.new("v4", "public", public_key_pem)
+    >>> public_key = Key.new(4, "public", public_key_pem)
     >>> decoded = pyseto.decode(public_key, token)
     >>> decoded.payload
     B'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
