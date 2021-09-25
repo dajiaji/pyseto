@@ -15,7 +15,7 @@ class TestKey:
     """
 
     @pytest.mark.parametrize(
-        "version, type, key",
+        "version, purpose, key",
         [
             (1, "local", token_bytes(32)),
             (2, "local", token_bytes(32)),
@@ -23,11 +23,11 @@ class TestKey:
             (4, "local", token_bytes(32)),
         ],
     )
-    def test_key_new_local(self, version, type, key):
-        k = Key.new(version, type, key)
+    def test_key_new_local(self, version, purpose, key):
+        k = Key.new(version, purpose, key)
         assert isinstance(k, KeyInterface)
         assert k.version == version
-        assert k.type == type
+        assert k.purpose == purpose
         with pytest.raises(NotSupportedError) as err:
             k.sign(b"Hello world!")
             pytest.fail("Key.sign() should fail.")
@@ -38,7 +38,7 @@ class TestKey:
         assert "A key for local does not have verify()." in str(err.value)
 
     @pytest.mark.parametrize(
-        "version, type, key",
+        "version, purpose, key",
         [
             (1, "public", load_key("keys/private_key_rsa.pem")),
             (1, "public", load_key("keys/public_key_rsa.pem")),
@@ -50,11 +50,11 @@ class TestKey:
             (4, "public", load_key("keys/public_key_ed25519.pem")),
         ],
     )
-    def test_key_new_public(self, version, type, key):
-        k = Key.new(version, type, key)
+    def test_key_new_public(self, version, purpose, key):
+        k = Key.new(version, purpose, key)
         assert isinstance(k, KeyInterface)
         assert k.version == version
-        assert k.type == type
+        assert k.purpose == purpose
         with pytest.raises(NotSupportedError) as err:
             k.encrypt(b"Hello world!")
             pytest.fail("Key.sign() should fail.")
@@ -124,7 +124,7 @@ class TestKey:
         assert msg in str(err.value)
 
     @pytest.mark.parametrize(
-        "version, type, key, msg",
+        "version, purpose, key, msg",
         [
             ("v*", "local", token_bytes(32), "Invalid version: v*."),
             ("v0", "local", token_bytes(32), "Invalid version: v0."),
@@ -147,13 +147,13 @@ class TestKey:
                 load_key("keys/private_key_rsa.pem"),
                 "Invalid version: 0.",
             ),
-            ("v1", "xxx", token_bytes(32), "Invalid type(purpose): xxx."),
+            ("v1", "xxx", token_bytes(32), "Invalid purpose: xxx."),
             ("v1", "public", "-----BEGIN BAD", "Invalid or unsupported PEM format."),
         ],
     )
-    def test_key_new_with_invalid_arg(self, version, type, key, msg):
+    def test_key_new_with_invalid_arg(self, version, purpose, key, msg):
         with pytest.raises(ValueError) as err:
-            Key.new(version, type, key)
+            Key.new(version, purpose, key)
             pytest.fail("Key.new should fail.")
         assert msg in str(err.value)
 
@@ -175,7 +175,7 @@ class TestKey:
         k = Key.from_asymmetric_key_params(version, x=key["x"], y=key["y"], d=key["d"])
         assert isinstance(k, KeyInterface)
         assert k.version == version
-        assert k.type == "public"
+        assert k.purpose == "public"
 
     @pytest.mark.parametrize(
         "paserk",
@@ -395,7 +395,7 @@ class TestKey:
         assert msg in str(err.value)
 
     @pytest.mark.parametrize(
-        "version, type, key",
+        "version, purpose, key",
         [
             (1, "public", load_key("keys/public_key_rsa.pem")),
             (2, "public", load_key("keys/public_key_ed25519.pem")),
@@ -403,12 +403,12 @@ class TestKey:
             (4, "public", load_key("keys/public_key_ed25519.pem")),
         ],
     )
-    def test_key_to_paserk_public(self, version, type, key):
-        k = Key.new(version, type, key)
+    def test_key_to_paserk_public(self, version, purpose, key):
+        k = Key.new(version, purpose, key)
         assert k.to_paserk().startswith(f"k{k.version}.public.")
 
     @pytest.mark.parametrize(
-        "version, type, key",
+        "version, purpose, key",
         [
             (1, "public", load_key("keys/private_key_rsa.pem")),
             (2, "public", load_key("keys/private_key_ed25519.pem")),
@@ -416,12 +416,12 @@ class TestKey:
             (4, "public", load_key("keys/private_key_ed25519.pem")),
         ],
     )
-    def test_key_to_paserk_secret(self, version, type, key):
-        k = Key.new(version, type, key)
+    def test_key_to_paserk_secret(self, version, purpose, key):
+        k = Key.new(version, purpose, key)
         assert k.to_paserk().startswith(f"k{k.version}.secret.")
 
     @pytest.mark.parametrize(
-        "version, type, key",
+        "version, purpose, key",
         [
             (1, "local", token_bytes(32)),
             (2, "local", token_bytes(32)),
@@ -434,9 +434,9 @@ class TestKey:
         ],
     )
     def test_key_to_paserk_secret_with_wrapping_key_and_password(
-        self, version, type, key
+        self, version, purpose, key
     ):
-        k = Key.new(version, type, key)
+        k = Key.new(version, purpose, key)
         with pytest.raises(ValueError) as err:
             k.to_paserk(wrapping_key="xxx", password="yyy")
             pytest.fail("to_paserk() should fail.")

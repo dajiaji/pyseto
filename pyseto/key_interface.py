@@ -13,10 +13,10 @@ class KeyInterface:
     _VERSION = 0
     _TYPE = ""
 
-    def __init__(self, version: int, type: str, key: Any):
+    def __init__(self, version: int, purpose: str, key: Any):
         self._version = version
-        self._type = type
-        self._header = (f"v{self._version}." + self._type + ".").encode("utf-8")
+        self._purpose = purpose
+        self._header = (f"v{self._version}." + self._purpose + ".").encode("utf-8")
         self._sig_size = 0
         self._key: Any = key
         if not self._key:
@@ -31,16 +31,16 @@ class KeyInterface:
         return self._version
 
     @property
-    def type(self) -> str:
+    def purpose(self) -> str:
         """
-        The type (purpose) of the key. It will be ``"local"`` or ``"public"``.
+        The purpose of the key. It will be ``"local"`` or ``"public"``.
         """
-        return self._type
+        return self._purpose
 
     @property
     def header(self) -> bytes:
         """
-        The header value for a PASETO token. It will be ``"v<version>.<type>."``.
+        The header value for a PASETO token. It will be ``"v<version>.<purpose>."``.
         For example, ``"v1.local."``.
         """
         return self._header
