@@ -9,7 +9,7 @@ from .exceptions import (
 from .key import Key
 from .pyseto import decode, encode
 
-__version__ = "0.7.1"
+__version__ = "1.0.0"
 __title__ = "PySETO"
 __description__ = "A Python implementation of PASETO"
 __url__ = "https://pyseto.readthedocs.io"
