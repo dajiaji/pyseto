@@ -27,7 +27,7 @@ class TestV2Local:
     )
     def test_v2_local_new_with_invalid_arg(self, key, msg):
         with pytest.raises(ValueError) as err:
-            Key.new("v2", "local", key)
+            Key.new(2, "local", key)
             pytest.fail("Key.new() should fail.")
         assert msg in str(err.value)
 
@@ -59,8 +59,8 @@ class TestV2Local:
         assert "Failed to encrypt." in str(err.value)
 
     def test_v2_local_decrypt_via_decode_with_wrong_key(self):
-        k1 = Key.new("v2", "local", token_bytes(32))
-        k2 = Key.new("v2", "local", token_bytes(32))
+        k1 = Key.new(2, "local", token_bytes(32))
+        k2 = Key.new(2, "local", token_bytes(32))
         token = pyseto.encode(k1, b"Hello world!")
         with pytest.raises(DecryptError) as err:
             pyseto.decode(k2, token)
@@ -68,7 +68,7 @@ class TestV2Local:
         assert "Failed to decrypt." in str(err.value)
 
     def test_v2_local_encrypt_with_invalid_arg(self):
-        k = Key.new("v2", "local", token_bytes(32))
+        k = Key.new(2, "local", token_bytes(32))
         with pytest.raises(EncryptError) as err:
             k.encrypt(None)
             pytest.fail("pyseto.encrypt() should fail.")
@@ -85,7 +85,7 @@ class TestV2Local:
         ],
     )
     def test_v2_local_encrypt_via_encode_with_wrong_nonce(self, nonce):
-        k = Key.new("v2", "local", token_bytes(32))
+        k = Key.new(2, "local", token_bytes(32))
         with pytest.raises(ValueError) as err:
             pyseto.encode(k, b"Hello world!", nonce=nonce)
             pytest.fail("pyseto.encode() should fail.")
@@ -144,8 +144,8 @@ class TestV2Public:
     """
 
     def test_v2_public_verify_via_encode_with_wrong_key(self):
-        sk = Key.new("v2", "public", load_key("keys/private_key_ed25519.pem"))
-        pk = Key.new("v2", "public", load_key("keys/public_key_ed25519_2.pem"))
+        sk = Key.new(2, "public", load_key("keys/private_key_ed25519.pem"))
+        pk = Key.new(2, "public", load_key("keys/public_key_ed25519_2.pem"))
         token = pyseto.encode(sk, b"Hello world!")
         with pytest.raises(VerifyError) as err:
             pyseto.decode(pk, token)

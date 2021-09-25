@@ -34,7 +34,7 @@ class Key:
 
     @classmethod
     def new(
-        cls, version: Union[int, str], purpose: str, key: Union[bytes, str] = b""
+        cls, version: int, purpose: str, key: Union[bytes, str] = b""
     ) -> KeyInterface:
 
         """
@@ -42,9 +42,8 @@ class Key:
         :class:`KeyInterface <pyseto.key_interface.KeyInterface>`.
 
         Args:
-            version(Union[int, str]): The version of the key. It will be ``1``,
-                ``2``, ``3`` or ``4``. ``str`` type of version (e.g., ``"v1"``)
-                can also be used but it will be DEPRECATED on ``v1.0.0``.
+            version(int): The version of the key. It will be ``1``,
+                ``2``, ``3`` or ``4``.
             purpose (str): The purpose of the key. It will be ``public`` or
                 ``local``.
             key (Union[bytes, str]): A key itself or keying material.
@@ -53,18 +52,6 @@ class Key:
         Raise:
             ValueError: Invalid arguments.
         """
-        if isinstance(version, str):
-            if version == "v1":
-                version = 1
-            elif version == "v2":
-                version = 2
-            elif version == "v3":
-                version = 3
-            elif version == "v4":
-                version = 4
-            else:
-                raise ValueError(f"Invalid version: {version}.")
-
         bkey = key if isinstance(key, bytes) else key.encode("utf-8")
         if purpose == "local":
             return cls._create_private_key(version, bkey)
@@ -159,7 +146,7 @@ class Key:
 
     @staticmethod
     def from_asymmetric_key_params(
-        version: Union[int, str], x: bytes = b"", y: bytes = b"", d: bytes = b""
+        version: int, x: bytes = b"", y: bytes = b"", d: bytes = b""
     ) -> KeyInterface:
 
         """
@@ -170,9 +157,8 @@ class Key:
         and other sources.
 
         Args:
-            version(Union[int, str]): The version of the key. It will be ``1``,
-                ``2``, ``3`` or ``4``. ``str`` type of version (e.g., ``"v1"``)
-                can also be used but it will be DEPRECATED on ``v1.0.0``.
+            version(int): The version of the key. It will be ``1``,
+                ``2``, ``3`` or ``4``.
             x (bytes): The x coordinate of the key.
             y (bytes): The y coordinate of the key.
             d (bytes): The private key component of the key.
@@ -182,18 +168,6 @@ class Key:
             ValueError: Invalid arguments.
         """
         k: Any = None
-
-        if isinstance(version, str):
-            if version == "v1":
-                version = 1
-            elif version == "v2":
-                version = 2
-            elif version == "v3":
-                version = 3
-            elif version == "v4":
-                version = 4
-            else:
-                raise ValueError(f"Invalid version: {version}.")
 
         if version == 1:
             raise ValueError("v1.public is not supported on from_key_parameters.")

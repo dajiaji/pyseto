@@ -22,13 +22,13 @@ class TestV3Local:
     )
     def test_v3_local_new_with_invalid_arg(self, key, msg):
         with pytest.raises(ValueError) as err:
-            Key.new("v3", "local", key)
+            Key.new(3, "local", key)
             pytest.fail("Key.new() should fail.")
         assert msg in str(err.value)
 
     def test_v3_local_decrypt_via_decode_with_wrong_key(self):
-        k1 = Key.new("v3", "local", b"our-secret")
-        k2 = Key.new("v3", "local", b"others-secret")
+        k1 = Key.new(3, "local", b"our-secret")
+        k2 = Key.new(3, "local", b"others-secret")
         token = pyseto.encode(k1, b"Hello world!")
         with pytest.raises(DecryptError) as err:
             pyseto.decode(k2, token)
@@ -36,7 +36,7 @@ class TestV3Local:
         assert "Failed to decrypt." in str(err.value)
 
     def test_v3_local_encrypt_with_invalid_arg(self):
-        k = Key.new("v3", "local", b"our-secret")
+        k = Key.new(3, "local", b"our-secret")
         with pytest.raises(EncryptError) as err:
             k.encrypt(None)
             pytest.fail("pyseto.encrypt() should fail.")
@@ -53,7 +53,7 @@ class TestV3Local:
         ],
     )
     def test_v3_local_encrypt_via_encode_with_wrong_nonce(self, nonce):
-        k = Key.new("v3", "local", b"our-secret")
+        k = Key.new(3, "local", b"our-secret")
         with pytest.raises(ValueError) as err:
             pyseto.encode(k, b"Hello world!", nonce=nonce)
             pytest.fail("pyseto.encode() should fail.")
@@ -112,8 +112,8 @@ class TestV3Public:
     """
 
     def test_v3_public_verify_via_encode_with_wrong_key(self):
-        sk = Key.new("v3", "public", load_key("keys/private_key_ecdsa_p384.pem"))
-        pk = Key.new("v3", "public", load_key("keys/public_key_ecdsa_p384_2.pem"))
+        sk = Key.new(3, "public", load_key("keys/private_key_ecdsa_p384.pem"))
+        pk = Key.new(3, "public", load_key("keys/public_key_ecdsa_p384_2.pem"))
         token = pyseto.encode(sk, b"Hello world!")
         with pytest.raises(VerifyError) as err:
             pyseto.decode(pk, token)

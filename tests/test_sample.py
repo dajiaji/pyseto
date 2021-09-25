@@ -13,7 +13,7 @@ class TestSample:
 
     def test_sample_v4_local_old(self):
 
-        key = Key.new("v4", "local", b"our-secret")
+        key = Key.new(4, "local", b"our-secret")
         token = pyseto.encode(
             key,
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
@@ -30,12 +30,12 @@ class TestSample:
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
 
-        private_key = Key.new("v4", "public", private_key_pem)
+        private_key = Key.new(4, "public", private_key_pem)
         token = pyseto.encode(
             private_key,
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
         )
-        public_key = Key.new("v4", "public", public_key_pem)
+        public_key = Key.new(4, "public", public_key_pem)
         decoded = pyseto.decode(public_key, token)
 
         assert (
