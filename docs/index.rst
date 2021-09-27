@@ -4,14 +4,9 @@ Welcome to PySETO
 PySETO is a `PASETO (Platform-Agnostic SEcurity TOkens)`_ implementation written
 in Python which supports all of the versions and purposes below:
 
-- `Version 1: NIST Compatibility`_
+- `Version 4: Sodium Modern`_
     - ✅ Local: Symmetric Authenticated Encryption
-        - AES-256-CTR + HMAC-SHA384 (Encrypt-then-MAC).
-    - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
-        - RSASSA-PSS with 2048-bit key, SHA384 hashing and MGF1+SHA384.
-- `Version 2: Sodium Original`_
-    - ✅ Local: Symmetric Authenticated Encryption
-        - XChaCha20-Poly1305 (192-bit nonce, 256-bit key, 128-bit authentication tag).
+        - XChaCha20 + BLAKE2b-MAC (Encrypt-then-MAC).
     - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
         - EdDSA over Curve25519.
 - `Version 3: NIST Modern`_
@@ -19,11 +14,16 @@ in Python which supports all of the versions and purposes below:
         - AES-256-CTR + HMAC-SHA384 (Encrypt-then-MAC).
     - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
         - ECDSA over NIST P-384, with SHA-384, using `RFC 6979 deterministic k-values`_
-- `Version 4: Sodium Modern`_
+- `Version 2: Sodium Original`_
     - ✅ Local: Symmetric Authenticated Encryption
-        - XChaCha20 + BLAKE2b-MAC (Encrypt-then-MAC).
+        - XChaCha20-Poly1305 (192-bit nonce, 256-bit key, 128-bit authentication tag).
     - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
         - EdDSA over Curve25519.
+- `Version 1: NIST Compatibility`_
+    - ✅ Local: Symmetric Authenticated Encryption
+        - AES-256-CTR + HMAC-SHA384 (Encrypt-then-MAC).
+    - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
+        - RSASSA-PSS with 2048-bit key, SHA384 hashing and MGF1+SHA384.
 
 In addition, PySETO also supports `PASERK (Platform-Agnostic Serialized Keys)`_.
 
