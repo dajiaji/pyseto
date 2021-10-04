@@ -64,6 +64,7 @@ class KeyInterface:
         self,
         wrapping_key: Union[bytes, str] = b"",
         password: Union[bytes, str] = b"",
+        sealing_key: Union[bytes, str] = b"",
         iteration: int = 100000,
         memory_cost: int = 15 * 1024,
         time_cost: int = 2,

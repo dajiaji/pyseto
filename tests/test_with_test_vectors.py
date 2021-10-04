@@ -1,6 +1,15 @@
 import json
 
 import pytest
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey
+from cryptography.hazmat.primitives.serialization import (
+    Encoding,
+    NoEncryption,
+    PrivateFormat,
+    PublicFormat,
+    load_pem_private_key,
+)
 
 import pyseto
 from pyseto import Key
@@ -10,6 +19,7 @@ from .utils import get_path
 
 
 def _load_tests(paths: list) -> list:
+
     tests: list = []
     for path in paths:
         with open(get_path(path)) as tv_file:
@@ -19,10 +29,33 @@ def _load_tests(paths: list) -> list:
 
 
 def _name_to_version(name: str) -> int:
+
     v = name.split(".")[0]
     if len(v) != 2:
         raise ValueError("Invalid PASERK test name.")
     return int(v[1:])
+
+
+def _public_key_compress(x: int, y: int) -> bytes:
+
+    bx = x.to_bytes(48, byteorder="big")
+    by = y.to_bytes((y.bit_length() + 7) // 8, byteorder="big")
+    s = bytearray(1)
+    s[0] = 0x02 + (by[len(by) - 1] & 1)
+    return bytes(s) + bx
+
+
+def _from_Ed25519PrivateKey_to_X25519PrivateKey(data: bytes) -> X25519PrivateKey:
+
+    hasher = hashes.Hash(hashes.SHA512())
+    hasher.update(data)
+    h = bytearray(hasher.finalize())
+
+    # curve25519 clamping
+    h[0] &= 248
+    h[31] &= 127
+    h[31] |= 64
+    return bytes(h[0:32])
 
 
 class TestWithTestVectors:
@@ -433,3 +466,115 @@ class TestWithTestVectors:
 
         d = pyseto.decode(k, t)
         assert d.payload == b"Hello world!"
+
+    @pytest.mark.parametrize(
+        "v",
+        _load_tests(
+            [
+                "vectors/PASERK/k2.seal.json",
+                "vectors/PASERK/k4.seal.json",
+            ]
+        ),
+    )
+    def test_with_test_vectors_paserk_seal_v2_v4(self, v):
+
+        version = _name_to_version(v["name"])
+
+        if version == 1:
+            raise NotImplementedError("Not implemented.")
+        elif version in [2, 4]:
+            sk_ed25519 = bytes.fromhex(v["sealing-secret-key"])[0:32]
+            tmp_key = _from_Ed25519PrivateKey_to_X25519PrivateKey(sk_ed25519)
+            sk_x25519 = X25519PrivateKey.from_private_bytes(tmp_key)
+            unsealing_key = sk_x25519.private_bytes(
+                Encoding.PEM,
+                PrivateFormat.PKCS8,
+                NoEncryption(),
+            )
+            sealing_key = sk_x25519.public_key().public_bytes(
+                Encoding.PEM, PublicFormat.SubjectPublicKeyInfo
+            )
+        elif version == 3:
+            sk = load_pem_private_key(
+                v["sealing-secret-key"].encode("utf-8"), password=None
+            )
+            unsealing_key = sk.private_numbers().private_value.to_bytes(
+                48, byteorder="big"
+            )
+            sealing_key = _public_key_compress(
+                sk.private_numbers().public_numbers.x,
+                sk.private_numbers().public_numbers.y,
+            )
+        else:
+            pytest.fail("Unsupported version.")
+
+        k = Key.from_paserk(v["paserk"], unsealing_key=unsealing_key)
+        k1 = Key.new(version, "local", bytes.fromhex(v["unsealed"]))
+        wpk = k1.to_paserk(sealing_key=sealing_key)
+
+        k2 = Key.from_paserk(wpk, unsealing_key=unsealing_key)
+        assert k1._key == k2._key
+
+        t = pyseto.encode(k, b"Hello world!")
+        d = pyseto.decode(k, t)
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d.payload == d1.payload == d2.payload == b"Hello world!"
+
+        t = pyseto.encode(k1, b"Hello world!")
+        d1 = pyseto.decode(k1, t)
+        d2 = pyseto.decode(k2, t)
+        assert d1.payload == d2.payload == b"Hello world!"
+
+        d = pyseto.decode(k, t)
+        assert d.payload == b"Hello world!"
+
+    # @pytest.mark.parametrize(
+    #     "v",
+    #     _load_tests(
+    #         [
+    #             # "vectors/PASERK/k1.seal.json",
+    #             "vectors/PASERK/k3.seal.json",
+    #         ]
+    #     ),
+    # )
+    # def test_with_test_vectors_paserk_seal_v1_v3(self, v):
+
+    #     version = _name_to_version(v["name"])
+
+    #     if version == 1:
+    #         raise NotImplementedError("Not implemented.")
+    #     elif version == 3:
+    #         sk = load_pem_private_key(
+    #             v["sealing-secret-key"].encode("utf-8"), password=None
+    #         )
+    #         unsealing_key = sk.private_numbers().private_value.to_bytes(
+    #             48, byteorder="big"
+    #         )
+    #         sealing_key = _public_key_compress(
+    #             sk.private_numbers().public_numbers.x,
+    #             sk.private_numbers().public_numbers.y,
+    #         )
+    #     else:
+    #         pytest.fail("Unsupported version.")
+
+    #     # k = Key.from_paserk(v["paserk"], unsealing_key=unsealing_key)
+    #     k1 = Key.new(version, "local", bytes.fromhex(v["unsealed"]))
+    #     wpk = k1.to_paserk(sealing_key=sealing_key)
+
+    #     k2 = Key.from_paserk(wpk, unsealing_key=unsealing_key)
+    #     assert k1._key == k2._key
+
+    #     # t = pyseto.encode(k, b"Hello world!")
+    #     # d = pyseto.decode(k, t)
+    #     # d1 = pyseto.decode(k1, t)
+    #     # d2 = pyseto.decode(k2, t)
+    #     # assert d.payload == d1.payload == d2.payload == b"Hello world!"
+
+    #     t = pyseto.encode(k1, b"Hello world!")
+    #     d1 = pyseto.decode(k1, t)
+    #     d2 = pyseto.decode(k2, t)
+    #     assert d1.payload == d2.payload == b"Hello world!"
+
+    #     # d = pyseto.decode(k, t)
+    #     # assert d.payload == b"Hello world!"

@@ -18,7 +18,14 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from ..exceptions import DecryptError, SignError, VerifyError
 from ..key_interface import KeyInterface
 from ..key_nist import NISTKey
-from ..utils import base64url_decode, base64url_encode, i2osp, os2ip, pae
+from ..utils import (
+    base64url_decode,
+    base64url_encode,
+    ec_public_key_compress,
+    i2osp,
+    os2ip,
+    pae,
+)
 
 
 class V3Local(NISTKey):
@@ -145,7 +152,11 @@ class V3Public(NISTKey):
 
     @classmethod
     def from_paserk(
-        cls, paserk: str, wrapping_key: bytes = b"", password: bytes = b""
+        cls,
+        paserk: str,
+        wrapping_key: bytes = b"",
+        password: bytes = b"",
+        unsealing_key: bytes = b"",
     ) -> KeyInterface:
 
         if wrapping_key and password:
@@ -207,6 +218,7 @@ class V3Public(NISTKey):
         self,
         wrapping_key: Union[bytes, str] = b"",
         password: Union[bytes, str] = b"",
+        sealing_key: Union[bytes, str] = b"",
         iteration: int = 100000,
         memory_cost: int = 15 * 1024,
         time_cost: int = 2,
@@ -244,7 +256,7 @@ class V3Public(NISTKey):
 
         # public
         if isinstance(self._key, EllipticCurvePublicKey):
-            k = self._public_key_compress(
+            k = ec_public_key_compress(
                 self._key.public_numbers().x, self._key.public_numbers().y
             )
             return "k3.public." + base64url_encode(k).decode("utf-8")
@@ -267,7 +279,7 @@ class V3Public(NISTKey):
 
         if isinstance(self._key, EllipticCurvePublicKey):
             raise ValueError("A public key cannot be used for signing.")
-        pk = self._public_key_compress(
+        pk = ec_public_key_compress(
             self._key.private_numbers().public_numbers.x,
             self._key.private_numbers().public_numbers.y,
         )
@@ -292,7 +304,7 @@ class V3Public(NISTKey):
             if isinstance(self._key, EllipticCurvePublicKey)
             else self._key.public_key()
         )
-        pk = self._public_key_compress(k.public_numbers().x, k.public_numbers().y)
+        pk = ec_public_key_compress(k.public_numbers().x, k.public_numbers().y)
         m2 = pae([pk, self.header, m, footer, implicit_assertion])
         try:
             der_sig = self._os_to_der(self._key.curve.key_size, sig)
@@ -300,14 +312,6 @@ class V3Public(NISTKey):
         except Exception as err:
             raise VerifyError("Failed to verify.") from err
         return m
-
-    def _public_key_compress(self, x: int, y: int) -> bytes:
-
-        bx = x.to_bytes(48, byteorder="big")
-        by = y.to_bytes((y.bit_length() + 7) // 8, byteorder="big")
-        s = bytearray(1)
-        s[0] = 0x02 + (by[len(by) - 1] & 1)
-        return bytes(s) + bx
 
     def _der_to_os(self, key_size: int, sig: bytes) -> bytes:
 

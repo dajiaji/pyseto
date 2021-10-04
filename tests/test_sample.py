@@ -220,6 +220,24 @@ class TestSample:
             == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         )
 
+    def test_sample_paserk_seal(self):
+
+        raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
+        token = pyseto.encode(
+            raw_key,
+            b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+        )
+        with open(get_path("keys/public_key_x25519.pem")) as key_file:
+            sealed_key = raw_key.to_paserk(sealing_key=key_file.read())
+
+        with open(get_path("keys/private_key_x25519.pem")) as key_file:
+            unsealed_key = Key.from_paserk(sealed_key, unsealing_key=key_file.read())
+        decoded = pyseto.decode(unsealed_key, token)
+        assert (
+            decoded.payload
+            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+        )
+
     def test_sample_rtd_v4_public(self):
 
         with open(get_path("keys/private_key_ed25519.pem")) as key_file:
