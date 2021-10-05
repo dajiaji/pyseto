@@ -4,6 +4,8 @@ Changes
 Unreleased
 ----------
 
+- Add py.typed. `#56 <https://github.com/dajiaji/pyseto/pull/56>`__
+
 Version 1.0.0
 -------------
 
