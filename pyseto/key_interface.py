@@ -64,6 +64,7 @@ class KeyInterface:
         self,
         wrapping_key: Union[bytes, str] = b"",
         password: Union[bytes, str] = b"",
+        sealing_key: Union[bytes, str] = b"",
         iteration: int = 100000,
         memory_cost: int = 15 * 1024,
         time_cost: int = 2,
@@ -81,6 +82,15 @@ class KeyInterface:
             iteration (int): An iteration count used for password-based key
                 wrapping. This argument will only be used when the `password` is
                 specified.
+            memory_cost (int): Amount of memory to use for password-based key
+                wrapping using argon2. This argument will only be used when
+                the `password` is specified for `v2/v4` key.
+            time_cost (int):  Number of iterations to perform for password-based
+                key wrapping using argon2. This argument will only be used when
+                the `password` is specified for `v2/v4` key.
+            parallelism (int): Degree of parallelism for password-based key
+                wrapping using argon2. This argument will only be used when
+                the `password` is specified for `v2/v4` key.
         Returns:
             str: A PASERK string.
         Raise:

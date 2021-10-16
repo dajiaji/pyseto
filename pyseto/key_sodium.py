@@ -8,6 +8,16 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
+from cryptography.hazmat.primitives.asymmetric.x25519 import (
+    X25519PrivateKey,
+    X25519PublicKey,
+)
+from cryptography.hazmat.primitives.serialization import (
+    Encoding,
+    PublicFormat,
+    load_pem_private_key,
+    load_pem_public_key,
+)
 from passlib.hash import argon2
 
 from .exceptions import DecryptError, EncryptError
@@ -30,7 +40,11 @@ class SodiumKey(KeyInterface):
 
     @classmethod
     def from_paserk(
-        cls, paserk: str, wrapping_key: bytes = b"", password: bytes = b""
+        cls,
+        paserk: str,
+        wrapping_key: bytes = b"",
+        password: bytes = b"",
+        unsealing_key: bytes = b"",
     ) -> KeyInterface:
 
         if wrapping_key and password:
@@ -70,6 +84,23 @@ class SodiumKey(KeyInterface):
                 return cls(Ed25519PrivateKey.from_private_bytes(k))
             raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
+        if unsealing_key:
+            # seal
+            h = frags[0] + "." + frags[1] + "."
+            if frags[1] != "seal":
+                raise ValueError(f"Invalid PASERK type: {frags[1]}.")
+            if unsealing_key.startswith(b"-----BEGIN PRIVATE KEY"):
+                sk = load_pem_private_key(unsealing_key, password=None)
+            else:
+                raise ValueError("Invalid or unsupported PEM format.")
+            raw_key = sk.private_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PrivateFormat.Raw,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+            k = cls._decode_pke(h, raw_key, frags[2])
+            return cls(k)
+
         k = base64url_decode(frags[2])
 
         # local
@@ -80,6 +111,8 @@ class SodiumKey(KeyInterface):
                 raise ValueError(f"{frags[1]} needs wrapping_key.")
             if frags[1] == "local-pw":
                 raise ValueError(f"{frags[1]} needs password.")
+            if frags[1] == "seal":
+                raise ValueError(f"{frags[1]} needs unsealing_key.")
             raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
         # public, secret
@@ -97,6 +130,7 @@ class SodiumKey(KeyInterface):
         self,
         wrapping_key: Union[bytes, str] = b"",
         password: Union[bytes, str] = b"",
+        sealing_key: Union[bytes, str] = b"",
         iteration: int = 100000,
         memory_cost: int = 15 * 1024,
         time_cost: int = 2,
@@ -161,6 +195,26 @@ class SodiumKey(KeyInterface):
             return h + self._encode_pbkw(
                 h, bpw, priv + pub, memory_cost, time_cost, parallelism
             )
+
+        if sealing_key:
+            # seal
+            bkey = (
+                sealing_key
+                if isinstance(sealing_key, bytes)
+                else sealing_key.encode("utf-8")
+            )
+            if self.purpose != "local":
+                raise ValueError("Key sealing can only be used for local key.")
+            if bkey.startswith(b"-----BEGIN PUBLIC KEY"):
+                pk = load_pem_public_key(bkey)
+            else:
+                raise ValueError("Invalid or unsupported PEM format.")
+            raw_key = pk.public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw,
+            )
+            h = f"k{self.version}.seal."
+            return h + self._encode_pke(h, raw_key, self._key)
 
         # local
         if self.purpose == "local":
@@ -286,6 +340,52 @@ class SodiumKey(KeyInterface):
         ek = cls._digest(b"\xff" + k, 32)
         return cls._decrypt(ek, n, edk)
 
+    @classmethod
+    def _encode_pke(
+        cls,
+        header: str,
+        sealing_key: bytes,
+        ptk: bytes,
+    ) -> str:
+
+        h = header.encode("utf-8")
+
+        xpk = X25519PublicKey.from_public_bytes(sealing_key)
+        esk = X25519PrivateKey.generate()
+        epk = esk.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)
+        xk = esk.exchange(xpk)
+
+        ek = cls._digest(b"\x01" + h + xk + epk + sealing_key, 32)
+        ak = cls._digest(b"\x02" + h + xk + epk + sealing_key, 32)
+        n = cls._digest(epk + sealing_key, 24)
+
+        edk = cls._encrypt(ek, n, ptk)
+        t = cls._generate_hash(ak, h + epk + edk, 32)
+        return base64url_encode(t + epk + edk).decode("utf-8")
+
+    @classmethod
+    def _decode_pke(cls, header: str, unsealing_key: bytes, data: str) -> bytes:
+
+        h = header.encode("utf-8")
+        d = base64url_decode(data)
+
+        t = d[0:32]
+        epk = d[32:64]
+        edk = d[64:]
+
+        xsk = X25519PrivateKey.from_private_bytes(unsealing_key)
+        xpk = xsk.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)
+        xk = xsk.exchange(X25519PublicKey.from_public_bytes(epk))
+
+        ak = cls._digest(b"\x02" + h + xk + epk + xpk, 32)
+        t2 = cls._generate_hash(ak, h + epk + edk, 32)
+        if t != t2:
+            raise DecryptError("Failed to unseal a key.")
+
+        ek = cls._digest(b"\x01" + h + xk + epk + xpk, 32)
+        n = cls._digest(epk + xpk, 24)
+        return cls._decrypt(ek, n, edk)
+
     @staticmethod
     def _generate_hash(key: bytes, msg: bytes, size: int) -> bytes:
 
@@ -298,12 +398,14 @@ class SodiumKey(KeyInterface):
 
     @staticmethod
     def _digest(msg: bytes, size: int) -> bytes:
+
         h = hashlib.blake2b(digest_size=size)
         h.update(msg)
         return h.digest()
 
     @staticmethod
     def _encrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
+
         try:
             cipher = ChaCha20.new(key=key, nonce=nonce)
             return cipher.encrypt(msg)
@@ -312,6 +414,7 @@ class SodiumKey(KeyInterface):
 
     @staticmethod
     def _decrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
+
         try:
             cipher = ChaCha20.new(key=key, nonce=nonce)
             return cipher.decrypt(msg)

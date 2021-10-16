@@ -127,7 +127,11 @@ class V1Public(NISTKey):
 
     @classmethod
     def from_paserk(
-        cls, paserk: str, wrapping_key: bytes = b"", password: bytes = b""
+        cls,
+        paserk: str,
+        wrapping_key: bytes = b"",
+        password: bytes = b"",
+        unsealing_key: bytes = b"",
     ) -> KeyInterface:
 
         if wrapping_key and password:
@@ -155,9 +159,6 @@ class V1Public(NISTKey):
             raise ValueError("Invalid PASERK format.")
 
         if password:
-            if len(frags) != 3:
-                raise ValueError("Invalid PASERK format.")
-
             if frags[1] == "secret-pw":
                 h = "k1.secret-pw."
                 k = cls._decode_pbkw(h, password, frags[2])
@@ -177,6 +178,7 @@ class V1Public(NISTKey):
         self,
         wrapping_key: Union[bytes, str] = b"",
         password: Union[bytes, str] = b"",
+        sealing_key: Union[bytes, str] = b"",
         iteration: int = 100000,
         memory_cost: int = 15 * 1024,
         time_cost: int = 2,

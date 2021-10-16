@@ -105,6 +105,35 @@ class TestV3Local:
             pytest.fail("Key.from_paserk should fail.")
         assert msg in str(err.value)
 
+    # @pytest.mark.parametrize(
+    #     "paserk, msg",
+    #     [
+    #         ("k3.xxx.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
+    #     ],
+    # )
+    # def test_v3_local_from_paserk_with_unsealing_key_and_invalid_args(
+    #     self, paserk, msg
+    # ):
+
+    #     with pytest.raises(ValueError) as err:
+    #         V3Local.from_paserk(paserk, unsealing_key=token_bytes(32))
+    #         pytest.fail("Key.from_paserk should fail.")
+    #     assert msg in str(err.value)
+
+    # def test_v3_local_from_paserk_with_wrong_unsealing_key(self):
+
+    #     k = Key.new(3, "local", token_bytes(32))
+    #     with open(get_path("keys/public_key_x25519.pem")) as key_file:
+    #         sealed_key = k.to_paserk(sealing_key=key_file.read())
+
+    #     with open(get_path("keys/private_key_x25519_2.pem")) as key_file:
+    #         unsealing_key = key_file.read()
+
+    #     with pytest.raises(DecryptError) as err:
+    #         Key.from_paserk(sealed_key, unsealing_key=unsealing_key)
+    #         pytest.fail("Key.from_paserk should fail.")
+    #     assert "Failed to unseal a key." in str(err.value)
+
 
 class TestV3Public:
     """
