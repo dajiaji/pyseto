@@ -4,6 +4,8 @@ Changes
 Unreleased
 ----------
 
+- Add support for Python 3.10. `#60 <https://github.com/dajiaji/pyseto/pull/60>`__
+- Add support for k2.seal and k4.seal. `#57 <https://github.com/dajiaji/pyseto/pull/57>`__
 - Add py.typed. `#56 <https://github.com/dajiaji/pyseto/pull/56>`__
 
 Version 1.0.0
