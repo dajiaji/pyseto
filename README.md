@@ -33,6 +33,23 @@ and has passed all of [the official tests](https://github.com/paseto-standard/te
 
 
 In addition, PySETO also supports [PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk).
+Currently, following PASERK types are supported.
+
+
+|               |  v4  |  v3  |  v2  |  v1  |
+| ------------- | ---- | ---- | ---- | ---- |
+| `lid`         |  ✅  |  ✅  |  ✅  |  ✅  |
+| `sid`         |  ✅  |  ✅  |  ✅  |  ✅  |
+| `pid`         |  ✅  |  ✅  |  ✅  |  ✅  |
+| `local`       |  ✅  |  ✅  |  ✅  |  ✅  |
+| `secret`      |  ✅  |  ✅  |  ✅  |  ✅  |
+| `public`      |  ✅  |  ✅  |  ✅  |  ✅  |
+| `seal`        |  ✅  |      |  ✅  |      |
+| `local-wrap`  |  ✅  |  ✅  |  ✅  |  ✅  |
+| `secret-wrap` |  ✅  |  ✅  |  ✅  |  ✅  |
+| `local-pw`    |  ✅  |  ✅  |  ✅  |  ✅  |
+| `secret-pw`   |  ✅  |  ✅  |  ✅  |  ✅  |
+
 
 See [Document](https://pyseto.readthedocs.io/en/stable/) for details.
 
