@@ -90,18 +90,20 @@ class TestWithTestVectors:
                 key = bytes.fromhex(v["key"])
 
                 k = Key.new(version, "local", key=key)
-                with pytest.raises(AttributeError):
+                with pytest.raises(ValueError) as err:
                     pyseto.encode(k, payload, footer, implicit_assertion, nonce=nonce)
                     pytest.fail("encode should fail.")
+                assert "payload should be bytes or str." in str(err.value)
                 return
 
             secret_key_pem = v["secret-key"] if version == 1 else v["secret-key-pem"]
             public_key_pem = v["public-key"] if version == 1 else v["public-key-pem"]
 
             sk = Key.new(version, "public", secret_key_pem)
-            with pytest.raises(AttributeError):
+            with pytest.raises(ValueError) as err:
                 pyseto.encode(sk, payload, footer, implicit_assertion)
                 pytest.fail("encode should fail.")
+            assert "payload should be bytes or str." in str(err.value)
             return
 
         payload = payload.encode("utf-8")
