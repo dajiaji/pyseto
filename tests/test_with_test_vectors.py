@@ -77,12 +77,34 @@ class TestWithTestVectors:
     def test_with_test_vectors(self, v):
 
         token = v["token"].encode("utf-8")
-        payload = json.dumps(v["payload"], separators=(",", ":")).encode("utf-8")
+        payload = v["payload"]
         footer = v["footer"].encode("utf-8")
         implicit_assertion = v["implicit-assertion"].encode("utf-8")
 
         version = int(v["name"].split("-")[0])
         purpose = v["name"].split("-")[1]
+
+        if v["expect-fail"]:
+            if "public-key" not in v:
+                nonce = bytes.fromhex(v["nonce"])
+                key = bytes.fromhex(v["key"])
+
+                k = Key.new(version, "local", key=key)
+                with pytest.raises(AttributeError):
+                    pyseto.encode(k, payload, footer, implicit_assertion, nonce=nonce)
+                    pytest.fail("encode should fail.")
+                return
+
+            secret_key_pem = v["secret-key"] if version == 1 else v["secret-key-pem"]
+            public_key_pem = v["public-key"] if version == 1 else v["public-key-pem"]
+
+            sk = Key.new(version, "public", secret_key_pem)
+            with pytest.raises(AttributeError):
+                pyseto.encode(sk, payload, footer, implicit_assertion)
+                pytest.fail("encode should fail.")
+            return
+
+        payload = payload.encode("utf-8")
         if purpose == "E":
             nonce = bytes.fromhex(v["nonce"])
             key = bytes.fromhex(v["key"])
