@@ -4,6 +4,8 @@ Changes
 Unreleased
 ----------
 
+- Sync official test vectors. `#64 <https://github.com/dajiaji/pyseto/pull/64>`__
+
 Version 1.1.0
 -------------
 

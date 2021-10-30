@@ -32,6 +32,8 @@ def encode(
         EncryptError: Failed to encrypt the message.
         SignError: Failed to sign the message.
     """
+    if not isinstance(payload, (bytes, str)):
+        raise ValueError("payload should be bytes or str.")
     bp = payload if isinstance(payload, bytes) else payload.encode("utf-8")
     bf = footer if isinstance(footer, bytes) else footer.encode("utf-8")
     bi = (
