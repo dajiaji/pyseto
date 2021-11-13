@@ -117,7 +117,7 @@ Currently, following PASERK types are supported.
 
 By using this PySETO, you can easily create, decode and verify PASETO tokens. Here are sample codes that handle version 4 PySETO tokens.
 
-Please refer to [the Documentation](https://pyseto.readthedocs.io/en/stable/) for all usage examples including other versions. 
+Please refer to [the Documentation](https://pyseto.readthedocs.io/en/stable/) for all usage examples including other versions.
 
 ### v4.public
 
