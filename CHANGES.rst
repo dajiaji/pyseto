@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Introduce serializer/deserializer for payload. `#67 <https://github.com/dajiaji/pyseto/pull/67>`__
 - Sync official test vectors. `#64 <https://github.com/dajiaji/pyseto/pull/64>`__
 
 Version 1.1.0

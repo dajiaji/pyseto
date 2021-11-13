@@ -1,3 +1,4 @@
+import json
 from secrets import token_bytes
 
 import pyseto
@@ -82,6 +83,26 @@ class TestSample:
             decoded.payload
             == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         )
+
+    def test_sample_v4_public_with_serializer(self):
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+        public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+        token = pyseto.encode(
+            private_key,
+            {"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"},
+        )
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+        decoded = pyseto.decode(public_key, token, deserializer=json)
+
+        assert (
+            token
+            == b"v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg"
+        )
+        assert decoded.payload["data"] == "this is a signed message"
+        assert decoded.payload["exp"] == "2022-01-01T00:00:00+00:00"
 
     def test_sample_paserk(self):
 
