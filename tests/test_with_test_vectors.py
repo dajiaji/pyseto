@@ -93,7 +93,7 @@ class TestWithTestVectors:
                 with pytest.raises(ValueError) as err:
                     pyseto.encode(k, payload, footer, implicit_assertion, nonce=nonce)
                     pytest.fail("encode should fail.")
-                assert "payload should be bytes or str." in str(err.value)
+                assert "payload should be bytes, str or dict." in str(err.value)
                 return
 
             secret_key_pem = v["secret-key"] if version == 1 else v["secret-key-pem"]
@@ -103,7 +103,7 @@ class TestWithTestVectors:
             with pytest.raises(ValueError) as err:
                 pyseto.encode(sk, payload, footer, implicit_assertion)
                 pytest.fail("encode should fail.")
-            assert "payload should be bytes or str." in str(err.value)
+            assert "payload should be bytes, str or dict." in str(err.value)
             return
 
         payload = payload.encode("utf-8")
