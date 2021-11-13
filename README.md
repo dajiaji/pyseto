@@ -7,8 +7,69 @@
 [![codecov](https://codecov.io/gh/dajiaji/pyseto/branch/main/graph/badge.svg?token=QN8GXEYEP3)](https://codecov.io/gh/dajiaji/pyseto)
 
 
-PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/) implementation written in Python which supports all of the versions and purposes below
+PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/) implementation written in Python
+which supports all of the versions (`v1`-`v4`) and purposes (`public` and `local`)
 and has passed all of [the official tests](https://github.com/paseto-standard/test-vectors).
+
+You can install PySETO with pip:
+
+```sh
+$ pip install pyseto
+```
+
+PySETO can be used in ease as follows (in case of `v4.public`):
+
+```py
+import pyseto
+from pyseto import Key
+
+private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+
+# Create a PASETO token.
+private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+token = pyseto.encode(private_key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}')
+
+# Decode and verify a PASETO token.
+public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+decoded = pyseto.decode(public_key, token)
+
+assert token == b'v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg'
+assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+```
+
+See following contents or [Documentation](https://pyseto.readthedocs.io/en/stable/) for details.
+
+## Index
+
+- [Installation](#installation)
+- [Supported PASETO Versions](#supported-paseto-versions)
+- [Supported PASERK Types](#supported-paserk-types)
+- [PASETO Usage](#paseto-usage)
+    - [v4.public](#v4-public)
+    - [v4.local](#v4-local)
+- [PASERK Usage](#paserk-usage)
+    - [Serializing/Deserializing PASERK](#serializing-deserializing-paserk)
+    - [Serializing PASERK ID](#serializing-paserk-id)
+    - [Key Wrapping](#key-wrapping)
+    - [Password-based Key Encryption](#password-based-key-encryption)
+    - [Asymmetric Encryption](#asymmetric-encryption)
+- [API Reference](#api-reference)
+- [Tests](#tests)
+- [Contributing](#contributing)
+
+## Installation
+
+You can install PySETO with pip:
+
+```sh
+$ pip install pyseto
+```
+
+## Supported PASETO Versions
+
+PySETO supports all of PASETO versions and purposes below:
 
 - [Version 4: Sodium Modern](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version4.md)
     - ✅ Local: Symmetric Authenticated Encryption
@@ -31,8 +92,9 @@ and has passed all of [the official tests](https://github.com/paseto-standard/te
     - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
         - RSASSA-PSS with 2048-bit key, SHA384 hashing and MGF1+SHA384.
 
+## Supported PASERK Types
 
-In addition, PySETO also supports [PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk).
+PySETO also supports [PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk).
 Currently, following PASERK types are supported.
 
 
@@ -51,19 +113,11 @@ Currently, following PASERK types are supported.
 | `secret-pw`   |  ✅  |  ✅  |  ✅  |  ✅  |
 
 
-See [Document](https://pyseto.readthedocs.io/en/stable/) for details.
+## PASETO Usage
 
-## Installation
+By using this PySETO, you can easily create, decode and verify PASETO tokens. Here are sample codes that handle version 4 PySETO tokens.
 
-You can install PySETO with pip:
-
-```sh
-$ pip install pyseto
-```
-
-## Usage
-
-You can use it as follows:
+Please refer to [the Documentation](https://pyseto.readthedocs.io/en/stable/) for all usage examples including other versions. 
 
 ### v4.public
 
@@ -101,7 +155,7 @@ decoded = pyseto.decode(key, token)
 assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 ```
 
-## Usage with PASERK
+## PASERK Usage
 
 [PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk) is an extension to PASETO that provides key-wrapping and serialization.
 
@@ -279,3 +333,7 @@ You can run tests from the project root after cloning with:
 ```sh
 $ tox
 ```
+
+## Contributing
+
+We welcome all kind of contributions, filing issues, suggesting new features or sending PRs.
