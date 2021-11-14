@@ -4,6 +4,11 @@ Changes
 Unreleased
 ----------
 
+Version 1.2.0
+-------------
+
+Released 2021-11-14
+
 - Refine README (Add CONTRIBUTING, etc.). `#68 <https://github.com/dajiaji/pyseto/pull/68>`__
 - Introduce serializer/deserializer for payload. `#67 <https://github.com/dajiaji/pyseto/pull/67>`__
 - Sync official test vectors. `#64 <https://github.com/dajiaji/pyseto/pull/64>`__
