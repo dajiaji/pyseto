@@ -1,6 +1,10 @@
 import json
+from datetime import datetime, timedelta, timezone
 from typing import Any, List, Optional, Union
 
+import iso8601
+
+from .exceptions import VerifyError
 from .key_interface import KeyInterface
 from .token import Token
 from .utils import base64url_encode
@@ -13,6 +17,7 @@ def encode(
     implicit_assertion: Union[bytes, str] = b"",
     nonce: bytes = b"",
     serializer: Any = json,
+    exp: int = 0,
 ) -> bytes:
 
     """
@@ -31,6 +36,10 @@ def encode(
         serializer (Any): A serializer which is used when the type of
             ``payload`` is ``object``. It must have a ``dumps()`` function to
             serialize the payload. Typically, you can use ``json`` or ``cbor2``.
+        exp (int): An expiration time (seconds) of the PASETO token. It will be
+            set in the payload as the registered ``exp`` claim when serializer
+            is ``json`` and this value > ``0``. If the value <= ``0``, the
+            ``exp`` claim will not be set.
     Returns:
         bytes: A PASETO token.
     Raise:
@@ -53,6 +62,8 @@ def encode(
         except Exception:
             raise
         try:
+            if exp > 0:
+                payload = _set_registered_claims(payload, exp)
             bp = serializer.dumps(payload).encode("utf-8")
         except Exception as err:
             raise ValueError("Failed to serialize the payload.") from err
@@ -132,9 +143,36 @@ def decode(
                     t.payload = deserializer.loads(t.payload)
             except Exception as err:
                 raise ValueError("Failed to deserialize the payload.") from err
+            if deserializer:
+                _verify_registered_claims(t.payload, 0)
             return t
         except Exception as err:
             failed = err
     if failed:
         raise failed
     raise ValueError("key is not found for verifying the token.")
+
+
+def _set_registered_claims(claims: dict, exp: int) -> dict:
+    now = datetime.now(tz=timezone.utc)
+    claims["exp"] = (now + timedelta(seconds=exp)).isoformat(timespec="seconds")
+    # claims["iat"] = now.isoformat()
+    # claims["nbf"] = now.isoformat()
+    return claims
+
+
+def _verify_registered_claims(claims: dict, leeway: int):
+    now = iso8601.parse_date(
+        datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
+    )
+    # In Python 3.7 or later, the following code can be used:
+    # now = datetime.fromisoformat(
+    #     datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
+    # )
+    try:
+        exp = iso8601.parse_date(claims["exp"])
+    except Exception as err:
+        raise VerifyError("Invalid exp.") from err
+    if now > exp + timedelta(seconds=leeway):
+        raise VerifyError("Token expired.")
+    return
