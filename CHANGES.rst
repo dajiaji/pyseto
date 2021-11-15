@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Add Paseto class. `#72 <https://github.com/dajiaji/pyseto/pull/72>`__
 - Add support for exp claim. `#71 <https://github.com/dajiaji/pyseto/pull/71>`__
 
 Version 1.2.0
