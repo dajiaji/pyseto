@@ -1,7 +1,11 @@
+import json
+import time
+
 import pytest
 
 import pyseto
 from pyseto import Key
+from pyseto.exceptions import VerifyError
 
 from .utils import load_key
 
@@ -179,6 +183,40 @@ class TestPyseto:
             pyseto.decode(public_key, token, deserializer=deserializer)
             pytest.fail("pyseto.decode() should fail.")
         assert msg in str(err.value)
+
+    def test_decode_object_payload_with_invalid_exp(self):
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+        public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+        token = pyseto.encode(
+            private_key,
+            {"data": "this is a signed message", "exp": "xxxxx"},
+        )
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+        with pytest.raises(VerifyError) as err:
+            pyseto.decode(public_key, token, deserializer=json)
+            pytest.fail("pyseto.decode() should fail.")
+        assert "Invalid exp." in str(err.value)
+
+    def test_decode_object_payload_with_expired_exp(self):
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+        public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+        token = pyseto.encode(
+            private_key,
+            {"data": "this is a signed message"},
+            exp=1,
+        )
+        time.sleep(2)
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+        with pytest.raises(VerifyError) as err:
+            pyseto.decode(public_key, token, deserializer=json)
+            pytest.fail("pyseto.decode() should fail.")
+        assert "Token expired." in str(err.value)
 
     def test_decode_with_empty_list_of_keys(self):
         sk = Key.new(4, "public", load_key("keys/private_key_ed25519.pem"))
