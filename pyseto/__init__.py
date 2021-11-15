@@ -7,6 +7,7 @@ from .exceptions import (
     VerifyError,
 )
 from .key import Key
+from .paseto import Paseto
 from .pyseto import decode, encode
 
 __version__ = "1.2.0"
@@ -23,6 +24,7 @@ __all__ = [
     "encode",
     "decode",
     "Key",
+    "Paseto",
     "PysetoError",
     "DecryptError",
     "EncryptError",
