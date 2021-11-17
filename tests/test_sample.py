@@ -1,4 +1,5 @@
 import json
+import time
 from datetime import datetime, timedelta, timezone
 from secrets import token_bytes
 
@@ -148,6 +149,27 @@ class TestSample:
         assert iso8601.parse_date(decoded.payload["exp"]) >= now + timedelta(
             seconds=3600 - 1
         )
+
+    def test_sample_v4_public_with_paseto_class_and_leeway(self):
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+        public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+        now = datetime.now(tz=timezone.utc)
+
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+        paseto = Paseto.new(exp=1, include_iat=True, leeway=1)
+        token = paseto.encode(
+            private_key,
+            {"data": "this is a signed message"},
+        )
+        time.sleep(1)
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+        decoded = pyseto.decode(public_key, token, deserializer=json)
+
+        assert decoded.payload["data"] == "this is a signed message"
+        assert "iat" in decoded.payload
+        assert "exp" in decoded.payload
+        assert iso8601.parse_date(decoded.payload["exp"]) >= now
 
     def test_sample_paserk(self):
 

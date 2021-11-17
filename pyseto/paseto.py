@@ -199,7 +199,7 @@ class Paseto(object):
                 except Exception as err:
                     raise ValueError("Failed to deserialize the payload.") from err
                 if deserializer:
-                    self._verify_registered_claims(t.payload, 0)
+                    self._verify_registered_claims(t.payload)
                 return t
             except Exception as err:
                 failed = err
@@ -231,7 +231,7 @@ class Paseto(object):
     #     footer["kid"] = key.to_paserk_id()
     #     return footer
 
-    def _verify_registered_claims(self, claims: dict, leeway: int):
+    def _verify_registered_claims(self, claims: dict):
 
         now = iso8601.parse_date(
             datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
@@ -244,6 +244,6 @@ class Paseto(object):
             exp = iso8601.parse_date(claims["exp"])
         except Exception as err:
             raise VerifyError("Invalid exp.") from err
-        if now > exp + timedelta(seconds=leeway):
+        if now > exp + timedelta(seconds=self._leeway):
             raise VerifyError("Token expired.")
         return
