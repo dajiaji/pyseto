@@ -182,7 +182,10 @@ class TestSample:
         paseto = Paseto.new(exp=3600, include_iat=True)
         token = paseto.encode(
             private_key,
-            {"data": "this is a signed message"},
+            {
+                "data": "this is a signed message",
+                "nbf": (now - timedelta(seconds=10)).isoformat(timespec="seconds"),
+            },
             footer={"kid": public_key.to_paserk_id()},
         )
         decoded = pyseto.decode(public_key, token, deserializer=json)

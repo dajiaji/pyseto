@@ -1,5 +1,6 @@
 import json
 import time
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -259,7 +260,7 @@ class TestPyseto:
         private_key = Key.new(version=4, purpose="public", key=private_key_pem)
         token = pyseto.encode(
             private_key,
-            {"data": "this is a signed message"},
+            {"data": "this is a signed message", "exp": "xxxxx"},
         )
         public_key = Key.new(version=4, purpose="public", key=public_key_pem)
         with pytest.raises(VerifyError) as err:
@@ -284,6 +285,42 @@ class TestPyseto:
             pyseto.decode(public_key, token, deserializer=json)
             pytest.fail("pyseto.decode() should fail.")
         assert "Token expired." in str(err.value)
+
+    def test_decode_object_payload_with_invalid_nbf(self):
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+        public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+        token = pyseto.encode(
+            private_key,
+            {"data": "this is a signed message", "nbf": "xxxxx"},
+        )
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+        with pytest.raises(VerifyError) as err:
+            pyseto.decode(public_key, token, deserializer=json)
+            pytest.fail("pyseto.decode() should fail.")
+        assert "Invalid nbf." in str(err.value)
+
+    def test_decode_object_payload_with_future_nbf(self):
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+        public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+        now = datetime.now(tz=timezone.utc)
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+        token = pyseto.encode(
+            private_key,
+            {
+                "data": "this is a signed message",
+                "nbf": (now + timedelta(seconds=10)).isoformat(timespec="seconds"),
+            },
+        )
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+        with pytest.raises(VerifyError) as err:
+            pyseto.decode(public_key, token, deserializer=json)
+            pytest.fail("pyseto.decode() should fail.")
+        assert "Token has not been activated yet." in str(err.value)
 
     def test_decode_with_empty_list_of_keys(self):
         sk = Key.new(4, "public", load_key("keys/private_key_ed25519.pem"))
