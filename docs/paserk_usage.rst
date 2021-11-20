@@ -187,6 +187,29 @@ In case of ``secret-pw``:
 Asymmetric Encryption
 ---------------------
 
-Not supported yet.
+At this time, PySETO supports asymmetric encryption (key sealing) for `v2` and `v4`.
+
+.. code-block:: python
+
+    import pyseto
+    from pyseto import Key
+
+    private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VuBCIEIFAF7jSCZHFgWvC8hUkXr55Az6Pot2g4zOAUxck0/6x8\n-----END PRIVATE KEY-----"
+    public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VuAyEAFv8IXsICYj0paznDK/99GyCsFOIGnfY87ayyNSIvSB4=\n-----END PUBLIC KEY-----"
+
+    raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
+    token = pyseto.encode(
+        raw_key,
+        b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+    )
+
+    sealed_key = raw_key.to_paserk(sealing_key=public_key_pem)
+    unsealed_key = Key.from_paserk(sealed_key, unsealing_key=private_key_pem)
+    decoded = pyseto.decode(unsealed_key, token)
+
+    assert (
+        decoded.payload
+        == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+    )
 
 .. _`PASERK (Platform-Agnostic Serialized Keys)`: https://github.com/paseto-standard/paserk
