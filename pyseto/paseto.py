@@ -238,7 +238,7 @@ class Paseto(object):
             )
         # iat
         if self._include_iat:
-            claims["iat"] = now.isoformat()
+            claims["iat"] = now.isoformat(timespec="seconds")
         return claims
 
     def _verify_registered_claims(self, claims: dict):
