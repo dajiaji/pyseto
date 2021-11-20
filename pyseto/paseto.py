@@ -250,10 +250,18 @@ class Paseto(object):
         # now = datetime.fromisoformat(
         #     datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
         # )
-        try:
-            exp = iso8601.parse_date(claims["exp"])
-        except Exception as err:
-            raise VerifyError("Invalid exp.") from err
-        if now > exp + timedelta(seconds=self._leeway):
-            raise VerifyError("Token expired.")
+        if "exp" in claims:
+            try:
+                exp = iso8601.parse_date(claims["exp"])
+            except Exception as err:
+                raise VerifyError("Invalid exp.") from err
+            if now > exp + timedelta(seconds=self._leeway):
+                raise VerifyError("Token expired.")
+        if "nbf" in claims:
+            try:
+                nbf = iso8601.parse_date(claims["nbf"])
+            except Exception as err:
+                raise VerifyError("Invalid nbf.") from err
+            if now < nbf - timedelta(seconds=self._leeway):
+                raise VerifyError("Token has not been activated yet.")
         return

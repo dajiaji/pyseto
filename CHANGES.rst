@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Add support for nbf validation. `#76 <https://github.com/dajiaji/pyseto/pull/76>`__
 - Add support for dict typed footer. `#75 <https://github.com/dajiaji/pyseto/pull/75>`__
 - Add leeway for exp validation. `#74 <https://github.com/dajiaji/pyseto/pull/74>`__
 - Add Paseto class. `#72 <https://github.com/dajiaji/pyseto/pull/72>`__
