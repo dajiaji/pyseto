@@ -4,7 +4,8 @@ Changes
 Unreleased
 ----------
 
-- Add leeway for exp validation. `#73 <https://github.com/dajiaji/pyseto/pull/73>`__
+- Add support for dict typed footer. `#75 <https://github.com/dajiaji/pyseto/pull/75>`__
+- Add leeway for exp validation. `#74 <https://github.com/dajiaji/pyseto/pull/74>`__
 - Add Paseto class. `#72 <https://github.com/dajiaji/pyseto/pull/72>`__
 - Add support for exp claim. `#71 <https://github.com/dajiaji/pyseto/pull/71>`__
 

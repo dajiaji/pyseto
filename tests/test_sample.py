@@ -171,6 +171,32 @@ class TestSample:
         assert "exp" in decoded.payload
         assert iso8601.parse_date(decoded.payload["exp"]) >= now
 
+    def test_sample_v4_public_with_kid(self):
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+        public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+        now = datetime.now(tz=timezone.utc)
+
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+        paseto = Paseto.new(exp=3600, include_iat=True)
+        token = paseto.encode(
+            private_key,
+            {"data": "this is a signed message"},
+            footer={"kid": public_key.to_paserk_id()},
+        )
+        decoded = pyseto.decode(public_key, token, deserializer=json)
+
+        assert decoded.payload["data"] == "this is a signed message"
+        assert "iat" in decoded.payload
+        assert "exp" in decoded.payload
+        assert "kid" in decoded.footer
+        assert (
+            decoded.footer["kid"]
+            == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
+        )
+        assert iso8601.parse_date(decoded.payload["exp"]) >= now
+
     def test_sample_paserk(self):
 
         symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
