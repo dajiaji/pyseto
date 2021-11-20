@@ -4,6 +4,11 @@ Changes
 Unreleased
 ----------
 
+Version 1.3.0
+-------------
+
+Released 2021-11-20
+
 - Add support for nbf validation. `#76 <https://github.com/dajiaji/pyseto/pull/76>`__
 - Add support for dict typed footer. `#75 <https://github.com/dajiaji/pyseto/pull/75>`__
 - Add leeway for exp validation. `#74 <https://github.com/dajiaji/pyseto/pull/74>`__
