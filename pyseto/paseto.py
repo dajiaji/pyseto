@@ -19,12 +19,10 @@ class Paseto(object):
         self,
         exp: int = 0,
         include_iat: bool = False,
-        include_kid: bool = False,
         leeway: int = 0,
     ):
         self._exp = exp
         self._include_iat = include_iat
-        self._include_kid = include_kid
         self._leeway = leeway
         return
 
@@ -33,7 +31,6 @@ class Paseto(object):
         cls,
         exp: int = 0,
         include_iat: bool = False,
-        include_kid: bool = False,
         leeway: int = 0,
     ):
         """
@@ -50,22 +47,18 @@ class Paseto(object):
                 which are created through ``encode()`` include an ``iat`` claim
                 when calling ``encode()`` with serializer=``json``. The default
                 value is ``False``.
-            include_kid (bool): If this value is ``True``, PASETO tokens
-                which are created through ``encode()`` include a ``kid`` in the
-                footer of the tokens when calling ``encode()`` with serializer=
-                ``json``. The default value is ``False``.
             leeway (int): The leeway in seconds for validating ``exp`` and
                 ``nbf``. The default value is ``0``.
         Returns:
             bytes: A PASETO processor object.
         """
-        return cls(exp, include_iat, include_kid, leeway)
+        return cls(exp, include_iat, leeway)
 
     def encode(
         self,
         key: KeyInterface,
         payload: Union[bytes, str, dict],
-        footer: Union[bytes, str] = b"",
+        footer: Union[bytes, str, dict] = b"",
         implicit_assertion: Union[bytes, str] = b"",
         nonce: bytes = b"",
         serializer: Any = json,
@@ -78,7 +71,7 @@ class Paseto(object):
         Args:
             key (KeyInterface): A key for encryption or signing.
             payload (Union[bytes, str, dict]): A message to be encrypted or signed.
-            footer (Union[bytes, str]): A footer.
+            footer (Union[bytes, str, dict]): A footer.
             implicit_assertion (Union[bytes, str]): An implicit assertion. It is
                 only used in ``v3`` or ``v4``.
             nonce (bytes): A nonce. If omitted(it's recommended), a nonce will be
@@ -86,8 +79,9 @@ class Paseto(object):
                 want ot use ``secrets.token_bytes()``, you can specify it via this
                 parameter explicitly.
             serializer (Any): A serializer which is used when the type of
-                ``payload`` is ``object``. It must have a ``dumps()`` function to
-                serialize the payload. Typically, you can use ``json`` or ``cbor2``.
+                ``payload`` and/or ``footer`` is ``dict``. It must have a
+                ``dumps()`` function to serialize the payload. Typically, you
+                can use ``json`` or ``cbor2``.
             exp (int): An expiration time (seconds) of the PASETO token. It will be
                 set in the payload as the registered ``exp`` claim when serializer
                 is ``json`` and this value > ``0``. If the value <= ``0``, the
@@ -124,12 +118,32 @@ class Paseto(object):
         else:
             bp = payload if isinstance(payload, bytes) else payload.encode("utf-8")
 
-        bf = footer if isinstance(footer, bytes) else footer.encode("utf-8")
+        bf: bytes
+        if isinstance(footer, dict):
+            if not serializer:
+                raise ValueError(
+                    "serializer should be specified for the footer object."
+                )
+            try:
+                if not callable(serializer.dumps):
+                    raise ValueError("serializer should have dumps().")
+            except AttributeError:
+                raise ValueError("serializer should have dumps().")
+            except Exception:
+                raise
+            try:
+                bf = serializer.dumps(footer).encode("utf-8")
+            except Exception as err:
+                raise ValueError("Failed to serialize the footer.") from err
+        else:
+            bf = footer if isinstance(footer, bytes) else footer.encode("utf-8")
+
         bi = (
             implicit_assertion
             if isinstance(implicit_assertion, bytes)
             else implicit_assertion.encode("utf-8")
         )
+
         if key.purpose == "local":
             return key.encrypt(bp, bf, bi, nonce)
 
@@ -199,6 +213,11 @@ class Paseto(object):
                 except Exception as err:
                     raise ValueError("Failed to deserialize the payload.") from err
                 if deserializer:
+                    try:
+                        if t.footer:
+                            t.footer = deserializer.loads(t.footer)
+                    except Exception:
+                        pass
                     self._verify_registered_claims(t.payload)
                 return t
             except Exception as err:
@@ -217,19 +236,10 @@ class Paseto(object):
             claims["exp"] = (now + timedelta(seconds=self._exp)).isoformat(
                 timespec="seconds"
             )
-            print(claims)
         # iat
         if self._include_iat:
             claims["iat"] = now.isoformat()
         return claims
-
-    # def _set_kid(self, footer: dict, key: KeyInterface) -> dict:
-
-    #     if not self._include_kid:
-    #         return footer
-
-    #     footer["kid"] = key.to_paserk_id()
-    #     return footer
 
     def _verify_registered_claims(self, claims: dict):
 

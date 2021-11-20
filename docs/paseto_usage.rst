@@ -312,3 +312,68 @@ Symmetric Authenticated Encryption with AES-256-CTR + HMAC-SHA384 (Encrypt-then-
     assert decoded.footer == b"This is a footer"
     assert decoded.version == "v1"
     assert decoded.purpose == "local"
+
+Using serializer/deserializer for payload and footer
+----------------------------------------------------
+
+By using `serializer` and `deserializer`, you can encode/decode a dict-typed payload and footer included in PASETO tokens into an arbitrary format.
+The following example shows that the payload and the footer in a PASETO token are encoded/decoded as JSON formatted data.
+When specifing dict-typed payload, exp parameter can be used to set the expiration time (seconds) of the token.
+
+.. code-block:: python
+
+    import json
+    import pyseto
+    from pyseto import Key
+
+    private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+    public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+    private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+    public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+
+    token = pyseto.encode(
+        private_key,
+        {"data": "this is a signed message"},
+        footer={"kid": public_key.to_paserk_id()},
+        serializer=json,
+        exp=3600,
+    )
+
+    decoded = pyseto.decode(public_key, token, deserializer=json)
+    assert decoded.payload["data"] == "this is a signed message"
+    assert decoded.payload["exp"] == "2021-11-11T00:00:00+00:00"
+    assert decoded.footer["kid"] == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
+
+Using Paseto class for handling registered claims
+---------------------------------------------------
+
+By using `Paseto` class, you can change the default value of `exp` (the expiration date ot tokens), whether to include an `iat` claim, and other settings.
+
+Note that `pyseto.encode()` and `pyseto.decode()` are aliases to the `encode()` and `decode()` of the global "Paseto" class instance created with the default settings.
+
+
+.. code-block:: python
+
+    import json
+    import pyseto
+    from pyseto import Key, Paseto
+
+    private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+    public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+    private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+    paseto = Paseto.new(
+        exp=3600, include_iat=True
+    )  # Default values are exp=0(not specified) and including_iat=False
+    token = paseto.encode(
+        private_key,
+        {"data": "this is a signed message"},
+        serializer=json,
+    )
+    public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+    decoded = pyseto.decode(public_key, token, deserializer=json)
+
+    assert decoded.payload["data"] == "this is a signed message"
+    assert decoded.payload["iat"] == "2021-11-11T00:00:00+00:00"
+    assert decoded.payload["exp"] == "2021-11-11T01:00:00+00:00"
