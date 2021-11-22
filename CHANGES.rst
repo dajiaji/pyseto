@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Disclose KeyInterface class. `#81 <https://github.com/dajiaji/pyseto/pull/81>`__
 - Disclose Token class. `#80 <https://github.com/dajiaji/pyseto/pull/80>`__
 
 Version 1.3.0

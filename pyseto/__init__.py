@@ -7,6 +7,7 @@ from .exceptions import (
     VerifyError,
 )
 from .key import Key
+from .key_interface import KeyInterface
 from .paseto import Paseto
 from .pyseto import decode, encode
 from .token import Token
@@ -25,6 +26,7 @@ __all__ = [
     "encode",
     "decode",
     "Key",
+    "KeyInterface",
     "Paseto",
     "PysetoError",
     "Token",
