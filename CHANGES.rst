@@ -4,6 +4,8 @@ Changes
 Unreleased
 ----------
 
+- Disclose Token class. `#80 <https://github.com/dajiaji/pyseto/pull/80>`__
+
 Version 1.3.0
 -------------
 

@@ -3,12 +3,18 @@ from typing import Union
 from .utils import base64url_decode
 
 
-class Token:
+class Token(object):
     """
     The parsed token object which is a return value of :func:`pyseto.decode <pyseto.decode>`.
     """
 
-    def __init__(self, version: str, purpose: str, payload: bytes, footer: bytes = b""):
+    def __init__(
+        self,
+        version: str,
+        purpose: str,
+        payload: Union[bytes, dict],
+        footer: Union[bytes, dict] = b"",
+    ):
         self._version = version
         self._purpose = purpose
         self._payload = payload
@@ -50,14 +56,14 @@ class Token:
         return self._header
 
     @property
-    def payload(self) -> bytes:
+    def payload(self) -> Union[bytes, dict]:
         """
         The payload of the token which is a decoded binary string. It's not Base64 encoded data.
         """
         return self._payload
 
     @payload.setter
-    def payload(self, payload: bytes):
+    def payload(self, payload: Union[bytes, dict]):
         """
         A setter of the payload.
         """
@@ -65,14 +71,14 @@ class Token:
         return
 
     @property
-    def footer(self) -> bytes:
+    def footer(self) -> Union[bytes, dict]:
         """
         The footer of the token which is a decoded binary string. It's not Base64 encoded data.
         """
         return self._footer
 
     @footer.setter
-    def footer(self, footer: bytes):
+    def footer(self, footer: Union[bytes, dict]):
         """
         A setter of the footer.
         """
