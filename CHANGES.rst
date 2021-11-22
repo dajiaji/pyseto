@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Add is_secret to KeyInterface. `#82 <https://github.com/dajiaji/pyseto/pull/82>`__
 - Disclose KeyInterface class. `#81 <https://github.com/dajiaji/pyseto/pull/81>`__
 - Disclose Token class. `#80 <https://github.com/dajiaji/pyseto/pull/80>`__
 

@@ -94,6 +94,9 @@ class V4Public(SodiumKey):
 
         if not isinstance(self._key, (Ed25519PublicKey, Ed25519PrivateKey)):
             raise ValueError("The key is not Ed25519 key.")
+
+        if isinstance(self._key, Ed25519PublicKey):
+            self._is_secret = False
         return
 
     # @classmethod

@@ -21,6 +21,7 @@ class KeyInterface:
         self._key: Any = key
         if not self._key:
             raise ValueError("key must be specified.")
+        self._is_secret = True
         return
 
     @property
@@ -44,6 +45,13 @@ class KeyInterface:
         For example, ``"v1.local."``.
         """
         return self._header
+
+    @property
+    def is_secret(self) -> bool:
+        """
+        If it is True, the key is a symmetric key or an asymmetric secret key.
+        """
+        return self._is_secret
 
     # @property
     # def key(self) -> Any:

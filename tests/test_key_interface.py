@@ -25,6 +25,7 @@ class TestKeyInterface:
         assert isinstance(k, KeyInterface)
         assert k.version == version
         assert k.purpose == purpose
+        assert k.is_secret is True
         with pytest.raises(NotSupportedError) as err:
             k.encrypt(b"Hello world!")
             pytest.fail("KeyInterface.encrypt() should fail.")
