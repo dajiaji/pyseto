@@ -122,6 +122,9 @@ class V1Public(NISTKey):
         if not isinstance(self._key, (RSAPublicKey, RSAPrivateKey)):
             raise ValueError("The key is not RSA key.")
 
+        if isinstance(self._key, RSAPublicKey):
+            self._is_secret = False
+
         self._padding = padding.PSS(mgf=padding.MGF1(hashes.SHA384()), salt_length=48)
         return
 
