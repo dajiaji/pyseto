@@ -1,4 +1,4 @@
-# PySETO - A Python implementation of PASETO
+# PySETO - A Python implementation of PASETO/PASERK
 
 [![PyPI version](https://badge.fury.io/py/pyseto.svg)](https://badge.fury.io/py/pyseto)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyseto)
@@ -7,8 +7,11 @@
 [![codecov](https://codecov.io/gh/dajiaji/pyseto/branch/main/graph/badge.svg?token=QN8GXEYEP3)](https://codecov.io/gh/dajiaji/pyseto)
 
 
-PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/) implementation written in Python
-which supports all of the versions (`v1`-`v4`) and purposes (`public` and `local`)
+PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/)/[PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk) implementation written in Python
+which supports all of the versions ([v1](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version1.md),
+[v2](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version2.md),
+[v3](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version3.md) and
+[v4](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version4.md)) and purposes (`public` and `local`)
 and has passed all of [the official tests](https://github.com/paseto-standard/test-vectors).
 
 You can install PySETO with pip:
@@ -73,31 +76,17 @@ $ pip install pyseto
 
 PySETO supports all of PASETO versions and purposes below:
 
-- [Version 4: Sodium Modern](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version4.md)
-    - ✅ Local: Symmetric Authenticated Encryption
-        - XChaCha20 + BLAKE2b-MAC (Encrypt-then-MAC).
-    - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
-        - EdDSA over Curve25519.
-- [Version 3: NIST Modern](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version3.md)
-    - ✅ Local: Symmetric Authenticated Encryption
-        - AES-256-CTR + HMAC-SHA384 (Encrypt-then-MAC).
-    - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
-        - ECDSA over NIST P-384, with SHA-384, using [RFC 6979 deterministic k-values](https://datatracker.ietf.org/doc/html/rfc6979).
-- [Version 2: Sodium Original](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version2.md)
-    - ✅ Local: Symmetric Authenticated Encryption
-        - XChaCha20-Poly1305 (192-bit nonce, 256-bit key, 128-bit authentication tag).
-    - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
-        - EdDSA over Curve25519.
-- [Version 1: NIST Compatibility](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version1.md)
-    - ✅ Local: Symmetric Authenticated Encryption
-        - AES-256-CTR + HMAC-SHA384 (Encrypt-then-MAC).
-    - ✅ Public: Asymmetric Authentication (Public-Key Signatures)
-        - RSASSA-PSS with 2048-bit key, SHA384 hashing and MGF1+SHA384.
+
+|          |  v4  |  v3  |  v2  |  v1  |
+| ---------| ---- | ---- | ---- | ---- |
+| `local`  |  ✅  |  ✅  |  ✅  |  ✅  |
+| `public` |  ✅  |  ✅  |  ✅  |  ✅  |
+
 
 ## Supported PASERK Types
 
 PySETO also supports [PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk).
-Currently, following PASERK types are supported.
+Currently, following PASERK types are supported:
 
 
 |               |  v4  |  v3  |  v2  |  v1  |
@@ -386,7 +375,7 @@ Key searing for `v1` and `v3` have not been supported yet.
 
 ## API Reference
 
-See [Document](https://pyseto.readthedocs.io/en/stable/api.html).
+See [Documentation](https://pyseto.readthedocs.io/en/stable/api.html).
 
 ## Tests
 
