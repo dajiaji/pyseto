@@ -7,6 +7,13 @@ Unreleased
 Version 1.4.0
 -------------
 
+Released 2021-11-24
+
+- Add to_peer_paserk_id to KeyInterface. `#85 <https://github.com/dajiaji/pyseto/pull/85>`__
+
+Version 1.4.0
+-------------
+
 Released 2021-11-22
 
 - Add is_secret to KeyInterface. `#82 <https://github.com/dajiaji/pyseto/pull/82>`__
