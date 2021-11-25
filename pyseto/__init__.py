@@ -12,9 +12,9 @@ from .paseto import Paseto
 from .pyseto import decode, encode
 from .token import Token
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 __title__ = "PySETO"
-__description__ = "A Python implementation of PASETO"
+__description__ = "A Python implementation of PASETO/PASERK."
 __url__ = "https://pyseto.readthedocs.io"
 __uri__ = __url__
 __doc__ = __description__ + " <" + __uri__ + ">"
