@@ -185,6 +185,12 @@ class TestV2Public:
     Tests for v2.public.
     """
 
+    def test_v2_public_to_paserk_id(self):
+        sk = Key.new(2, "public", load_key("keys/private_key_ed25519.pem"))
+        pk = Key.new(2, "public", load_key("keys/public_key_ed25519.pem"))
+        assert sk.to_peer_paserk_id() == pk.to_paserk_id()
+        assert pk.to_peer_paserk_id() == ""
+
     def test_v2_public_verify_via_encode_with_wrong_key(self):
         sk = Key.new(2, "public", load_key("keys/private_key_ed25519.pem"))
         pk = Key.new(2, "public", load_key("keys/public_key_ed25519_2.pem"))
