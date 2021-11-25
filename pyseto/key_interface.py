@@ -118,6 +118,17 @@ class KeyInterface:
         """
         raise NotImplementedError("The PASERK ID for the key is not supported yet.")
 
+    def to_peer_paserk_id(self) -> str:
+        """
+        Returns the peer(public) PASERK ID of the key.
+        It can be used only in case that the key is `k2.secret` or `k4.secret`.
+
+        Returns:
+            str: A peer PASERK ID string. If the key is neither `k2.secret` nor
+                `k4.secret`, an empty string will be returned.
+        """
+        return ""
+
     def encrypt(
         self,
         payload: bytes,
