@@ -4,11 +4,12 @@ Changes
 Unreleased
 ----------
 
-Version 1.4.0
+Version 1.5.0
 -------------
 
 Released 2021-11-24
 
+- Add support for aud verification. `#86 <https://github.com/dajiaji/pyseto/pull/86>`__
 - Add to_peer_paserk_id to KeyInterface. `#85 <https://github.com/dajiaji/pyseto/pull/85>`__
 
 Version 1.4.0
