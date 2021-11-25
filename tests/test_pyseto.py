@@ -286,6 +286,52 @@ class TestPyseto:
             pytest.fail("pyseto.decode() should fail.")
         assert "Token expired." in str(err.value)
 
+    def test_decode_object_payload_with_aud(self):
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+        public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+        token = pyseto.encode(
+            private_key,
+            {"data": "this is a signed message", "aud": "12345"},
+        )
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+        decoded = pyseto.decode(public_key, token, deserializer=json, aud="12345")
+        assert decoded.payload["aud"] == "12345"
+
+    def test_decode_object_payload_without_aud(self):
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+        public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+        token = pyseto.encode(
+            private_key,
+            {"data": "this is a signed message"},
+        )
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+        with pytest.raises(VerifyError) as err:
+            pyseto.decode(public_key, token, deserializer=json, aud="12345")
+            pytest.fail("pyseto.decode() should fail.")
+        assert "aud verification failed." in str(err.value)
+
+    def test_decode_object_payload_with_invalid_aud(self):
+
+        private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+        public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+        private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+        token = pyseto.encode(
+            private_key,
+            {"data": "this is a signed message", "aud": "12345"},
+        )
+        public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+        with pytest.raises(VerifyError) as err:
+            pyseto.decode(public_key, token, deserializer=json, aud="1234x")
+            pytest.fail("pyseto.decode() should fail.")
+        assert "aud verification failed." in str(err.value)
+
     def test_decode_object_payload_with_invalid_nbf(self):
 
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"

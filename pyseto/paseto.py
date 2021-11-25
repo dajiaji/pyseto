@@ -159,13 +159,14 @@ class Paseto(object):
         token: Union[bytes, str],
         implicit_assertion: Union[bytes, str] = b"",
         deserializer: Optional[Any] = None,
+        aud: str = "",
     ) -> Token:
 
         """
         Decodes a PASETO token with a key for decryption and/or verifying.
 
         Args:
-            key (KeyInterface): A key for decryption or verifying the signature in the token.
+            keys (KeyInterface): A key for decryption or verifying the signature in the token.
             token (Union[bytes, str]): A PASETO token to be decrypted or verified.
             implicit_assertion (Union[bytes, str]): An implicit assertion. It is
                 only used in ``v3`` or ``v4``.
@@ -173,6 +174,10 @@ class Paseto(object):
                 deserialize a ``payload`` attribute in the response object. It must have a
                 ``loads()`` function to deserialize the payload. Typically, you can use
                 ``json`` or ``cbor2``.
+            aud (str): An audience claim value for the token verification.
+                If ``deserializer=json`` and the payload of the token does not
+                include an ``aud`` value that matches this value, the
+                verification will fail.
         Returns:
             Token: A parsed PASETO token object.
         Raise:
@@ -218,7 +223,7 @@ class Paseto(object):
                             t.footer = deserializer.loads(t.footer)
                     except Exception:
                         pass
-                    self._verify_registered_claims(t.payload)
+                    self._verify_registered_claims(t.payload, aud)
                 return t
             except Exception as err:
                 failed = err
@@ -241,7 +246,7 @@ class Paseto(object):
             claims["iat"] = now.isoformat(timespec="seconds")
         return claims
 
-    def _verify_registered_claims(self, claims: dict):
+    def _verify_registered_claims(self, claims: dict, aud: str):
 
         now = iso8601.parse_date(
             datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
@@ -264,4 +269,7 @@ class Paseto(object):
                 raise VerifyError("Invalid nbf.") from err
             if now < nbf - timedelta(seconds=self._leeway):
                 raise VerifyError("Token has not been activated yet.")
+        if aud:
+            if "aud" not in claims or aud != claims["aud"]:
+                raise VerifyError("aud verification failed.")
         return
