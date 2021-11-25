@@ -56,13 +56,14 @@ def decode(
     token: Union[bytes, str],
     implicit_assertion: Union[bytes, str] = b"",
     deserializer: Optional[Any] = None,
+    aud: str = "",
 ) -> Token:
 
     """
     Decodes a PASETO token with a key for decryption and/or verifying.
 
     Args:
-        key (KeyInterface): A key for decryption or verifying the signature in the token.
+        keys (KeyInterface): A key for decryption or verifying the signature in the token.
         token (Union[bytes, str]): A PASETO token to be decrypted or verified.
         implicit_assertion (Union[bytes, str]): An implicit assertion. It is
             only used in ``v3`` or ``v4``.
@@ -70,6 +71,10 @@ def decode(
             deserialize a ``payload`` attribute in the response object. It must have a
             ``loads()`` function to deserialize the payload. Typically, you can use
             ``json`` or ``cbor2``.
+        aud (str): An audience claim value for the token verification.
+            If ``deserializer=json`` and the payload of the token does not
+            include an ``aud`` value that matches this value, the
+            verification will fail.
     Returns:
         Token: A parsed PASETO token object.
     Raise:
@@ -77,4 +82,4 @@ def decode(
         DecryptError: Failed to decrypt the message.
         VerifyError: Failed to verify the message.
     """
-    return _paseto.decode(keys, token, implicit_assertion, deserializer)
+    return _paseto.decode(keys, token, implicit_assertion, deserializer, aud)
