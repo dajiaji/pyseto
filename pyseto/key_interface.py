@@ -105,9 +105,7 @@ class KeyInterface:
             ValueError: Invalid arguments.
             EncryptError: Failed to wrap the key.
         """
-        raise NotImplementedError(
-            "The PASERK expression for the key is not supported yet."
-        )
+        raise NotImplementedError("The PASERK expression for the key is not supported yet.")
 
     def to_paserk_id(self) -> str:
         """
@@ -158,9 +156,7 @@ class KeyInterface:
         """
         raise NotSupportedError("A key for public does not have encrypt().")
 
-    def decrypt(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def decrypt(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
         """
         Decrypts an encrypted PASETO token with the key.
 
@@ -182,9 +178,7 @@ class KeyInterface:
         """
         raise NotSupportedError("A key for public does not have decrypt().")
 
-    def sign(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
         """
         Signs a message with the key and makes a PASETO token.
 
@@ -207,9 +201,7 @@ class KeyInterface:
         """
         raise NotSupportedError("A key for local does not have sign().")
 
-    def verify(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
         """
         Verifies and decodes a signed PASETO token with the key.
 

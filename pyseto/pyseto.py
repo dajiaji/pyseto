@@ -46,9 +46,7 @@ def encode(
         EncryptError: Failed to encrypt the message.
         SignError: Failed to sign the message.
     """
-    return _paseto.encode(
-        key, payload, footer, implicit_assertion, nonce, serializer, exp
-    )
+    return _paseto.encode(key, payload, footer, implicit_assertion, nonce, serializer, exp)
 
 
 def decode(

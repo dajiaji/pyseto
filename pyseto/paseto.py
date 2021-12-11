@@ -100,9 +100,7 @@ class Paseto(object):
         bp: bytes
         if isinstance(payload, dict):
             if not serializer:
-                raise ValueError(
-                    "serializer should be specified for the payload object."
-                )
+                raise ValueError("serializer should be specified for the payload object.")
             try:
                 if not callable(serializer.dumps):
                     raise ValueError("serializer should have dumps().")
@@ -121,9 +119,7 @@ class Paseto(object):
         bf: bytes
         if isinstance(footer, dict):
             if not serializer:
-                raise ValueError(
-                    "serializer should be specified for the footer object."
-                )
+                raise ValueError("serializer should be specified for the footer object.")
             try:
                 if not callable(serializer.dumps):
                     raise ValueError("serializer should have dumps().")
@@ -138,11 +134,7 @@ class Paseto(object):
         else:
             bf = footer if isinstance(footer, bytes) else footer.encode("utf-8")
 
-        bi = (
-            implicit_assertion
-            if isinstance(implicit_assertion, bytes)
-            else implicit_assertion.encode("utf-8")
-        )
+        bi = implicit_assertion if isinstance(implicit_assertion, bytes) else implicit_assertion.encode("utf-8")
 
         if key.purpose == "local":
             return key.encrypt(bp, bf, bi, nonce)
@@ -196,11 +188,7 @@ class Paseto(object):
                 raise
 
         keys = keys if isinstance(keys, list) else [keys]
-        bi = (
-            implicit_assertion
-            if isinstance(implicit_assertion, bytes)
-            else implicit_assertion.encode("utf-8")
-        )
+        bi = implicit_assertion if isinstance(implicit_assertion, bytes) else implicit_assertion.encode("utf-8")
 
         failed = None
         t = Token.new(token)
@@ -238,9 +226,7 @@ class Paseto(object):
         if exp > 0:
             claims["exp"] = (now + timedelta(seconds=exp)).isoformat(timespec="seconds")
         elif self._exp > 0:
-            claims["exp"] = (now + timedelta(seconds=self._exp)).isoformat(
-                timespec="seconds"
-            )
+            claims["exp"] = (now + timedelta(seconds=self._exp)).isoformat(timespec="seconds")
         # iat
         if self._include_iat:
             claims["iat"] = now.isoformat(timespec="seconds")
@@ -248,9 +234,7 @@ class Paseto(object):
 
     def _verify_registered_claims(self, claims: dict, aud: str):
 
-        now = iso8601.parse_date(
-            datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
-        )
+        now = iso8601.parse_date(datetime.now(tz=timezone.utc).isoformat(timespec="seconds"))
         # In Python 3.7 or later, the following code can be used:
         # now = datetime.fromisoformat(
         #     datetime.now(tz=timezone.utc).isoformat(timespec="seconds")

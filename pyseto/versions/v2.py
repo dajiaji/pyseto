@@ -59,9 +59,7 @@ class V2Local(SodiumKey):
         except Exception as err:
             raise EncryptError("Failed to encrypt.") from err
 
-    def decrypt(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def decrypt(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
 
         n = payload[0:24]
         c = payload[24 : len(payload) - 16]
@@ -128,9 +126,7 @@ class V2Public(SodiumKey):
     #         raise ValueError("Invalid bytes for the key.") from err
     #     return cls(k)
 
-    def sign(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
 
         if isinstance(self._key, Ed25519PublicKey):
             raise ValueError("A public key cannot be used for signing.")
@@ -140,20 +136,14 @@ class V2Public(SodiumKey):
         except Exception as err:
             raise SignError("Failed to sign.") from err
 
-    def verify(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ):
+    def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""):
 
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 
         sig = payload[-self._sig_size :]
         m = payload[: len(payload) - self._sig_size]
-        k = (
-            self._key
-            if isinstance(self._key, Ed25519PublicKey)
-            else self._key.public_key()
-        )
+        k = self._key if isinstance(self._key, Ed25519PublicKey) else self._key.public_key()
         m2 = pae([self.header, m, footer])
         try:
             k.verify(sig, m2)

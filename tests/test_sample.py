@@ -25,10 +25,7 @@ class TestSample:
         )
 
         decoded = pyseto.decode(key, token)
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_v4_public_old(self):
 
@@ -47,10 +44,7 @@ class TestSample:
             token
             == b"v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg"
         )
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_v4_local(self):
 
@@ -61,10 +55,7 @@ class TestSample:
         )
 
         decoded = pyseto.decode(key, token)
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_v4_public(self):
 
@@ -83,10 +74,7 @@ class TestSample:
             token
             == b"v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg"
         )
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_v4_public_with_serializer(self):
 
@@ -124,9 +112,7 @@ class TestSample:
         decoded = pyseto.decode(public_key, token, deserializer=json)
 
         assert decoded.payload["data"] == "this is a signed message"
-        assert iso8601.parse_date(decoded.payload["exp"]) >= now + timedelta(
-            seconds=3600 - 1
-        )
+        assert iso8601.parse_date(decoded.payload["exp"]) >= now + timedelta(seconds=3600 - 1)
 
     def test_sample_v4_public_with_paseto_class(self):
 
@@ -146,9 +132,7 @@ class TestSample:
         assert decoded.payload["data"] == "this is a signed message"
         assert "iat" in decoded.payload
         assert "exp" in decoded.payload
-        assert iso8601.parse_date(decoded.payload["exp"]) >= now + timedelta(
-            seconds=3600 - 1
-        )
+        assert iso8601.parse_date(decoded.payload["exp"]) >= now + timedelta(seconds=3600 - 1)
 
     def test_sample_v4_public_with_paseto_class_and_leeway(self):
 
@@ -194,10 +178,7 @@ class TestSample:
         assert "iat" in decoded.payload
         assert "exp" in decoded.payload
         assert "kid" in decoded.footer
-        assert (
-            decoded.footer["kid"]
-            == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
-        )
+        assert decoded.footer["kid"] == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
         assert iso8601.parse_date(decoded.payload["exp"]) >= now
 
     def test_sample_paserk(self):
@@ -206,29 +187,21 @@ class TestSample:
         private_key = Key.from_paserk(
             "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
         )
-        public_key = Key.from_paserk(
-            "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
-        )
+        public_key = Key.from_paserk("k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI")
 
         token = pyseto.encode(
             private_key,
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
         )
         decoded = pyseto.decode(public_key, token)
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
         assert symmetric_key.to_paserk() == "k4.local.b3VyLXNlY3JldA"
         assert (
             private_key.to_paserk()
             == "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
         )
-        assert (
-            public_key.to_paserk()
-            == "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
-        )
+        assert public_key.to_paserk() == "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
 
     def test_sample_paserk_id(self):
 
@@ -236,22 +209,11 @@ class TestSample:
         private_key = Key.from_paserk(
             "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
         )
-        public_key = Key.from_paserk(
-            "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
-        )
+        public_key = Key.from_paserk("k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI")
 
-        assert (
-            symmetric_key.to_paserk_id()
-            == "k4.lid._D6kgTzxgiPGk35gMj9bukgj4En2H94u22wVX9zaoh05"
-        )
-        assert (
-            private_key.to_paserk_id()
-            == "k4.sid.9gZFsAQuXhu9lif2pV3rCDjOewsMF4qb4RHGhc0zUklt"
-        )
-        assert (
-            public_key.to_paserk_id()
-            == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
-        )
+        assert symmetric_key.to_paserk_id() == "k4.lid._D6kgTzxgiPGk35gMj9bukgj4En2H94u22wVX9zaoh05"
+        assert private_key.to_paserk_id() == "k4.sid.9gZFsAQuXhu9lif2pV3rCDjOewsMF4qb4RHGhc0zUklt"
+        assert public_key.to_paserk_id() == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
 
     def test_sample_paserk_key_wrapping_local(self):
 
@@ -267,19 +229,14 @@ class TestSample:
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
         )
         decoded = pyseto.decode(unwrapped_key, token)
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_paserk_key_wrapping_public(self):
 
         raw_private_key = Key.from_paserk(
             "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
         )
-        public_key = Key.from_paserk(
-            "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
-        )
+        public_key = Key.from_paserk("k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI")
         wrapping_key = token_bytes(32)
         wpk = raw_private_key.to_paserk(wrapping_key=wrapping_key)
 
@@ -291,10 +248,7 @@ class TestSample:
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
         )
         decoded = pyseto.decode(public_key, token)
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_paserk_password_local(self):
 
@@ -309,19 +263,14 @@ class TestSample:
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
         )
         decoded = pyseto.decode(unwrapped_key, token)
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_paserk_password_public(self):
 
         raw_private_key = Key.from_paserk(
             "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
         )
-        public_key = Key.from_paserk(
-            "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
-        )
+        public_key = Key.from_paserk("k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI")
         wpk = raw_private_key.to_paserk(password="our-secret")
 
         # assert wpk == "k4.secret-pw.MEMW4K1MaD5nWigCLyEyFAAAAAAA8AAAAAAAAgAAAAFU-tArtryNVjS2n2hCYiM11V6tOyuIog69Bjb0yNZanrLJ3afGclb3kPzQ6IhK8ob9E4QgRdEALGWCizZ0RCPFF_M95IQDfmdYKC0Er656UgKUK4UKG9JlxP4o81UwoJoZYz_D1zTlltipEa5RiNvUtNU8vLKoGSY"
@@ -332,10 +281,7 @@ class TestSample:
             b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
         )
         decoded = pyseto.decode(public_key, token)
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_paserk_seal(self):
 
@@ -350,10 +296,7 @@ class TestSample:
         with open(get_path("keys/private_key_x25519.pem")) as key_file:
             unsealed_key = Key.from_paserk(sealed_key, unsealing_key=key_file.read())
         decoded = pyseto.decode(unsealed_key, token)
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_rtd_v4_public(self):
 
@@ -370,10 +313,7 @@ class TestSample:
             public_key = Key.new(4, "public", key_file.read())
         decoded = pyseto.decode(public_key, token, implicit_assertion=b"xyz")
 
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         assert decoded.footer == b"This is a footer"
         assert decoded.version == "v4"
         assert decoded.purpose == "public"
@@ -390,10 +330,7 @@ class TestSample:
 
         decoded = pyseto.decode(key, token, implicit_assertion=b"xyz")
 
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         assert decoded.footer == b"This is a footer"
         assert decoded.version == "v4"
         assert decoded.purpose == "local"
@@ -413,10 +350,7 @@ class TestSample:
             public_key = Key.new(3, "public", key_file.read())
         decoded = pyseto.decode(public_key, token, implicit_assertion=b"xyz")
 
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         assert decoded.footer == b"This is a footer"
         assert decoded.version == "v3"
         assert decoded.purpose == "public"
@@ -433,10 +367,7 @@ class TestSample:
 
         decoded = pyseto.decode(key, token, implicit_assertion=b"xyz")
 
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         assert decoded.footer == b"This is a footer"
         assert decoded.version == "v3"
         assert decoded.purpose == "local"
@@ -455,10 +386,7 @@ class TestSample:
             public_key = Key.new(2, "public", key_file.read())
         decoded = pyseto.decode(public_key, token)
 
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         assert decoded.footer == b"This is a footer"
         assert decoded.version == "v2"
         assert decoded.purpose == "public"
@@ -474,10 +402,7 @@ class TestSample:
 
         decoded = pyseto.decode(key, token)
 
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         assert decoded.footer == b"This is a footer"
         assert decoded.version == "v2"
         assert decoded.purpose == "local"
@@ -496,10 +421,7 @@ class TestSample:
             public_key = Key.new(1, "public", key_file.read())
         decoded = pyseto.decode(public_key, token)
 
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         assert decoded.footer == b"This is a footer"
         assert decoded.version == "v1"
         assert decoded.purpose == "public"
@@ -515,10 +437,7 @@ class TestSample:
 
         decoded = pyseto.decode(key, token)
 
-        assert (
-            decoded.payload
-            == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-        )
+        assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
         assert decoded.footer == b"This is a footer"
         assert decoded.version == "v1"
         assert decoded.purpose == "local"

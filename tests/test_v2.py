@@ -148,9 +148,7 @@ class TestV2Local:
             ("k2.seal.AAAAAAAAAAAAAAAA", "Invalid or unsupported PEM format."),
         ],
     )
-    def test_v2_local_from_paserk_with_unsealing_key_and_invalid_args(
-        self, paserk, msg
-    ):
+    def test_v2_local_from_paserk_with_unsealing_key_and_invalid_args(self, paserk, msg):
 
         with pytest.raises(ValueError) as err:
             V2Local.from_paserk(paserk, unsealing_key=token_bytes(32))
