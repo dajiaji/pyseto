@@ -12,7 +12,7 @@ def i2osp(x: int, x_len: int) -> bytes:
     while x:
         digits.append(int(x % 256))
         x //= 256
-    for i in range(x_len - len(digits)):
+    for _ in range(x_len - len(digits)):
         digits.append(0)
     return bytes.fromhex("".join("%.2x" % x for x in digits[::-1]))
 
