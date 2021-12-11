@@ -42,9 +42,7 @@ class NISTKey(KeyInterface):
     ) -> KeyInterface:
 
         if wrapping_key and password:
-            raise ValueError(
-                "Only one of wrapping_key or password should be specified."
-            )
+            raise ValueError("Only one of wrapping_key or password should be specified.")
 
         frags = paserk.split(".")
         if frags[0] != f"k{cls._VERSION}":
@@ -101,17 +99,11 @@ class NISTKey(KeyInterface):
     ) -> str:
 
         if wrapping_key and password:
-            raise ValueError(
-                "Only one of wrapping_key or password should be specified."
-            )
+            raise ValueError("Only one of wrapping_key or password should be specified.")
 
         # local-wrap
         if wrapping_key:
-            bkey = (
-                wrapping_key
-                if isinstance(wrapping_key, bytes)
-                else wrapping_key.encode("utf-8")
-            )
+            bkey = wrapping_key if isinstance(wrapping_key, bytes) else wrapping_key.encode("utf-8")
             h = f"k{self.version}.local-wrap.pie."
             return h + self._encode_pie(h, bkey, self._key)
 
@@ -166,9 +158,7 @@ class NISTKey(KeyInterface):
         return cls._decrypt(ek, n2, c)
 
     @classmethod
-    def _encode_pbkw(
-        cls, header: str, password: bytes, ptk: bytes, iteration: int = 100000
-    ) -> str:
+    def _encode_pbkw(cls, header: str, password: bytes, ptk: bytes, iteration: int = 100000) -> str:
 
         h = header.encode("utf-8")
 

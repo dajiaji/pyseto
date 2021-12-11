@@ -195,9 +195,7 @@ class TestKey:
         with pytest.raises(ValueError) as err:
             Key.from_paserk(paserk, wrapping_key="xxx", password="yyy")
             pytest.fail("Key.from_paserk should fail.")
-        assert "Only one of wrapping_key or password should be specified." in str(
-            err.value
-        )
+        assert "Only one of wrapping_key or password should be specified." in str(err.value)
 
     @pytest.mark.parametrize(
         "paserk, msg",
@@ -281,9 +279,7 @@ class TestKey:
             (4, load_key("keys/private_key_ed25519.pem")),
         ],
     )
-    def test_key_from_paserk_for_private_key_with_wrong_wrapping_key(
-        self, version, key
-    ):
+    def test_key_from_paserk_for_private_key_with_wrong_wrapping_key(self, version, key):
         k = Key.new(version, "public", key)
         wk1 = token_bytes(32)
         wk2 = token_bytes(32)
@@ -363,12 +359,8 @@ class TestKey:
             (
                 3,
                 {
-                    "x": base64url_decode(
-                        "_XyN9woHaS0mPimSW-etwJMEDSzxIMjp4PjezavU8SHJoClz1bQrcmPb1ZJxHxhI"
-                    ),
-                    "y": base64url_decode(
-                        "GCNfc32p9sRotx7u2oDGJ3Eqz6q5zPHLdizNn83oRsUTN31eCWfGLHWRury3xF50"
-                    ),
+                    "x": base64url_decode("_XyN9woHaS0mPimSW-etwJMEDSzxIMjp4PjezavU8SHJoClz1bQrcmPb1ZJxHxhI"),
+                    "y": base64url_decode("GCNfc32p9sRotx7u2oDGJ3Eqz6q5zPHLdizNn83oRsUTN31eCWfGLHWRury3xF50"),
                     "d": b"ddd",
                 },
                 "Failed to load key.",
@@ -433,13 +425,9 @@ class TestKey:
             (4, "public", load_key("keys/private_key_ed25519.pem")),
         ],
     )
-    def test_key_to_paserk_secret_with_wrapping_key_and_password(
-        self, version, purpose, key
-    ):
+    def test_key_to_paserk_secret_with_wrapping_key_and_password(self, version, purpose, key):
         k = Key.new(version, purpose, key)
         with pytest.raises(ValueError) as err:
             k.to_paserk(wrapping_key="xxx", password="yyy")
             pytest.fail("to_paserk() should fail.")
-        assert "Only one of wrapping_key or password should be specified." in str(
-            err.value
-        )
+        assert "Only one of wrapping_key or password should be specified." in str(err.value)

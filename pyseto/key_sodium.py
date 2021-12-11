@@ -48,9 +48,7 @@ class SodiumKey(KeyInterface):
     ) -> KeyInterface:
 
         if wrapping_key and password:
-            raise ValueError(
-                "Only one of wrapping_key or password should be specified."
-            )
+            raise ValueError("Only one of wrapping_key or password should be specified.")
 
         frags = paserk.split(".")
         if frags[0] != f"k{cls._VERSION}":
@@ -138,17 +136,11 @@ class SodiumKey(KeyInterface):
     ) -> str:
 
         if wrapping_key and password:
-            raise ValueError(
-                "Only one of wrapping_key or password should be specified."
-            )
+            raise ValueError("Only one of wrapping_key or password should be specified.")
 
         if wrapping_key:
             # local-wrap
-            bkey = (
-                wrapping_key
-                if isinstance(wrapping_key, bytes)
-                else wrapping_key.encode("utf-8")
-            )
+            bkey = wrapping_key if isinstance(wrapping_key, bytes) else wrapping_key.encode("utf-8")
             if self.purpose == "local":
                 h = f"k{self.version}.local-wrap.pie."
                 return h + self._encode_pie(h, bkey, self._key)
@@ -174,9 +166,7 @@ class SodiumKey(KeyInterface):
             bpw = password if isinstance(password, bytes) else password.encode("utf-8")
             if self.purpose == "local":
                 h = f"k{self.version}.local-pw."
-                return h + self._encode_pbkw(
-                    h, bpw, self._key, memory_cost, time_cost, parallelism
-                )
+                return h + self._encode_pbkw(h, bpw, self._key, memory_cost, time_cost, parallelism)
 
             # secret-pw
             if not isinstance(self._key, Ed25519PrivateKey):
@@ -192,17 +182,11 @@ class SodiumKey(KeyInterface):
                 encoding=serialization.Encoding.Raw,
                 format=serialization.PublicFormat.Raw,
             )
-            return h + self._encode_pbkw(
-                h, bpw, priv + pub, memory_cost, time_cost, parallelism
-            )
+            return h + self._encode_pbkw(h, bpw, priv + pub, memory_cost, time_cost, parallelism)
 
         if sealing_key:
             # seal
-            bkey = (
-                sealing_key
-                if isinstance(sealing_key, bytes)
-                else sealing_key.encode("utf-8")
-            )
+            bkey = sealing_key if isinstance(sealing_key, bytes) else sealing_key.encode("utf-8")
             if self.purpose != "local":
                 raise ValueError("Key sealing can only be used for local key.")
             if bkey.startswith(b"-----BEGIN PUBLIC KEY"):

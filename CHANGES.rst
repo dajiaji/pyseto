@@ -4,6 +4,9 @@ Changes
 Unreleased
 ----------
 
+- Migrate to poetry. `#89 <https://github.com/dajiaji/python-cwt/pull/89>`__
+- Update max line length to 128. `#89 <https://github.com/dajiaji/python-cwt/pull/89>`__
+
 Version 1.5.0
 -------------
 

@@ -61,9 +61,7 @@ class V4Local(SodiumKey):
             token += b"." + base64url_encode(footer)
         return token
 
-    def decrypt(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def decrypt(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
 
         n = payload[0:32]
         c = payload[32 : len(payload) - 32]
@@ -115,9 +113,7 @@ class V4Public(SodiumKey):
         d = b.digest()
         return h + base64url_encode(d).decode("utf-8")
 
-    def sign(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
 
         if isinstance(self._key, Ed25519PublicKey):
             raise ValueError("A public key cannot be used for signing.")
@@ -128,20 +124,14 @@ class V4Public(SodiumKey):
         except Exception as err:
             raise SignError("Failed to sign.") from err
 
-    def verify(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ):
+    def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""):
 
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 
         sig = payload[-self._sig_size :]
         m = payload[: len(payload) - self._sig_size]
-        k = (
-            self._key
-            if isinstance(self._key, Ed25519PublicKey)
-            else self._key.public_key()
-        )
+        k = self._key if isinstance(self._key, Ed25519PublicKey) else self._key.public_key()
         m2 = pae([self.header, m, footer, implicit_assertion])
         try:
             k.verify(sig, m2)

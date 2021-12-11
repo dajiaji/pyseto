@@ -1,2 +1,9 @@
+version: 2
+
 python:
-   setup_py_install: true
+  version: "3.8"
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs

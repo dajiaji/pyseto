@@ -77,9 +77,7 @@ class V1Local(NISTKey):
             token += b"." + base64url_encode(footer)
         return token
 
-    def decrypt(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def decrypt(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
 
         n = payload[0:32]
         t = payload[-48:]
@@ -138,9 +136,7 @@ class V1Public(NISTKey):
     ) -> KeyInterface:
 
         if wrapping_key and password:
-            raise ValueError(
-                "Only one of wrapping_key or password should be specified."
-            )
+            raise ValueError("Only one of wrapping_key or password should be specified.")
 
         frags = paserk.split(".")
         if frags[0] != "k1":
@@ -189,20 +185,14 @@ class V1Public(NISTKey):
     ) -> str:
 
         if wrapping_key and password:
-            raise ValueError(
-                "Only one of wrapping_key or password should be specified."
-            )
+            raise ValueError("Only one of wrapping_key or password should be specified.")
 
         if wrapping_key:
             # secret-wrap
             if not isinstance(self._key, RSAPrivateKey):
                 raise ValueError("Public key cannot be wrapped.")
 
-            bkey = (
-                wrapping_key
-                if isinstance(wrapping_key, bytes)
-                else wrapping_key.encode("utf-8")
-            )
+            bkey = wrapping_key if isinstance(wrapping_key, bytes) else wrapping_key.encode("utf-8")
             h = "k1.secret-wrap.pie."
             priv = self._key.private_bytes(
                 encoding=serialization.Encoding.DER,
@@ -249,9 +239,7 @@ class V1Public(NISTKey):
         d = digest.finalize()
         return h + base64url_encode(d[0:33]).decode("utf-8")
 
-    def sign(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
 
         if isinstance(self._key, RSAPublicKey):
             raise ValueError("A public key cannot be used for signing.")
@@ -261,9 +249,7 @@ class V1Public(NISTKey):
         except Exception as err:
             raise SignError("Failed to sign.") from err
 
-    def verify(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ):
+    def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""):
 
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")

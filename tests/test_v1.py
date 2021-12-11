@@ -187,9 +187,7 @@ class TestV1Public:
             ("k1.xxx.pie.AAAAAAAAAAAAAAAA", "Invalid PASERK type: xxx."),
         ],
     )
-    def test_v1_public_from_paserk_with_wrapping_key_and_invalid_args(
-        self, paserk, msg
-    ):
+    def test_v1_public_from_paserk_with_wrapping_key_and_invalid_args(self, paserk, msg):
 
         with pytest.raises(ValueError) as err:
             V1Public.from_paserk(paserk, wrapping_key=token_bytes(32))

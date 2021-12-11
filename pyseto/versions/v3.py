@@ -82,9 +82,7 @@ class V3Local(NISTKey):
             token += b"." + base64url_encode(footer)
         return token
 
-    def decrypt(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def decrypt(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
 
         n = payload[0:32]
         c = payload[32 : len(payload) - 48]
@@ -163,9 +161,7 @@ class V3Public(NISTKey):
     ) -> KeyInterface:
 
         if wrapping_key and password:
-            raise ValueError(
-                "Only one of wrapping_key or password should be specified."
-            )
+            raise ValueError("Only one of wrapping_key or password should be specified.")
 
         frags = paserk.split(".")
         if frags[0] != "k3":
@@ -181,9 +177,7 @@ class V3Public(NISTKey):
             if frags[1] == "secret-wrap":
                 h = "k3.secret-wrap.pie."
                 k = cls._decode_pie(h, wrapping_key, frags[3])
-                priv = ec.derive_private_key(
-                    int.from_bytes(k, byteorder="big"), ec.SECP384R1()
-                )
+                priv = ec.derive_private_key(int.from_bytes(k, byteorder="big"), ec.SECP384R1())
                 return cls(priv)
             raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
@@ -195,9 +189,7 @@ class V3Public(NISTKey):
             if frags[1] == "secret-pw":
                 h = "k3.secret-pw."
                 k = cls._decode_pbkw(h, password, frags[2])
-                priv = ec.derive_private_key(
-                    int.from_bytes(k, byteorder="big"), ec.SECP384R1()
-                )
+                priv = ec.derive_private_key(int.from_bytes(k, byteorder="big"), ec.SECP384R1())
                 return cls(priv)
             raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
@@ -209,9 +201,7 @@ class V3Public(NISTKey):
 
         # secret
         if frags[1] == "secret":
-            priv = ec.derive_private_key(
-                int.from_bytes(k, byteorder="big"), ec.SECP384R1()
-            )
+            priv = ec.derive_private_key(int.from_bytes(k, byteorder="big"), ec.SECP384R1())
             return cls(priv)
         if frags[1] == "secret-wrap":
             raise ValueError(f"{frags[1]} needs wrapping_key.")
@@ -229,20 +219,14 @@ class V3Public(NISTKey):
     ) -> str:
 
         if wrapping_key and password:
-            raise ValueError(
-                "Only one of wrapping_key or password should be specified."
-            )
+            raise ValueError("Only one of wrapping_key or password should be specified.")
 
         if wrapping_key:
             # secret-wrap
             if not isinstance(self._key, EllipticCurvePrivateKey):
                 raise ValueError("Public key cannot be wrapped.")
 
-            bkey = (
-                wrapping_key
-                if isinstance(wrapping_key, bytes)
-                else wrapping_key.encode("utf-8")
-            )
+            bkey = wrapping_key if isinstance(wrapping_key, bytes) else wrapping_key.encode("utf-8")
             h = "k3.secret-wrap.pie."
             k = self._key.private_numbers().private_value.to_bytes(48, byteorder="big")
             return h + self._encode_pie(h, bkey, k)
@@ -259,9 +243,7 @@ class V3Public(NISTKey):
 
         # public
         if isinstance(self._key, EllipticCurvePublicKey):
-            k = ec_public_key_compress(
-                self._key.public_numbers().x, self._key.public_numbers().y
-            )
+            k = ec_public_key_compress(self._key.public_numbers().x, self._key.public_numbers().y)
             return "k3.public." + base64url_encode(k).decode("utf-8")
 
         # private
@@ -276,9 +258,7 @@ class V3Public(NISTKey):
         d = digest.finalize()
         return h + base64url_encode(d[0:33]).decode("utf-8")
 
-    def sign(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ) -> bytes:
+    def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
 
         if isinstance(self._key, EllipticCurvePublicKey):
             raise ValueError("A public key cannot be used for signing.")
@@ -293,20 +273,14 @@ class V3Public(NISTKey):
         except Exception as err:
             raise SignError("Failed to sign.") from err
 
-    def verify(
-        self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""
-    ):
+    def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""):
 
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 
         sig = payload[-self._sig_size :]
         m = payload[: len(payload) - self._sig_size]
-        k = (
-            self._key
-            if isinstance(self._key, EllipticCurvePublicKey)
-            else self._key.public_key()
-        )
+        k = self._key if isinstance(self._key, EllipticCurvePublicKey) else self._key.public_key()
         pk = ec_public_key_compress(k.public_numbers().x, k.public_numbers().y)
         m2 = pae([pk, self.header, m, footer, implicit_assertion])
         try:

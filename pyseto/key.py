@@ -34,9 +34,7 @@ class Key:
     ]
 
     @classmethod
-    def new(
-        cls, version: int, purpose: str, key: Union[bytes, str] = b""
-    ) -> KeyInterface:
+    def new(cls, version: int, purpose: str, key: Union[bytes, str] = b"") -> KeyInterface:
 
         """
         Constructor of a PASETO key object which has
@@ -103,17 +101,9 @@ class Key:
         frags = paserk.split(".")
         if frags[1] not in cls._PASERK_TYPE_SUPPORTED:
             raise ValueError(f"Invalid PASERK key type: {frags[1]}.")
-        bwk = (
-            wrapping_key
-            if isinstance(wrapping_key, bytes)
-            else wrapping_key.encode("utf-8")
-        )
+        bwk = wrapping_key if isinstance(wrapping_key, bytes) else wrapping_key.encode("utf-8")
         bpw = password if isinstance(password, bytes) else password.encode("utf-8")
-        bsk = (
-            unsealing_key
-            if isinstance(unsealing_key, bytes)
-            else unsealing_key.encode("utf-8")
-        )
+        bsk = unsealing_key if isinstance(unsealing_key, bytes) else unsealing_key.encode("utf-8")
 
         if frags[0] == "k1":
             return (
@@ -154,9 +144,7 @@ class Key:
     #     raise ValueError(f"Invalid version: {version}.")
 
     @staticmethod
-    def from_asymmetric_key_params(
-        version: int, x: bytes = b"", y: bytes = b"", d: bytes = b""
-    ) -> KeyInterface:
+    def from_asymmetric_key_params(version: int, x: bytes = b"", y: bytes = b"", d: bytes = b"") -> KeyInterface:
 
         """
         Constructor of a PASETO key object which has
@@ -214,9 +202,7 @@ class Key:
             if not d:
                 return V3Public(k)
             try:
-                k = ec.EllipticCurvePrivateNumbers(
-                    int.from_bytes(d, byteorder="big"), pn
-                ).private_key()
+                k = ec.EllipticCurvePrivateNumbers(int.from_bytes(d, byteorder="big"), pn).private_key()
             except Exception as err:
                 raise ValueError("Failed to load key.") from err
             return V3Public(k)

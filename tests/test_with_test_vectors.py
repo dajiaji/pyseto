@@ -191,16 +191,12 @@ class TestWithTestVectors:
         if version == 1:
             k = Key.new(version, "public", v["key"])
         elif version == 2 or version == 4:
-            k = Key.from_asymmetric_key_params(
-                version, d=bytes.fromhex(v["secret-key-seed"])
-            )
+            k = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["secret-key-seed"]))
         elif version == 3:
             pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
             bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
             by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
-            k = Key.from_asymmetric_key_params(
-                version, x=bx, y=by, d=bytes.fromhex(v["key"])
-            )
+            k = Key.from_asymmetric_key_params(version, x=bx, y=by, d=bytes.fromhex(v["key"]))
         else:
             pytest.fail("Unsupported version.")
         assert k.to_paserk() == v["paserk"]
@@ -272,9 +268,7 @@ class TestWithTestVectors:
             pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
             bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
             by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
-            k = Key.from_asymmetric_key_params(
-                version, x=bx, y=by, d=bytes.fromhex(v["key"])
-            )
+            k = Key.from_asymmetric_key_params(version, x=bx, y=by, d=bytes.fromhex(v["key"]))
         else:
             pytest.fail("Unsupported version.")
         assert k.to_paserk_id() == v["paserk"]
@@ -350,16 +344,12 @@ class TestWithTestVectors:
         if version == 1:
             k1 = Key.new(version, "public", v["unwrapped"])
         elif version == 2 or version == 4:
-            k1 = Key.from_asymmetric_key_params(
-                version, d=bytes.fromhex(v["unwrapped"])[0:32]
-            )
+            k1 = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["unwrapped"])[0:32])
         elif version == 3:
             pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
             bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
             by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
-            k1 = Key.from_asymmetric_key_params(
-                version, x=bx, y=by, d=bytes.fromhex(v["unwrapped"])
-            )
+            k1 = Key.from_asymmetric_key_params(version, x=bx, y=by, d=bytes.fromhex(v["unwrapped"]))
         else:
             pytest.fail("Unsupported version.")
 
@@ -399,9 +389,7 @@ class TestWithTestVectors:
 
         k1 = Key.new(version, "local", bytes.fromhex(v["unwrapped"]))
         if version in [1, 3]:
-            wpk = k1.to_paserk(
-                password=v["password"], iteration=v["options"]["iterations"]
-            )
+            wpk = k1.to_paserk(password=v["password"], iteration=v["options"]["iterations"])
         elif version in [2, 4]:
             wpk = k1.to_paserk(
                 password=v["password"],
@@ -449,23 +437,17 @@ class TestWithTestVectors:
         if version == 1:
             k1 = Key.new(version, "public", v["unwrapped"])
         elif version == 2 or version == 4:
-            k1 = Key.from_asymmetric_key_params(
-                version, d=bytes.fromhex(v["unwrapped"])[0:32]
-            )
+            k1 = Key.from_asymmetric_key_params(version, d=bytes.fromhex(v["unwrapped"])[0:32])
         elif version == 3:
             pub_k = Key.new(version, "public", bytes.fromhex(v["public-key"]))
             bx = pub_k._key.public_numbers().x.to_bytes(48, byteorder="big")
             by = pub_k._key.public_numbers().y.to_bytes(48, byteorder="big")
-            k1 = Key.from_asymmetric_key_params(
-                version, x=bx, y=by, d=bytes.fromhex(v["unwrapped"])
-            )
+            k1 = Key.from_asymmetric_key_params(version, x=bx, y=by, d=bytes.fromhex(v["unwrapped"]))
         else:
             pytest.fail("Unsupported version.")
 
         if version in [1, 3]:
-            wpk = k1.to_paserk(
-                password=v["password"], iteration=v["options"]["iterations"]
-            )
+            wpk = k1.to_paserk(password=v["password"], iteration=v["options"]["iterations"])
         elif version in [2, 4]:
             wpk = k1.to_paserk(
                 password=v["password"],
@@ -515,16 +497,10 @@ class TestWithTestVectors:
                 PrivateFormat.PKCS8,
                 NoEncryption(),
             )
-            sealing_key = sk_x25519.public_key().public_bytes(
-                Encoding.PEM, PublicFormat.SubjectPublicKeyInfo
-            )
+            sealing_key = sk_x25519.public_key().public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo)
         elif version == 3:
-            sk = load_pem_private_key(
-                v["sealing-secret-key"].encode("utf-8"), password=None
-            )
-            unsealing_key = sk.private_numbers().private_value.to_bytes(
-                48, byteorder="big"
-            )
+            sk = load_pem_private_key(v["sealing-secret-key"].encode("utf-8"), password=None)
+            unsealing_key = sk.private_numbers().private_value.to_bytes(48, byteorder="big")
             sealing_key = _public_key_compress(
                 sk.private_numbers().public_numbers.x,
                 sk.private_numbers().public_numbers.y,
