@@ -21,13 +21,13 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.6.2"
-Sphinx = {version = "^4.3.1", extras = ["docs"]}
-sphinx-autodoc-typehints = {version = "^1.12.0", extras = ["docs"]}
-sphinx-rtd-theme = {version = "^1.0.0", extras = ["docs"]}
 cryptography = "^36.0.0"
 pycryptodomex = "^3.12.0"
 passlib = {extras = ["argon2"], version = "^1.7.4"}
 iso8601 = "^1.0.2"
+Sphinx = {version = "^4.3.1", extras = ["docs"]}
+sphinx-autodoc-typehints = {version = "^1.12.0", extras = ["docs"]}
+sphinx-rtd-theme = {version = "^1.0.0", extras = ["docs"]}
 
 [tool.poetry.extras]
 docs = [
