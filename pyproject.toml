@@ -42,7 +42,7 @@ pytest-cov = "^3.0.0"
 coverage = {extras = ["toml"], version = "^6.2"}
 tox = "^3.24.4"
 pre-commit = "^2.15.0"
-mypy = "^0.920"
+mypy = "^0.921"
 
 [tool.coverage.run]
 parallel = true
