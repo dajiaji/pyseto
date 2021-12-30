@@ -54,6 +54,3 @@ source = ["pyseto", ".tox/*/site-packages"]
 
 [tool.coverage.report]
 show_missing = true
-
-[tool.mypy]
-ignore_missing_imports = true
