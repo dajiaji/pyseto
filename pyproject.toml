@@ -42,21 +42,9 @@ docs = [
 [tool.poetry.dev-dependencies]
 pytest = "^6.2"
 pytest-cov = "^3.0.0"
-coverage = {extras = ["toml"], version = "^6.2"}
 tox = "^3.24.4"
 pre-commit = "^2.15.0"
 mypy = "^0.930"
-
-[tool.coverage.run]
-parallel = true
-branch = true
-source = ["pyseto"]
-
-[tool.coverage.paths]
-source = ["pyseto", ".tox/*/site-packages"]
-
-[tool.coverage.report]
-show_missing = true
 
 [tool.mypy]
 ignore_missing_imports = true
