@@ -4,13 +4,24 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.1
+-------------
+
+Released 2021-12-31
+
+- Refine github actions. `#99 <https://github.com/dajiaji/pyseto/pull/99>`__
+- Use pytest-cov instead of coverage. `#98 <https://github.com/dajiaji/pyseto/pull/98>`__
+- Refine pyproject.toml. `#97 <https://github.com/dajiaji/pyseto/pull/97>`__
+- Refine tox.ini. `#96 <https://github.com/dajiaji/pyseto/pull/96>`__
+- Update pytest requirement form ^5.2 to ^6.2. `#91 <https://github.com/dajiaji/pyseto/pull/91>`__
+
 Version 1.6.0
 -------------
 
 Released 2021-12-11
 
-- Migrate to poetry. `#89 <https://github.com/dajiaji/python-cwt/pull/89>`__
-- Update max line length to 128. `#89 <https://github.com/dajiaji/python-cwt/pull/89>`__
+- Migrate to poetry. `#89 <https://github.com/dajiaji/pyseto/pull/89>`__
+- Update max line length to 128. `#89 <https://github.com/dajiaji/pyseto/pull/89>`__
 
 Version 1.5.0
 -------------
