@@ -11,12 +11,15 @@ readme = "README.md"
 repository = "https://github.com/dajiaji/pyseto"
 
 include = [
-  ".pre-commit-config.yaml",
   "CHANGES.rst",
-  "CODE_OF_CONDUCT.md",
-  "LICENSE",
+  "docs",
+  "poetry.lock",
+  "tests",
   "tox.ini",
-  "pyseto/py.typed",
+]
+
+exclude = [
+  "docs/_build",
 ]
 
 [tool.poetry.dependencies]
