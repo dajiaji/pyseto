@@ -4,6 +4,15 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.2
+-------------
+
+Released 2022-01-02
+
+- Introduce freezegun for test. `#106 <https://github.com/dajiaji/pyseto/pull/106>`__
+- Add 2022 to copyright and license. `#105 <https://github.com/dajiaji/pyseto/pull/105>`__
+- Add license information to PyPI. `#104 <https://github.com/dajiaji/pyseto/pull/104>`__
+
 Version 1.6.1
 -------------
 
