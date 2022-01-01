@@ -3,6 +3,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from secrets import token_bytes
 
+import freezegun
 import iso8601
 
 import pyseto
@@ -76,6 +77,7 @@ class TestSample:
         )
         assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
+    @freezegun.freeze_time("2021-01-01")
     def test_sample_v4_public_with_serializer(self):
 
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
