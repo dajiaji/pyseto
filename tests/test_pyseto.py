@@ -2,6 +2,7 @@ import json
 import time
 from datetime import datetime, timedelta, timezone
 
+import freezegun
 import pytest
 
 import pyseto
@@ -238,13 +239,14 @@ class TestPyseto:
             pytest.fail("pyseto.decode() should fail.")
         assert msg in str(err.value)
 
+    @freezegun.freeze_time("2021-01-01")
     def test_decode_bytes_footer_with_deserializer(self):
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
         private_key = Key.new(version=4, purpose="public", key=private_key_pem)
         token = pyseto.encode(
             private_key,
-            {"data": "this is a signed message", "exp": "2023-01-01T00:00:00+00:00"},
+            {"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"},
             footer=b"This is a footer.",
         )
         public_key = Key.new(version=4, purpose="public", key=public_key_pem)
