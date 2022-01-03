@@ -4,6 +4,15 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.3
+-------------
+
+Released 2022-01-03
+
+- Add optional flag to docs dependencies. `#109 <https://github.com/dajiaji/pyseto/pull/109>`__
+- Remove tool.poetry.extra from pyproject.toml. `#109 <https://github.com/dajiaji/pyseto/pull/109>`__
+- Add pre-commit hooks for checking json, toml and yaml files. `#108 <https://github.com/dajiaji/pyseto/pull/108>`__
+
 Version 1.6.2
 -------------
 
