@@ -4,6 +4,11 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.4
+-------------
+
+Released 2022-01-14
+
 - Fix bug on deserializing payload in local paseto. `#114 <https://github.com/dajiaji/pyseto/pull/114>`__
 
 Version 1.6.3
