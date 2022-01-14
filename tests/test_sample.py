@@ -90,7 +90,6 @@ class TestSample:
         )
         public_key = Key.new(version=4, purpose="public", key=public_key_pem)
         decoded = pyseto.decode(public_key, token, deserializer=json)
-        print(token)
 
         assert (
             token
@@ -98,6 +97,16 @@ class TestSample:
         )
         assert decoded.payload["data"] == "this is a signed message"
         assert decoded.payload["exp"] == "2022-01-01T00:00:00+00:00"
+
+    def test_sample_v4_local_with_serializer(self):
+
+        key = Key.new(version=4, purpose="local", key=b"out-secret")
+        token = pyseto.encode(
+            key,
+            {"data": "this is a signed message"},
+        )
+        decoded = pyseto.decode(key, token, deserializer=json)
+        assert decoded.payload["data"] == "this is a signed message"
 
     def test_sample_v4_public_with_serializer_and_exp(self):
 

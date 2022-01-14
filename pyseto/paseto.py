@@ -198,8 +198,8 @@ class Paseto(object):
             try:
                 if k.purpose == "local":
                     t.payload = k.decrypt(t.payload, t.footer, bi)
-                    return t
-                t.payload = k.verify(t.payload, t.footer, bi)
+                else:
+                    t.payload = k.verify(t.payload, t.footer, bi)
                 try:
                     if deserializer:
                         t.payload = deserializer.loads(t.payload)
