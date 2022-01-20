@@ -97,6 +97,7 @@ class Paseto(object):
         if not isinstance(payload, (bytes, str, dict)):
             raise ValueError("payload should be bytes, str or dict.")
 
+        res: Union[bytes, str]
         bp: bytes
         if isinstance(payload, dict):
             if not serializer:
@@ -110,7 +111,8 @@ class Paseto(object):
                 raise
             try:
                 payload = self._set_registered_claims(payload, exp)
-                bp = serializer.dumps(payload).encode("utf-8")
+                res = serializer.dumps(payload)
+                bp = res if isinstance(res, bytes) else res.encode("utf-8")
             except Exception as err:
                 raise ValueError("Failed to serialize the payload.") from err
         else:
@@ -128,7 +130,8 @@ class Paseto(object):
             except Exception:
                 raise
             try:
-                bf = serializer.dumps(footer).encode("utf-8")
+                res = serializer.dumps(footer)
+                bf = res if isinstance(res, bytes) else res.encode("utf-8")
             except Exception as err:
                 raise ValueError("Failed to serialize the footer.") from err
         else:
