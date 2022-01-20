@@ -4,6 +4,13 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.5
+-------------
+
+Released 2022-01-20
+
+- Avoid re-encoding/decoding output from serializer. `#118 <https://github.com/dajiaji/pyseto/pull/118>`__
+
 Version 1.6.4
 -------------
 
