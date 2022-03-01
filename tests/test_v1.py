@@ -140,7 +140,7 @@ class TestV1Public:
     def test_v1_public_to_paserk_id(self):
         sk = Key.new(1, "public", load_key("keys/private_key_rsa.pem"))
         pk = Key.new(1, "public", load_key("keys/public_key_rsa.pem"))
-        assert sk.to_peer_paserk_id() == ""
+        assert sk.to_peer_paserk_id() == pk.to_paserk_id()
         assert pk.to_peer_paserk_id() == ""
 
     def test_v1_public_verify_via_encode_with_wrong_key(self):
