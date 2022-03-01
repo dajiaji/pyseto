@@ -105,6 +105,10 @@ class TestV3Local:
             pytest.fail("Key.from_paserk should fail.")
         assert msg in str(err.value)
 
+    def test_v3_local_to_peer_paserk_id(self):
+        k = Key.new(3, "local", b"our-secret")
+        assert k.to_peer_paserk_id() == ""
+
     # @pytest.mark.parametrize(
     #     "paserk, msg",
     #     [
@@ -143,7 +147,7 @@ class TestV3Public:
     def test_v3_public_to_paserk_id(self):
         sk = Key.new(3, "public", load_key("keys/private_key_ecdsa_p384.pem"))
         pk = Key.new(3, "public", load_key("keys/public_key_ecdsa_p384.pem"))
-        assert sk.to_peer_paserk_id() == ""
+        assert sk.to_peer_paserk_id() == pk.to_paserk_id()
         assert pk.to_peer_paserk_id() == ""
 
     def test_v3_public_verify_via_encode_with_wrong_key(self):

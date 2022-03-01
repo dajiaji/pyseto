@@ -4,6 +4,7 @@ from typing import Any, Union
 
 # from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from Cryptodome.Cipher import ChaCha20_Poly1305
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
@@ -117,6 +118,23 @@ class V2Public(SodiumKey):
         b.update((h + p).encode("utf-8"))
         d = b.digest()
         return h + base64url_encode(d).decode("utf-8")
+
+    def to_peer_paserk_id(self) -> str:
+        if not self._is_secret:
+            return ""
+
+        h1 = "k2.public."
+        pub = self._key.public_key().public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw,
+        )
+        p = h1 + base64url_encode(pub).decode("utf-8")
+
+        h2 = "k2.pid."
+        b = hashlib.blake2b(digest_size=33)
+        b.update((h2 + p).encode("utf-8"))
+        d = b.digest()
+        return h2 + base64url_encode(d).decode("utf-8")
 
     # @classmethod
     # def from_public_bytes(cls, key: bytes):

@@ -258,6 +258,20 @@ class V3Public(NISTKey):
         d = digest.finalize()
         return h + base64url_encode(d[0:33]).decode("utf-8")
 
+    def to_peer_paserk_id(self) -> str:
+        if not self._is_secret:
+            return ""
+
+        pub_key = self._key.public_key()
+        k = ec_public_key_compress(pub_key.public_numbers().x, pub_key.public_numbers().y)
+        p = "k3.public." + base64url_encode(k).decode("utf-8")
+
+        h = "k3.pid."
+        digest = hashes.Hash(hashes.SHA384())
+        digest.update((h + p).encode("utf-8"))
+        d = digest.finalize()
+        return h + base64url_encode(d[0:33]).decode("utf-8")
+
     def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
 
         if isinstance(self._key, EllipticCurvePublicKey):

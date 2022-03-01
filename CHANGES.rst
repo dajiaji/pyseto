@@ -4,6 +4,9 @@ Changes
 Unreleased
 ----------
 
+- Fix bug on calling to_peer_paserk_id on v1/2 local key. `#128 <https://github.com/dajiaji/pyseto/pull/128>`__
+- Add support for to_peer_paserk_id on v1/v3. `#128 <https://github.com/dajiaji/pyseto/pull/128>`__
+
 Version 1.6.5
 -------------
 

@@ -16,8 +16,6 @@ from .exceptions import DecryptError, EncryptError
 from .key_interface import KeyInterface
 from .utils import base64url_decode, base64url_encode
 
-# from .utils import base64url_decode, base64url_encode, ec_public_key_compress
-
 
 class NISTKey(KeyInterface):
     """

@@ -2,6 +2,7 @@ import hashlib
 from secrets import token_bytes
 from typing import Any, Union
 
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
@@ -112,6 +113,23 @@ class V4Public(SodiumKey):
         b.update((h + p).encode("utf-8"))
         d = b.digest()
         return h + base64url_encode(d).decode("utf-8")
+
+    def to_peer_paserk_id(self) -> str:
+        if not self._is_secret:
+            return ""
+
+        h1 = "k4.public."
+        pub = self._key.public_key().public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw,
+        )
+        p = h1 + base64url_encode(pub).decode("utf-8")
+
+        h2 = "k4.pid."
+        b = hashlib.blake2b(digest_size=33)
+        b.update((h2 + p).encode("utf-8"))
+        d = b.digest()
+        return h2 + base64url_encode(d).decode("utf-8")
 
     def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
 
