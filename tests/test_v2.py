@@ -177,6 +177,10 @@ class TestV2Local:
             pytest.fail("Key.from_paserk should fail.")
         assert "Failed to unseal a key." in str(err.value)
 
+    def test_v2_local_to_peer_paserk_id(self):
+        k = Key.new(2, "local", token_bytes(32))
+        assert k.to_peer_paserk_id() == ""
+
 
 class TestV2Public:
     """

@@ -105,6 +105,10 @@ class TestV3Local:
             pytest.fail("Key.from_paserk should fail.")
         assert msg in str(err.value)
 
+    def test_v3_local_to_peer_paserk_id(self):
+        k = Key.new(3, "local", b"our-secret")
+        assert k.to_peer_paserk_id() == ""
+
     # @pytest.mark.parametrize(
     #     "paserk, msg",
     #     [
