@@ -227,23 +227,6 @@ class SodiumKey(KeyInterface):
         )
         return h + base64url_encode(priv + pub).decode("utf-8")
 
-    def to_peer_paserk_id(self) -> str:
-        if not self._is_secret:
-            return ""
-
-        h1 = f"k{self.version}.public."
-        pub = self._key.public_key().public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw,
-        )
-        p = h1 + base64url_encode(pub).decode("utf-8")
-
-        h2 = f"k{self.version}.pid."
-        b = hashlib.blake2b(digest_size=33)
-        b.update((h2 + p).encode("utf-8"))
-        d = b.digest()
-        return h2 + base64url_encode(d).decode("utf-8")
-
     @classmethod
     def _encode_pie(cls, header: str, wrapping_key: bytes, ptk: bytes) -> str:
 
