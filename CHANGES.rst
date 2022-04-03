@@ -4,6 +4,17 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.7
+-------------
+
+Released 2022-04-03
+
+- Update dependencies.
+    - Bump sphinx from 4.4.0 to 4.5.0. `#135 <https://github.com/dajiaji/pyseto/pull/135>`__
+    - Bump freezegun from 1.1.0 to 1.2.1. `#133 <https://github.com/dajiaji/pyseto/pull/133>`__
+    - Bump cryptography from 36.0.1 to 36.0.2. `#132 <https://github.com/dajiaji/pyseto/pull/132>`__
+    - Bump pre-commit from 0.931 to 0.940. `#131 <https://github.com/dajiaji/pyseto/pull/131>`__
+
 Version 1.6.6
 -------------
 
