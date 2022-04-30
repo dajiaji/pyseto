@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 from secrets import token_bytes
 from typing import Any, Union
 
@@ -73,7 +74,7 @@ class V4Local(SodiumKey):
         ak = self._generate_hash(self._key, b"paseto-auth-key-for-aead" + n, 32)
         pre_auth = pae([self.header, n, c, footer, implicit_assertion])
         t2 = self._generate_hash(ak, pre_auth, 32)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to decrypt.")
         return self._decrypt(ek, n2, c)
 

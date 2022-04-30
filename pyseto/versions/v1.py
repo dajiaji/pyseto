@@ -99,7 +99,7 @@ class V1Local(NISTKey):
 
         pre_auth = pae([self.header, n, c, footer])
         t2 = hmac.new(ak, pre_auth, hashlib.sha384).digest()
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to decrypt.")
         return self._decrypt(ek, n[16:], c)
 
