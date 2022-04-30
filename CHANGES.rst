@@ -4,6 +4,18 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.8
+-------------
+
+Released 2022-05-01
+
+- Compare MACs in constant time. `#143 <https://github.com/dajiaji/pyseto/pull/143>`__
+- Refine pyproject to add tool.poetry.extras. `#138 <https://github.com/dajiaji/pyseto/pull/138>`__
+- Update dependencies.
+    - Bump cryptography to 37.0.1. `#142 <https://github.com/dajiaji/pyseto/pull/142>`__
+    - Bump pre-commit-hooks from 4.1.0 to 4.2.0. `#140 <https://github.com/dajiaji/pyseto/pull/140>`__
+    - Bump box from 3.24.5 to 3.25.0. `#139 <https://github.com/dajiaji/pyseto/pull/139>`__
+
 Version 1.6.7
 -------------
 
