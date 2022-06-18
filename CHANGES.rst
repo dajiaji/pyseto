@@ -4,6 +4,18 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.9
+-------------
+
+Released 2022-06-18
+
+- Update dependencies.
+    - Bump cryptography to 37.0.2 `#146 <https://github.com/dajiaji/pyseto/pull/146>`__.
+- Update dev dependencies.
+    - Bump sphinx to 5.0.2. `#151 <https://github.com/dajiaji/pyseto/pull/151>`__.
+    - Bump pre-commit/mirrors-mypy to 0.961. `#150 <https://github.com/dajiaji/pyseto/pull/150>`__.
+    - Bump pre-commit/pre-commit-hooks to 4.3.0. `#150 <https://github.com/dajiaji/pyseto/pull/150>`__.
+
 Version 1.6.8
 -------------
 
@@ -13,8 +25,9 @@ Released 2022-05-01
 - Refine pyproject to add tool.poetry.extras. `#138 <https://github.com/dajiaji/pyseto/pull/138>`__
 - Update dependencies.
     - Bump cryptography to 37.0.1. `#142 <https://github.com/dajiaji/pyseto/pull/142>`__
-    - Bump pre-commit-hooks from 4.1.0 to 4.2.0. `#140 <https://github.com/dajiaji/pyseto/pull/140>`__
-    - Bump box from 3.24.5 to 3.25.0. `#139 <https://github.com/dajiaji/pyseto/pull/139>`__
+- Update dev dependencies.
+    - Bump pre-commit/pre-commit-hooks from 4.1.0 to 4.2.0. `#140 <https://github.com/dajiaji/pyseto/pull/140>`__
+    - Bump tox from 3.24.5 to 3.25.0. `#139 <https://github.com/dajiaji/pyseto/pull/139>`__
 
 Version 1.6.7
 -------------
@@ -22,10 +35,11 @@ Version 1.6.7
 Released 2022-04-03
 
 - Update dependencies.
+    - Bump cryptography from 36.0.1 to 36.0.2. `#132 <https://github.com/dajiaji/pyseto/pull/132>`__
+- Update dependencies.
     - Bump sphinx from 4.4.0 to 4.5.0. `#135 <https://github.com/dajiaji/pyseto/pull/135>`__
     - Bump freezegun from 1.1.0 to 1.2.1. `#133 <https://github.com/dajiaji/pyseto/pull/133>`__
-    - Bump cryptography from 36.0.1 to 36.0.2. `#132 <https://github.com/dajiaji/pyseto/pull/132>`__
-    - Bump pre-commit from 0.931 to 0.940. `#131 <https://github.com/dajiaji/pyseto/pull/131>`__
+    - Bump pre-commit/mirrors-mypy from 0.931 to 0.940. `#131 <https://github.com/dajiaji/pyseto/pull/131>`__
 
 Version 1.6.6
 -------------

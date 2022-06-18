@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pyseto"
-version = "1.6.8"
+version = "1.6.9"
 description = "A Python implementation of PASETO/PASERK."
 authors = ["Ajitomi Daisuke <dajiaji@gmail.com>"]
 license = "MIT"
