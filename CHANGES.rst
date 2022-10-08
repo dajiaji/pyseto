@@ -4,6 +4,22 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.11
+--------------
+
+Released 2022-10-08
+
+- Update dependencies.
+    - Bump cryptography to 37.0.4. `#157 <https://github.com/dajiaji/pyseto/pull/157>`__
+    - Bump pycryptodomex to 3.15.0. `#153 <https://github.com/dajiaji/pyseto/pull/153>`__
+- Update dev dependencies.
+    - Bump pre-commit/flake8 to 5.0.4. `#162 <https://github.com/dajiaji/pyseto/pull/162>`__
+    - Bump sphinx to 5.1.1. `#160 <https://github.com/dajiaji/pyseto/pull/160>`__
+    - Bump pre-commit/mirrors-mypy to 0.971. `#159 <https://github.com/dajiaji/pyseto/pull/159>`__
+    - Bump pre-commit/black to 22.6.0. `#156 <https://github.com/dajiaji/pyseto/pull/156>`__
+    - Bump tox to 3.25.1. `#155 <https://github.com/dajiaji/pyseto/pull/155>`__
+- Drop support for Python3.6. `#154 <https://github.com/dajiaji/pyseto/pull/154>`__
+
 Version 1.6.10
 --------------
 
