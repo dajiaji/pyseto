@@ -4,6 +4,22 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.11
+--------------
+
+Released 2022-10-08
+
+- Update dependencies.
+    - Bump iso8601 to 1.1.0. `#171 <https://github.com/dajiaji/pyseto/pull/171>`__
+    - Bump cryptography to 38.0.1. `#167 <https://github.com/dajiaji/pyseto/pull/167>`__
+- Update dev dependencies.
+    - Bump pre-commit/mirrors-mypy to 0.981. `#174 <https://github.com/dajiaji/pyseto/pull/174>`__
+    - Bump sphinx to 5.2.3. `#173 <https://github.com/dajiaji/pyseto/pull/173>`__
+    - Bump pytest-cov to 4.0.0. `#172 <https://github.com/dajiaji/pyseto/pull/172>`__
+    - Bump tox to 3.26.0. `#168 <https://github.com/dajiaji/pyseto/pull/168>`__
+    - Bump pre-commit/black to 22.8.0. `#166 <https://github.com/dajiaji/pyseto/pull/166>`__
+    - Bump freezegun to 1.2.2. `#165 <https://github.com/dajiaji/pyseto/pull/165>`__
+
 Version 1.6.10
 --------------
 
