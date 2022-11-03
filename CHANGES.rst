@@ -4,6 +4,20 @@ Changes
 Unreleased
 ----------
 
+Version 1.6.12
+--------------
+
+Released 2022-11-03
+
+- Update dependencies.
+    - Bump cryptography to 38.0.3. `#180 <https://github.com/dajiaji/pyseto/pull/180>`__
+- Update dev dependencies.
+    - Bump sphinx-rtd-theme to 1.1.0. `#179 <https://github.com/dajiaji/pyseto/pull/179>`__
+    - Bump tox to 3.27.0. `#178 <https://github.com/dajiaji/pyseto/pull/178>`__
+    - Bump sphinx to 5.3.0. `#177 <https://github.com/dajiaji/pyseto/pull/177>`__
+    - Bump pre-commit/mirrors-mypy to 0.982. `#176 <https://github.com/dajiaji/pyseto/pull/176>`__
+    - Bump pre-commit/black to 22.10.0. `#176 <https://github.com/dajiaji/pyseto/pull/176>`__
+
 Version 1.6.11
 --------------
 
