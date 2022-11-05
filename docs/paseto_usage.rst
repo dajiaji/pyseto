@@ -72,7 +72,7 @@ Use the key pair to generate and consume `v4.public` PASETO tokens as follows:
 v4.local
 --------
 
-Symmetric Authenticated Encryption with AES-256-CTR + HMAC-SHA384 (Encrypt-then-MAC).
+Authenticated Encryption with XChaCha20 + BLAKE2b-MAC (Encrypt-then-MAC).
 
 .. code-block:: python
 
