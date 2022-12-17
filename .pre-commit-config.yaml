@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 22.12.0
     hooks:
       - id: black
         args: [--line-length, "128"]
@@ -11,14 +11,14 @@ repos:
       - id: blacken-docs
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.4
+    rev: 6.0.0
     hooks:
       - id: flake8
         args: [--ignore, "E203,E501,W503"]
         additional_dependencies: [flake8-bugbear]
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
+    rev: 5.11.1
     hooks:
       - id: isort
         args: [--profile, "black"]
@@ -31,7 +31,7 @@ repos:
         additional_dependencies: [types-freezegun]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: check-json
       - id: check-toml
