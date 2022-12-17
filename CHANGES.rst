@@ -4,6 +4,28 @@ Changes
 Unreleased
 ----------
 
+Version 1.7.0
+-------------
+
+Released 2022-12-17
+
+- Drop support for Python 3.6. `#196 <https://github.com/dajiaji/pyseto/pull/196>`__
+- Add CI for Python 11. `#191 <https://github.com/dajiaji/pyseto/pull/191>`__
+- Fix typo on PASETO usage document. `#183 <https://github.com/dajiaji/pyseto/pull/183>`__
+
+- Update dependencies.
+    - Bump pycryptodomex to 3.16.0. `#195 <https://github.com/dajiaji/pyseto/pull/195>`__
+    - Bump cryptography to 38.0.4. `#195 <https://github.com/dajiaji/pyseto/pull/195>`__
+- Update dev dependencies.
+    - Bump pytest to 7.2.0. `#195 <https://github.com/dajiaji/pyseto/pull/195>`__
+    - Bump pre-commit/isort to 5.11.1. `#193 <https://github.com/dajiaji/pyseto/pull/193>`__
+    - Bump pre-commit/black to 22.12.0. `#193 <https://github.com/dajiaji/pyseto/pull/193>`__
+    - Bump pre-commit/pre-commit-hooks to 4.4.0. `#190 <https://github.com/dajiaji/pyseto/pull/190>`__
+    - Bump pre-commit/flake8 to 6.0.0. `#190 <https://github.com/dajiaji/pyseto/pull/190>`__
+    - Bump pre-commit/mirrors-mypy to 0.991. `#187 <https://github.com/dajiaji/pyseto/pull/187>`__
+    - Bump tox to 3.27.1. `#185 <https://github.com/dajiaji/pyseto/pull/185>`__
+    - Bump sphinx-rtd-theme to 1.1.1. `#184 <https://github.com/dajiaji/pyseto/pull/184>`__
+
 Version 1.6.12
 --------------
 
