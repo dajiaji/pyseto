@@ -44,5 +44,5 @@ docs = [
 pytest = "^7.0"
 pytest-cov = "^4.0.0"
 tox = "^4.0.16"
-pre-commit = "^2.20.0"
+pre-commit = "^2.21.0"
 freezegun = "^1.2.2"
