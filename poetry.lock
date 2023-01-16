@@ -1241,14 +1241,14 @@ files = [
 
 [[package]]
 name = "tox"
-version = "4.2.8"
+version = "4.3.1"
 description = "tox is a generic virtualenv management and test command line tool"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "tox-4.2.8-py3-none-any.whl", hash = "sha256:e9d5006a533d280e2ca26e3ca61052ffa55a65b683486f92d12563a14a9b7a4f"},
-    {file = "tox-4.2.8.tar.gz", hash = "sha256:7c31940d755355210151e8bef23feab3d714a8a4795e513c454ff0baccd995b1"},
+    {file = "tox-4.3.1-py3-none-any.whl", hash = "sha256:3b4c8bb7f281989b5ea2c39e862711ef2dbd15fedbf0c5f64e7c04c7d8cd8957"},
+    {file = "tox-4.3.1.tar.gz", hash = "sha256:df2bf3c8329d1bc23a618329480ddefc0400af42804f801599b2ec38914f6309"},
 ]
 
 [package.dependencies]
@@ -1342,4 +1342,4 @@ docs = ["Sphinx", "sphinx-rtd-theme", "sphinx-autodoc-typehints"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "5c9fd90c13a0b40c1cf593c1a789474049b60756345a43efcfae2bf437db5ecd"
+content-hash = "ddaba51a0542a94439376b5059529fb23079bccdf955f9db7785ef5a221a6cbb"
