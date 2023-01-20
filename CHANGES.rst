@@ -7,6 +7,23 @@ Unreleased
 Version 1.7.0
 -------------
 
+Released 2022-01-21
+
+- Use allowlist_externals on tox. `#208 <https://github.com/dajiaji/pyseto/pull/208>`__
+
+- Update dependencies.
+    - Bump cryptography to 39.0.0. `#212 <https://github.com/dajiaji/pyseto/pull/212>`__
+- Update dev dependencies.
+    - Bump tox to 4.3.5. `#230 <https://github.com/dajiaji/pyseto/pull/230>`__
+    - Bump pre-commit/black-docs to 1.13.0. `#227 <https://github.com/dajiaji/pyseto/pull/227>`__
+    - Bump pre-commit/isort to 5.11.4. `#227 <https://github.com/dajiaji/pyseto/pull/227>`__
+    - Bump sphinx-autodoc-typehints to 1.21.0. `#226 <https://github.com/dajiaji/pyseto/pull/226>`__
+    - Bump pytest to 7.2.1. `#225 <https://github.com/dajiaji/pyseto/pull/225>`__
+    - Bump pre-commit to 2.20.0. `#200 <https://github.com/dajiaji/pyseto/pull/200>`__
+
+Version 1.7.0
+-------------
+
 Released 2022-12-17
 
 - Drop support for Python 3.6. `#196 <https://github.com/dajiaji/pyseto/pull/196>`__
