@@ -4,10 +4,10 @@ Changes
 Unreleased
 ----------
 
-Version 1.7.0
+Version 1.7.1
 -------------
 
-Released 2022-01-21
+Released 2023-01-21
 
 - Use allowlist_externals on tox. `#208 <https://github.com/dajiaji/pyseto/pull/208>`__
 
