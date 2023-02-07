@@ -23,7 +23,6 @@ class V4Local(SodiumKey):
     _TYPE = "local"
 
     def __init__(self, key: Union[str, bytes]):
-
         super().__init__(key)
         if len(self._key) > 64:
             raise ValueError("key length must be up to 64 bytes.")
@@ -44,7 +43,6 @@ class V4Local(SodiumKey):
         implicit_assertion: bytes = b"",
         nonce: bytes = b"",
     ) -> bytes:
-
         if nonce:
             if len(nonce) != 32:
                 raise ValueError("nonce must be 32 bytes long.")
@@ -64,7 +62,6 @@ class V4Local(SodiumKey):
         return token
 
     def decrypt(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
-
         n = payload[0:32]
         c = payload[32 : len(payload) - 32]
         t = payload[-32:]
@@ -88,7 +85,6 @@ class V4Public(SodiumKey):
     _TYPE = "public"
 
     def __init__(self, key: Any):
-
         super().__init__(key)
         self._sig_size = 64
 
@@ -133,7 +129,6 @@ class V4Public(SodiumKey):
         return h2 + base64url_encode(d).decode("utf-8")
 
     def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
-
         if isinstance(self._key, Ed25519PublicKey):
             raise ValueError("A public key cannot be used for signing.")
 
@@ -144,7 +139,6 @@ class V4Public(SodiumKey):
             raise SignError("Failed to sign.") from err
 
     def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""):
-
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 

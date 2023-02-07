@@ -171,7 +171,6 @@ class TestKey:
         ],
     )
     def test_key_from_asymmetric_params(self, version, key):
-
         k = Key.from_asymmetric_key_params(version, x=key["x"], y=key["y"], d=key["d"])
         assert isinstance(k, KeyInterface)
         assert k.version == version
@@ -191,7 +190,6 @@ class TestKey:
         ],
     )
     def test_key_from_paserk_with_wrapping_key_and_password(self, paserk):
-
         with pytest.raises(ValueError) as err:
             Key.from_paserk(paserk, wrapping_key="xxx", password="yyy")
             pytest.fail("Key.from_paserk should fail.")
@@ -211,7 +209,6 @@ class TestKey:
         ],
     )
     def test_key_from_paserk_with_password_for_wrong_paserk(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             Key.from_paserk(paserk, password="yyy")
             pytest.fail("Key.from_paserk should fail.")
@@ -226,7 +223,6 @@ class TestKey:
         ],
     )
     def test_key_from_paserk_with_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             Key.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")
@@ -380,7 +376,6 @@ class TestKey:
         ],
     )
     def test_key_from_asymmetric_params_with_invalid_arg(self, version, key, msg):
-
         with pytest.raises(ValueError) as err:
             Key.from_asymmetric_key_params(version, x=key["x"], y=key["y"], d=key["d"])
             pytest.fail("Key.from_asymmetric_key_params() should fail.")

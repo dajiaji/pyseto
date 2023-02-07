@@ -26,7 +26,6 @@ class NISTKey(KeyInterface):
     # _TYPE = "local", "public" or "secret"
 
     def __init__(self, key: Any):
-
         super().__init__(self._VERSION, self._TYPE, key)
         return
 
@@ -38,7 +37,6 @@ class NISTKey(KeyInterface):
         password: bytes = b"",
         unsealing_key: bytes = b"",
     ) -> KeyInterface:
-
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
 
@@ -95,7 +93,6 @@ class NISTKey(KeyInterface):
         time_cost: int = 2,
         parallelism: int = 1,
     ) -> str:
-
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
 
@@ -127,7 +124,6 @@ class NISTKey(KeyInterface):
 
     @classmethod
     def _encode_pie(cls, header: str, wrapping_key: bytes, ptk: bytes) -> str:
-
         h = header.encode("utf-8")
         n = token_bytes(32)
         x = cls._generate_hash(wrapping_key, b"\x80" + n)
@@ -140,7 +136,6 @@ class NISTKey(KeyInterface):
 
     @classmethod
     def _decode_pie(cls, header: str, wrapping_key: bytes, data: str) -> bytes:
-
         h = header.encode("utf-8")
         d = base64url_decode(data)
         t = d[0:48]
@@ -157,7 +152,6 @@ class NISTKey(KeyInterface):
 
     @classmethod
     def _encode_pbkw(cls, header: str, password: bytes, ptk: bytes, iteration: int = 100000) -> str:
-
         h = header.encode("utf-8")
 
         s = token_bytes(32)
@@ -177,7 +171,6 @@ class NISTKey(KeyInterface):
 
     @classmethod
     def _decode_pbkw(cls, header: str, password: bytes, data: str) -> bytes:
-
         h = header.encode("utf-8")
         d = base64url_decode(data)
 
@@ -263,7 +256,6 @@ class NISTKey(KeyInterface):
 
     @staticmethod
     def _generate_hash(key: bytes, msg: bytes, size: int = 0) -> bytes:
-
         try:
             d = hmac.new(key, msg, hashlib.sha384).digest()
             return d[0:size] if size > 0 else d

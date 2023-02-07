@@ -18,7 +18,6 @@ def encode(
     serializer: Any = json,
     exp: int = 0,
 ) -> bytes:
-
     """
     Encodes a message to a PASETO token with a key for encryption or signing.
 
@@ -56,7 +55,6 @@ def decode(
     deserializer: Optional[Any] = None,
     aud: str = "",
 ) -> Token:
-
     """
     Decodes a PASETO token with a key for decryption and/or verifying.
 

@@ -19,7 +19,6 @@ from .utils import get_path
 
 
 def _load_tests(paths: list) -> list:
-
     tests: list = []
     for path in paths:
         with open(get_path(path)) as tv_file:
@@ -29,7 +28,6 @@ def _load_tests(paths: list) -> list:
 
 
 def _name_to_version(name: str) -> int:
-
     v = name.split(".")[0]
     if len(v) != 2:
         raise ValueError("Invalid PASERK test name.")
@@ -37,7 +35,6 @@ def _name_to_version(name: str) -> int:
 
 
 def _public_key_compress(x: int, y: int) -> bytes:
-
     bx = x.to_bytes(48, byteorder="big")
     by = y.to_bytes((y.bit_length() + 7) // 8, byteorder="big")
     s = bytearray(1)
@@ -46,7 +43,6 @@ def _public_key_compress(x: int, y: int) -> bytes:
 
 
 def _from_Ed25519PrivateKey_to_X25519PrivateKey(data: bytes) -> X25519PrivateKey:
-
     hasher = hashes.Hash(hashes.SHA512())
     hasher.update(data)
     h = bytearray(hasher.finalize())
@@ -75,7 +71,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors(self, v):
-
         token = v["token"].encode("utf-8")
         payload = v["payload"]
         footer = v["footer"].encode("utf-8")
@@ -160,7 +155,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_public(self, v):
-
         version = _name_to_version(v["name"])
         if version == 1:
             k = Key.new(version, "public", v["key"])
@@ -186,7 +180,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_secret(self, v):
-
         version = _name_to_version(v["name"])
         if version == 1:
             k = Key.new(version, "public", v["key"])
@@ -215,7 +208,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_local(self, v):
-
         version = _name_to_version(v["name"])
         k = Key.new(version, "local", bytes.fromhex(v["key"]))
         k2 = Key.from_paserk(v["paserk"])
@@ -234,7 +226,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_pid(self, v):
-
         version = _name_to_version(v["name"])
         if version == 1:
             k = Key.new(version, "public", v["key"])
@@ -258,7 +249,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_sid(self, v):
-
         version = _name_to_version(v["name"])
         if version == 1:
             k = Key.new(version, "public", v["key"])
@@ -285,7 +275,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_lid(self, v):
-
         version = _name_to_version(v["name"])
         k = Key.new(version, "local", bytes.fromhex(v["key"]))
         assert k.to_paserk_id() == v["paserk"]
@@ -302,7 +291,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_local_wrap_pie(self, v):
-
         version = _name_to_version(v["name"])
         k = Key.from_paserk(v["paserk"], wrapping_key=bytes.fromhex(v["wrapping-key"]))
 
@@ -336,7 +324,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_secret_wrap_pie(self, v):
-
         version = _name_to_version(v["name"])
 
         k = Key.from_paserk(v["paserk"], wrapping_key=bytes.fromhex(v["wrapping-key"]))
@@ -382,7 +369,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_local_pw(self, v):
-
         version = _name_to_version(v["name"])
 
         k = Key.from_paserk(v["paserk"], password=v["password"])
@@ -429,7 +415,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_secret_pw(self, v):
-
         version = _name_to_version(v["name"])
 
         k = Key.from_paserk(v["paserk"], password=v["password"])
@@ -483,7 +468,6 @@ class TestWithTestVectors:
         ),
     )
     def test_with_test_vectors_paserk_seal_v2_v4(self, v):
-
         version = _name_to_version(v["name"])
 
         if version == 1:

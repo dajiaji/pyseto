@@ -60,7 +60,6 @@ def pae(pieces: List[bytes]) -> bytes:
 
 
 def ec_public_key_compress(x: int, y: int) -> bytes:
-
     bx = x.to_bytes(48, byteorder="big")
     by = y.to_bytes((y.bit_length() + 7) // 8, byteorder="big")
     s = bytearray(1)

@@ -109,7 +109,6 @@ class TestV1Local:
         ],
     )
     def test_vl_local_from_paserk_with_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V1Local.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")
@@ -125,7 +124,6 @@ class TestV1Local:
         ],
     )
     def test_v1_local_from_paserk_with_wrapping_key_and_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V1Local.from_paserk(paserk, wrapping_key=token_bytes(32))
             pytest.fail("Key.from_paserk should fail.")
@@ -176,7 +174,6 @@ class TestV1Public:
         ],
     )
     def test_vl_public_from_paserk_with_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V1Public.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")
@@ -192,7 +189,6 @@ class TestV1Public:
         ],
     )
     def test_v1_public_from_paserk_with_wrapping_key_and_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V1Public.from_paserk(paserk, wrapping_key=token_bytes(32))
             pytest.fail("Key.from_paserk should fail.")

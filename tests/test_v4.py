@@ -72,7 +72,6 @@ class TestV4Local:
         ],
     )
     def test_v4_local_from_paserk_with_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V4Local.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")
@@ -115,7 +114,6 @@ class TestV4Public:
         ],
     )
     def test_v4_public_from_paserk_with_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V4Public.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")

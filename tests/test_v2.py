@@ -119,7 +119,6 @@ class TestV2Local:
         ],
     )
     def test_v2_local_from_paserk_with_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V2Local.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")
@@ -135,7 +134,6 @@ class TestV2Local:
         ],
     )
     def test_v2_local_from_paserk_with_wrapping_key_and_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V2Local.from_paserk(paserk, wrapping_key=token_bytes(32))
             pytest.fail("Key.from_paserk should fail.")
@@ -149,14 +147,12 @@ class TestV2Local:
         ],
     )
     def test_v2_local_from_paserk_with_unsealing_key_and_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V2Local.from_paserk(paserk, unsealing_key=token_bytes(32))
             pytest.fail("Key.from_paserk should fail.")
         assert msg in str(err.value)
 
     def test_v2_local_to_paserk_with_invalid_sealing_key(self):
-
         k = Key.new(2, "local", token_bytes(32))
         with pytest.raises(ValueError) as err:
             k.to_paserk(sealing_key=b"not-PEM-formatted-key")
@@ -164,7 +160,6 @@ class TestV2Local:
         assert "Invalid or unsupported PEM format." in str(err.value)
 
     def test_v2_local_from_paserk_with_wrong_unsealing_key(self):
-
         k = Key.new(2, "local", token_bytes(32))
         with open(get_path("keys/public_key_x25519.pem")) as key_file:
             sealed_key = k.to_paserk(sealing_key=key_file.read())
@@ -244,7 +239,6 @@ class TestV2Public:
         ],
     )
     def test_v2_public_from_paserk_with_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V2Public.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")
