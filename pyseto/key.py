@@ -35,7 +35,6 @@ class Key:
 
     @classmethod
     def new(cls, version: int, purpose: str, key: Union[bytes, str] = b"") -> KeyInterface:
-
         """
         Constructor of a PASETO key object which has
         :class:`KeyInterface <pyseto.key_interface.KeyInterface>`.
@@ -79,7 +78,6 @@ class Key:
         password: Union[bytes, str] = b"",
         unsealing_key: Union[bytes, str] = b"",
     ) -> KeyInterface:
-
         """
         Generates a PASETO key object which has
         :class:`KeyInterface <pyseto.key_interface.KeyInterface>` from PASERK.
@@ -145,7 +143,6 @@ class Key:
 
     @staticmethod
     def from_asymmetric_key_params(version: int, x: bytes = b"", y: bytes = b"", d: bytes = b"") -> KeyInterface:
-
         """
         Constructor of a PASETO key object which has
         :class:`KeyInterface <pyseto.key_interface.KeyInterface>` wth

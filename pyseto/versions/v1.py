@@ -27,7 +27,6 @@ class V1Local(NISTKey):
     _TYPE = "local"
 
     def __init__(self, key: Union[str, bytes]):
-
         super().__init__(key)
         return
 
@@ -46,7 +45,6 @@ class V1Local(NISTKey):
         implicit_assertion: bytes = b"",
         nonce: bytes = b"",
     ) -> bytes:
-
         if nonce:
             if len(nonce) != 32:
                 raise ValueError("nonce must be 32 bytes long.")
@@ -78,7 +76,6 @@ class V1Local(NISTKey):
         return token
 
     def decrypt(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
-
         n = payload[0:32]
         t = payload[-48:]
         c = payload[32 : len(payload) - 48]
@@ -113,7 +110,6 @@ class V1Public(NISTKey):
     _TYPE = "public"
 
     def __init__(self, key: Any):
-
         super().__init__(key)
 
         self._sig_size = 256
@@ -134,7 +130,6 @@ class V1Public(NISTKey):
         password: bytes = b"",
         unsealing_key: bytes = b"",
     ) -> KeyInterface:
-
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
 
@@ -183,7 +178,6 @@ class V1Public(NISTKey):
         time_cost: int = 2,
         parallelism: int = 1,
     ) -> str:
-
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
 
@@ -256,7 +250,6 @@ class V1Public(NISTKey):
         return h + base64url_encode(d[0:33]).decode("utf-8")
 
     def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
-
         if isinstance(self._key, RSAPublicKey):
             raise ValueError("A public key cannot be used for signing.")
         m2 = pae([self.header, payload, footer])
@@ -266,7 +259,6 @@ class V1Public(NISTKey):
             raise SignError("Failed to sign.") from err
 
     def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""):
-
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 

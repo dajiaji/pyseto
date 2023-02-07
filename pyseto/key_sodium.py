@@ -34,7 +34,6 @@ class SodiumKey(KeyInterface):
     # _TYPE = "local", "public" or "secret"
 
     def __init__(self, key: Any):
-
         super().__init__(self._VERSION, self._TYPE, key)
         return
 
@@ -46,7 +45,6 @@ class SodiumKey(KeyInterface):
         password: bytes = b"",
         unsealing_key: bytes = b"",
     ) -> KeyInterface:
-
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
 
@@ -134,7 +132,6 @@ class SodiumKey(KeyInterface):
         time_cost: int = 2,
         parallelism: int = 1,
     ) -> str:
-
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
 
@@ -229,7 +226,6 @@ class SodiumKey(KeyInterface):
 
     @classmethod
     def _encode_pie(cls, header: str, wrapping_key: bytes, ptk: bytes) -> str:
-
         h = header.encode("utf-8")
         n = token_bytes(32)
         x = cls._generate_hash(wrapping_key, b"\x80" + n, 56)
@@ -242,7 +238,6 @@ class SodiumKey(KeyInterface):
 
     @classmethod
     def _decode_pie(cls, header: str, wrapping_key: bytes, data: str) -> bytes:
-
         h = header.encode("utf-8")
         d = base64url_decode(data)
         t = d[0:32]
@@ -269,7 +264,6 @@ class SodiumKey(KeyInterface):
         time_cost: int,
         parallelism: int,
     ) -> str:
-
         h = header.encode("utf-8")
         s = token_bytes(16)
         argon2_k = argon2.using(
@@ -293,7 +287,6 @@ class SodiumKey(KeyInterface):
 
     @classmethod
     def _decode_pbkw(cls, header: str, password: bytes, data: str) -> bytes:
-
         h = header.encode("utf-8")
         d = base64url_decode(data)
 
@@ -331,7 +324,6 @@ class SodiumKey(KeyInterface):
         sealing_key: bytes,
         ptk: bytes,
     ) -> str:
-
         h = header.encode("utf-8")
 
         xpk = X25519PublicKey.from_public_bytes(sealing_key)
@@ -349,7 +341,6 @@ class SodiumKey(KeyInterface):
 
     @classmethod
     def _decode_pke(cls, header: str, unsealing_key: bytes, data: str) -> bytes:
-
         h = header.encode("utf-8")
         d = base64url_decode(data)
 
@@ -372,7 +363,6 @@ class SodiumKey(KeyInterface):
 
     @staticmethod
     def _generate_hash(key: bytes, msg: bytes, size: int) -> bytes:
-
         try:
             h = hashlib.blake2b(key=key, digest_size=size)
             h.update(msg)
@@ -382,14 +372,12 @@ class SodiumKey(KeyInterface):
 
     @staticmethod
     def _digest(msg: bytes, size: int) -> bytes:
-
         h = hashlib.blake2b(digest_size=size)
         h.update(msg)
         return h.digest()
 
     @staticmethod
     def _encrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
-
         try:
             cipher = ChaCha20.new(key=key, nonce=nonce)
             return cipher.encrypt(msg)
@@ -398,7 +386,6 @@ class SodiumKey(KeyInterface):
 
     @staticmethod
     def _decrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
-
         try:
             cipher = ChaCha20.new(key=key, nonce=nonce)
             return cipher.decrypt(msg)

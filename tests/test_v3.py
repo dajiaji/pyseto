@@ -83,7 +83,6 @@ class TestV3Local:
         ],
     )
     def test_v3_local_from_paserk_with_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V3Local.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")
@@ -99,7 +98,6 @@ class TestV3Local:
         ],
     )
     def test_v3_local_from_paserk_with_wrapping_key_and_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V3Local.from_paserk(paserk, wrapping_key=token_bytes(32))
             pytest.fail("Key.from_paserk should fail.")
@@ -179,7 +177,6 @@ class TestV3Public:
         ],
     )
     def test_v3_public_from_paserk_with_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V3Public.from_paserk(paserk)
             pytest.fail("Key.from_paserk should fail.")
@@ -195,21 +192,18 @@ class TestV3Public:
         ],
     )
     def test_v3_public_from_paserk_with_wrapping_key_and_invalid_args(self, paserk, msg):
-
         with pytest.raises(ValueError) as err:
             V3Public.from_paserk(paserk, wrapping_key=token_bytes(32))
             pytest.fail("Key.from_paserk should fail.")
         assert msg in str(err.value)
 
     def test_v3_public_from_public_bytes_with_invalid_args(self):
-
         with pytest.raises(ValueError) as err:
             V3Public.from_public_bytes(b"xxx")
             pytest.fail("Key.from_paserk should fail.")
         assert "Invalid bytes for the key." in str(err.value)
 
     def test_v3_public_sign_via_encode_with_invalid_key(self):
-
         k = Key.from_paserk(
             "k3.secret-pw.mXsR2qVqmcDxmSWeQCnCwNeIxe5RDQ3ehnQvdXFj-YgAAAPoFI8eRXCL8PFpVW_CWOvGHnvMPy0BkMlKF1AtmBYGKold9i-ALC2oflkemYdbncrHbiKGd8zfjTQu2tTo2ayOMHybk_-hhopwJ2IUallYfLfUzPuqvtOQfVxXLtUBPnmR75dhRiPDgzdIO1OMbqa3Z1LDevvzbrcPyhHqmJSZioeJ7j1Mu8DJOvrIK0pWHmjDq_eg4YFnaOgz7I3Tkxx89A",
             password="correct horse battery staple".encode("utf-8").hex(),

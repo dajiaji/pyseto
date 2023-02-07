@@ -37,7 +37,6 @@ class V3Local(NISTKey):
     _TYPE = "local"
 
     def __init__(self, key: Union[str, bytes]):
-
         super().__init__(key)
         return
 
@@ -48,7 +47,6 @@ class V3Local(NISTKey):
         implicit_assertion: bytes = b"",
         nonce: bytes = b"",
     ) -> bytes:
-
         if nonce:
             if len(nonce) != 32:
                 raise ValueError("nonce must be 32 bytes long.")
@@ -83,7 +81,6 @@ class V3Local(NISTKey):
         return token
 
     def decrypt(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
-
         n = payload[0:32]
         c = payload[32 : len(payload) - 48]
         t = payload[-48:]
@@ -114,7 +111,6 @@ class V3Local(NISTKey):
         return self._decrypt(ek, n2, c)
 
     def to_paserk_id(self) -> str:
-
         h = "k3.lid."
         p = self.to_paserk()
         digest = hashes.Hash(hashes.SHA384())
@@ -132,7 +128,6 @@ class V3Public(NISTKey):
     _TYPE = "public"
 
     def __init__(self, key: Any):
-
         super().__init__(key)
 
         self._sig_size = 96
@@ -159,7 +154,6 @@ class V3Public(NISTKey):
         password: bytes = b"",
         unsealing_key: bytes = b"",
     ) -> KeyInterface:
-
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
 
@@ -217,7 +211,6 @@ class V3Public(NISTKey):
         time_cost: int = 2,
         parallelism: int = 1,
     ) -> str:
-
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
 
@@ -273,7 +266,6 @@ class V3Public(NISTKey):
         return h + base64url_encode(d[0:33]).decode("utf-8")
 
     def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
-
         if isinstance(self._key, EllipticCurvePublicKey):
             raise ValueError("A public key cannot be used for signing.")
         pk = ec_public_key_compress(
@@ -288,7 +280,6 @@ class V3Public(NISTKey):
             raise SignError("Failed to sign.") from err
 
     def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""):
-
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 
@@ -305,13 +296,11 @@ class V3Public(NISTKey):
         return m
 
     def _der_to_os(self, key_size: int, sig: bytes) -> bytes:
-
         num_bytes = (key_size + 7) // 8
         r, s = decode_dss_signature(sig)
         return i2osp(r, num_bytes) + i2osp(s, num_bytes)
 
     def _os_to_der(self, key_size: int, sig: bytes) -> bytes:
-
         num_bytes = (key_size + 7) // 8
         if len(sig) != 2 * num_bytes:
             raise ValueError("Invalid signature.")

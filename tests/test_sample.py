@@ -18,7 +18,6 @@ class TestSample:
     """
 
     def test_sample_v4_local_old(self):
-
         key = Key.new(4, "local", b"our-secret")
         token = pyseto.encode(
             key,
@@ -29,7 +28,6 @@ class TestSample:
         assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_v4_public_old(self):
-
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
 
@@ -48,7 +46,6 @@ class TestSample:
         assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_v4_local(self):
-
         key = Key.new(version=4, purpose="local", key=b"our-secret")
         token = pyseto.encode(
             key,
@@ -59,7 +56,6 @@ class TestSample:
         assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_v4_public(self):
-
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
 
@@ -79,7 +75,6 @@ class TestSample:
 
     @freezegun.freeze_time("2021-01-01")
     def test_sample_v4_public_with_serializer(self):
-
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
 
@@ -99,7 +94,6 @@ class TestSample:
         assert decoded.payload["exp"] == "2022-01-01T00:00:00+00:00"
 
     def test_sample_v4_local_with_serializer(self):
-
         key = Key.new(version=4, purpose="local", key=b"out-secret")
         token = pyseto.encode(
             key,
@@ -109,7 +103,6 @@ class TestSample:
         assert decoded.payload["data"] == "this is a signed message"
 
     def test_sample_v4_public_with_serializer_and_exp(self):
-
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
         now = datetime.now(tz=timezone.utc)
@@ -127,7 +120,6 @@ class TestSample:
         assert iso8601.parse_date(decoded.payload["exp"]) >= now + timedelta(seconds=3600 - 1)
 
     def test_sample_v4_public_with_paseto_class(self):
-
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
         now = datetime.now(tz=timezone.utc)
@@ -147,7 +139,6 @@ class TestSample:
         assert iso8601.parse_date(decoded.payload["exp"]) >= now + timedelta(seconds=3600 - 1)
 
     def test_sample_v4_public_with_paseto_class_and_leeway(self):
-
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
         now = datetime.now(tz=timezone.utc)
@@ -168,7 +159,6 @@ class TestSample:
         assert iso8601.parse_date(decoded.payload["exp"]) >= now
 
     def test_sample_v4_public_with_kid(self):
-
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
         now = datetime.now(tz=timezone.utc)
@@ -194,7 +184,6 @@ class TestSample:
         assert iso8601.parse_date(decoded.payload["exp"]) >= now
 
     def test_sample_paserk(self):
-
         symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
         private_key = Key.from_paserk(
             "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
@@ -216,7 +205,6 @@ class TestSample:
         assert public_key.to_paserk() == "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
 
     def test_sample_paserk_id(self):
-
         symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
         private_key = Key.from_paserk(
             "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
@@ -228,7 +216,6 @@ class TestSample:
         assert public_key.to_paserk_id() == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
 
     def test_sample_paserk_key_wrapping_local(self):
-
         raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
         wrapping_key = token_bytes(32)
         wpk = raw_key.to_paserk(wrapping_key=wrapping_key)
@@ -244,7 +231,6 @@ class TestSample:
         assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_paserk_key_wrapping_public(self):
-
         raw_private_key = Key.from_paserk(
             "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
         )
@@ -263,7 +249,6 @@ class TestSample:
         assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_paserk_password_local(self):
-
         raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
         wpk = raw_key.to_paserk(password="our-secret")
 
@@ -278,7 +263,6 @@ class TestSample:
         assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_paserk_password_public(self):
-
         raw_private_key = Key.from_paserk(
             "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
         )
@@ -296,7 +280,6 @@ class TestSample:
         assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_paserk_seal(self):
-
         raw_key = Key.new(version=4, purpose="local", key=b"our-secret")
         token = pyseto.encode(
             raw_key,
@@ -311,7 +294,6 @@ class TestSample:
         assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
     def test_sample_rtd_v4_public(self):
-
         with open(get_path("keys/private_key_ed25519.pem")) as key_file:
             private_key = Key.new(4, "public", key_file.read())
         token = pyseto.encode(
@@ -331,7 +313,6 @@ class TestSample:
         assert decoded.purpose == "public"
 
     def test_sample_rtd_v4_local(self):
-
         key = Key.new(version=4, purpose="local", key=b"our-secret")
         token = pyseto.encode(
             key,
@@ -348,7 +329,6 @@ class TestSample:
         assert decoded.purpose == "local"
 
     def test_sample_rtd_v3_public(self):
-
         with open(get_path("keys/private_key_ecdsa_p384.pem")) as key_file:
             private_key = Key.new(3, "public", key_file.read())
         token = pyseto.encode(
@@ -368,7 +348,6 @@ class TestSample:
         assert decoded.purpose == "public"
 
     def test_sample_rtd_v3_local(self):
-
         key = Key.new(version=3, purpose="local", key=b"our-secret")
         token = pyseto.encode(
             key,
@@ -385,7 +364,6 @@ class TestSample:
         assert decoded.purpose == "local"
 
     def test_sample_rtd_v2_public(self):
-
         with open(get_path("keys/private_key_ed25519.pem")) as key_file:
             private_key = Key.new(2, "public", key_file.read())
         token = pyseto.encode(
@@ -404,7 +382,6 @@ class TestSample:
         assert decoded.purpose == "public"
 
     def test_sample_rtd_v2_local(self):
-
         key = Key.new(version=2, purpose="local", key=token_bytes(32))
         token = pyseto.encode(
             key,
@@ -420,7 +397,6 @@ class TestSample:
         assert decoded.purpose == "local"
 
     def test_sample_rtd_v1_public(self):
-
         with open(get_path("keys/private_key_rsa.pem")) as key_file:
             private_key = Key.new(1, "public", key_file.read())
         token = pyseto.encode(
@@ -439,7 +415,6 @@ class TestSample:
         assert decoded.purpose == "public"
 
     def test_sample_rtd_v1_local(self):
-
         key = Key.new(version=1, purpose="local", key=b"our-secret")
         token = pyseto.encode(
             key,

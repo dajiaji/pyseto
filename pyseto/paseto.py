@@ -64,7 +64,6 @@ class Paseto(object):
         serializer: Any = json,
         exp: int = 0,
     ) -> bytes:
-
         """
         Encodes a message to a PASETO token with a key for encryption or signing.
 
@@ -156,7 +155,6 @@ class Paseto(object):
         deserializer: Optional[Any] = None,
         aud: str = "",
     ) -> Token:
-
         """
         Decodes a PASETO token with a key for decryption and/or verifying.
 
@@ -223,7 +221,6 @@ class Paseto(object):
         raise ValueError("key is not found for verifying the token.")
 
     def _set_registered_claims(self, claims: dict, exp: int) -> dict:
-
         now = datetime.now(tz=timezone.utc)
         # exp
         if exp > 0:
@@ -236,7 +233,6 @@ class Paseto(object):
         return claims
 
     def _verify_registered_claims(self, claims: dict, aud: str):
-
         now = iso8601.parse_date(datetime.now(tz=timezone.utc).isoformat(timespec="seconds"))
         # In Python 3.7 or later, the following code can be used:
         # now = datetime.fromisoformat(
