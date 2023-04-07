@@ -1292,24 +1292,24 @@ files = [
 
 [[package]]
 name = "tox"
-version = "4.4.9"
+version = "4.4.11"
 description = "tox is a generic virtualenv management and test command line tool"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "tox-4.4.9-py3-none-any.whl", hash = "sha256:fcf878c0a6258a97227d62fbac00ade65e21f6518b9c7206c5bb5a3e1e65fab0"},
-    {file = "tox-4.4.9.tar.gz", hash = "sha256:1883bda00dba70c0358ee4646188db0739e7057c9f6507cd0cf123c1a618443a"},
+    {file = "tox-4.4.11-py3-none-any.whl", hash = "sha256:6fa4dbd933d0e335b5392c81e9cd467630119b3669705dbad47814a93b6c9586"},
+    {file = "tox-4.4.11.tar.gz", hash = "sha256:cd88e41aef9c71f0ba02b6d7939f102760b192b63458fbe04dbbaed82f7bf5f5"},
 ]
 
 [package.dependencies]
 cachetools = ">=5.3"
 chardet = ">=5.1"
 colorama = ">=0.4.6"
-filelock = ">=3.10"
+filelock = ">=3.10.7"
 importlib-metadata = {version = ">=6.1", markers = "python_version < \"3.8\""}
 packaging = ">=23"
-platformdirs = ">=3.1.1"
+platformdirs = ">=3.2"
 pluggy = ">=1"
 pyproject-api = ">=1.5.1"
 tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
@@ -1317,7 +1317,7 @@ typing-extensions = {version = ">=4.5", markers = "python_version < \"3.8\""}
 virtualenv = ">=20.21"
 
 [package.extras]
-docs = ["furo (>=2022.12.7)", "sphinx (>=6.1.3)", "sphinx-argparse-cli (>=1.11)", "sphinx-autodoc-typehints (>=1.22,!=1.23.4)", "sphinx-copybutton (>=0.5.1)", "sphinx-inline-tabs (>=2022.1.2b11)", "sphinxcontrib-towncrier (>=0.2.1a0)", "towncrier (>=22.12)"]
+docs = ["furo (>=2023.3.27)", "sphinx (>=6.1.3)", "sphinx-argparse-cli (>=1.11)", "sphinx-autodoc-typehints (>=1.22,!=1.23.4)", "sphinx-copybutton (>=0.5.1)", "sphinx-inline-tabs (>=2022.1.2b11)", "sphinxcontrib-towncrier (>=0.2.1a0)", "towncrier (>=22.12)"]
 testing = ["build[virtualenv] (>=0.10)", "covdefaults (>=2.3)", "devpi-process (>=0.3)", "diff-cover (>=7.5)", "distlib (>=0.3.6)", "flaky (>=3.7)", "hatch-vcs (>=0.3)", "hatchling (>=1.13)", "psutil (>=5.9.4)", "pytest (>=7.2.2)", "pytest-cov (>=4)", "pytest-mock (>=3.10)", "pytest-xdist (>=3.2.1)", "re-assert (>=1.1)", "time-machine (>=2.9)", "wheel (>=0.40)"]
 
 [[package]]
@@ -1393,4 +1393,4 @@ docs = ["Sphinx", "sphinx-rtd-theme", "sphinx-autodoc-typehints"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "59c914bbbf69b6922eed5c556b09211156eefd55cc86cc789ae64890322b00b0"
+content-hash = "3f162c515a46217c78b2e077d3976e77ff13ec8858c19805f951c72faa8342c7"
