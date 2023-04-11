@@ -41,7 +41,7 @@ docs = [
 ]
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.2"
+pytest = "^7.3"
 pytest-cov = "^4.0.0"
 tox = "^4.4.11"
 pre-commit = "^2.20.0"
