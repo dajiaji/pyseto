@@ -4,6 +4,25 @@ Changes
 Unreleased
 ----------
 
+Version 1.7.2
+-------------
+
+Released 2023-04-23
+
+- Update SECURITY.md. `#245 <https://github.com/dajiaji/pyseto/pull/245>`__
+- Add SECURITY.md. `#244 <https://github.com/dajiaji/pyseto/pull/244>`__
+- Fix CHANGES. `#233 <https://github.com/dajiaji/pyseto/pull/233>`__
+- Update dependencies.
+    - Bump cryptography to 40.0.2. `#262 <https://github.com/dajiaji/pyseto/pull/262>`__
+- Update dev dependencies.
+    - Bump pytest to 7.3.1. `#263 <https://github.com/dajiaji/pyseto/pull/263>`__
+    - Bump tox to 4.4.12. `#261 <https://github.com/dajiaji/pyseto/pull/261>`__
+    - Bump pre-commit/mirrors-mypy to 1.2.0. `#260 <https://github.com/dajiaji/pyseto/pull/260>`__
+    - Bump pre-commit/black to 23.3.0. `#256 <https://github.com/dajiaji/pyseto/pull/256>`__
+    - Bump sphinx-rtd-theme to 1.2.0. `#243 <https://github.com/dajiaji/pyseto/pull/243>`__
+    - Bump pre-commit/black to 23.1.0. `#240 <https://github.com/dajiaji/pyseto/pull/240>`__
+    - Bump pre-commit/isort to 5.12.0. `#237 <https://github.com/dajiaji/pyseto/pull/237>`__
+
 Version 1.7.1
 -------------
 
