@@ -4,6 +4,24 @@ Changes
 Unreleased
 ----------
 
+Version 1.7.3
+-------------
+
+Released 2023-07-03
+
+- Drop support for Python 3.7. `#285 <https://github.com/dajiaji/pyseto/pull/285>`__
+- Update dependencies.
+    - Bump cryptography to 41.0.1. `#286 <https://github.com/dajiaji/pyseto/pull/286>`__
+    - Bump iso8601 to 2.0.0. `#277 <https://github.com/dajiaji/pyseto/pull/277>`__
+    - Bump pycryptodomex to 3.18.0. `#268 <https://github.com/dajiaji/pyseto/pull/268>`__
+- Update dev dependencies.
+    - Bump pre-commit/mirrors-mypy to 1.4.1. `#282 <https://github.com/dajiaji/pyseto/pull/282>`__
+    - Bump pytest to 7.4.0. `#281 <https://github.com/dajiaji/pyseto/pull/281>`__
+    - Bump tox to 4.6.3. `#280 <https://github.com/dajiaji/pyseto/pull/280>`__
+    - Bump pre-commit/black-docs to 1.14.0. `#279 <https://github.com/dajiaji/pyseto/pull/279>`__
+    - Bump sphinx-rtd-theme to 1.2.2. `#276 <https://github.com/dajiaji/pyseto/pull/276>`__
+    - Bump pytest-cov to 4.1.0. `#272 <https://github.com/dajiaji/pyseto/pull/272>`__
+
 Version 1.7.2
 -------------
 
