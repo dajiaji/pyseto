@@ -25,7 +25,7 @@ exclude = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-cryptography = ">=36,<42"
+cryptography = "^41.0.0"
 pycryptodomex = "^3.12.0"
 passlib = {extras = ["argon2"], version = "^1.7.4"}
 iso8601 = ">=1.0.2,<3.0.0"
