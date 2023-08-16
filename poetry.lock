@@ -1250,4 +1250,8 @@ docs = ["Sphinx", "sphinx-rtd-theme"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4.0"
+<<<<<<< HEAD
 content-hash = "5bee5f438ce983ae8109567a6d15eabe8690c953c428209ffa7c1fb1f4c75198"
+=======
+content-hash = "905de480bc297ef4066895afcc200ff1ed1276d0ab3c9989c7aceab9a765f10f"
+>>>>>>> refs/remotes/origin/main
