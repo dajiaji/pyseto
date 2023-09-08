@@ -4,6 +4,26 @@ Changes
 Unreleased
 ----------
 
+Version 1.7.4
+-------------
+
+Released 2023-09-09
+
+- Update dependencies.
+    - Bump cryptography to 41.0.3. `#293 <https://github.com/dajiaji/pyseto/pull/293>`__
+- Update dev dependencies.
+    - Bump tox to 4.11.2. `#309 <https://github.com/dajiaji/pyseto/pull/309>`__
+    - Bump pytest to 7.4.2. `#308 <https://github.com/dajiaji/pyseto/pull/308>`__
+    - Bump pre-commit to 3.4.0. `#306 <https://github.com/dajiaji/pyseto/pull/306>`__
+    - Bump sphinx-autodoc-typehints to 1.24.0. `#303 <https://github.com/dajiaji/pyseto/pull/303>`__
+    - Bump sphinx to 7.1.2. `#302 <https://github.com/dajiaji/pyseto/pull/302>`__
+    - Bump certifi to 2023.7.22. `#301 <https://github.com/dajiaji/pyseto/pull/301>`__
+    - Bump sphinx-rtd-theme to 1.3.0. `#299 <https://github.com/dajiaji/pyseto/pull/299>`__
+    - Bump pre-commit/black-docs to 1.16.0. `#298 <https://github.com/dajiaji/pyseto/pull/298>`__
+    - Bump pre-commit/mirrors-mypy to 1.5.1. `#298 <https://github.com/dajiaji/pyseto/pull/298>`__
+    - Bump pre-commit/flake8 to 6.1.0. `#292 <https://github.com/dajiaji/pyseto/pull/292>`__
+    - Bump pre-commit/black to 23.7.0. `#290 <https://github.com/dajiaji/pyseto/pull/290>`__
+
 Version 1.7.3
 -------------
 
