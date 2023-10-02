@@ -2,6 +2,7 @@ import hashlib
 from secrets import token_bytes
 from typing import Any, Union
 
+from argon2 import PasswordHasher
 from Cryptodome.Cipher import ChaCha20
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
@@ -18,7 +19,6 @@ from cryptography.hazmat.primitives.serialization import (
     load_pem_private_key,
     load_pem_public_key,
 )
-from passlib.hash import argon2
 
 from .exceptions import DecryptError, EncryptError
 from .key_interface import KeyInterface
@@ -266,13 +266,12 @@ class SodiumKey(KeyInterface):
     ) -> str:
         h = header.encode("utf-8")
         s = token_bytes(16)
-        argon2_k = argon2.using(
-            salt=s,
+        argon2_k = PasswordHasher(
             memory_cost=memory_cost,
             time_cost=time_cost,
             parallelism=parallelism,
-            digest_size=32,
-        ).hash(password)
+            hash_len=32,
+        ).hash(password=password, salt=s)
         frags = argon2_k.split("$")
         key = base64url_decode(frags[5])
         ek = cls._digest(b"\xff" + key, 32)
@@ -300,13 +299,12 @@ class SodiumKey(KeyInterface):
         memory_cost = int.from_bytes(mem, byteorder="big")
         time_cost = int.from_bytes(time, byteorder="big")
         parallelism = int.from_bytes(para, byteorder="big")
-        argon2_k = argon2.using(
-            salt=s,
+        argon2_k = PasswordHasher(
             memory_cost=int(memory_cost / 1024),
             time_cost=time_cost,
             parallelism=parallelism,
-            digest_size=32,
-        ).hash(password)
+            hash_len=32,
+        ).hash(password=password, salt=s)
         frags = argon2_k.split("$")
         k = base64url_decode(frags[5])
         ak = cls._digest(b"\xfe" + k, 32)
