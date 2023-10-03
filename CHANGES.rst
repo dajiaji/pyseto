@@ -4,6 +4,20 @@ Changes
 Unreleased
 ----------
 
+Version 1.7.5
+-------------
+
+Released 2023-10-04
+
+- Replace passlib with argon2-cffi. `#315 <https://github.com/dajiaji/pyseto/pull/315>`__
+- Update dependencies.
+    - Bump iso8601 to 2.1.0. `#317 <https://github.com/dajiaji/pyseto/pull/317>`__
+    - Bump urllib3 to 2.0.6. `#316 <https://github.com/dajiaji/pyseto/pull/316>`__
+    - Bump cryptography to 41.0.4. `#313 <https://github.com/dajiaji/pyseto/pull/313>`__
+    - Bump pycryptodomex to 3.19.0. `#312 <https://github.com/dajiaji/pyseto/pull/312>`__
+- Update dev dependencies.
+    - Bump pre-commit/black to 23.9.1. `#290 <https://github.com/dajiaji/pyseto/pull/290>`__
+
 Version 1.7.4
 -------------
 
