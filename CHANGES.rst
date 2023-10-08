@@ -7,7 +7,7 @@ Unreleased
 Version 1.7.5
 -------------
 
-Released 2023-10-04
+Released 2023-10-08
 
 - Replace passlib with argon2-cffi. `#315 <https://github.com/dajiaji/pyseto/pull/315>`__
 - Update dependencies.
