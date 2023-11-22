@@ -4,6 +4,25 @@ Changes
 Unreleased
 ----------
 
+Version 1.7.6
+-------------
+
+Released 2023-11-22
+
+- Loosen the range of pyca/cryptography version. `#334 <https://github.com/dajiaji/pyseto/pull/334>`__
+- Bump actions/checkout to v2. `#333 <https://github.com/dajiaji/pyseto/pull/333>`__
+- Bump actions/setup-python to v2. `#333 <https://github.com/dajiaji/pyseto/pull/333>`__
+- Update dependencies.
+    - Bump cryptography to 41.0.5. `#326 <https://github.com/dajiaji/pyseto/pull/326>`__
+    - Bump urllib3 to 2.0.7. `#323 <https://github.com/dajiaji/pyseto/pull/323>`__
+- Update dev dependencies.
+    - Bump pre-commit/black to 23.11.0. `#331 <https://github.com/dajiaji/pyseto/pull/331>`__
+    - Bump pre-commit/mirrors-mypy to 1.7.0. `#331 <https://github.com/dajiaji/pyseto/pull/331>`__
+    - Bump sphinx-autodoc-typehints to 1.25.2. `#330 <https://github.com/dajiaji/pyseto/pull/330>`__
+    - Bump pytest to 7.4.3. `#325 <https://github.com/dajiaji/pyseto/pull/325>`__
+    - Bump pre-commit to 3.5.0. `#321 <https://github.com/dajiaji/pyseto/pull/321>`__
+    - Bump pre-commit/pre-commit-hooks to 4.5.0. `#320 <https://github.com/dajiaji/pyseto/pull/320>`__
+
 Version 1.7.5
 -------------
 
