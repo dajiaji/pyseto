@@ -4,14 +4,22 @@ Changes
 Unreleased
 ----------
 
+Version 1.7.7
+-------------
+
+Released 2023-11-25
+
+- Add py312 to tox.ini. `#337 <https://github.com/dajiaji/pyseto/pull/337>`__
+- Fix .readthedocs.yml. `#336 <https://github.com/dajiaji/pyseto/pull/336>`__
+
 Version 1.7.6
 -------------
 
 Released 2023-11-22
 
 - Loosen the range of pyca/cryptography version. `#334 <https://github.com/dajiaji/pyseto/pull/334>`__
-- Bump actions/checkout to v2. `#333 <https://github.com/dajiaji/pyseto/pull/333>`__
-- Bump actions/setup-python to v2. `#333 <https://github.com/dajiaji/pyseto/pull/333>`__
+- Bump actions/checkout to v4. `#333 <https://github.com/dajiaji/pyseto/pull/333>`__
+- Bump actions/setup-python to v4. `#333 <https://github.com/dajiaji/pyseto/pull/333>`__
 - Update dependencies.
     - Bump cryptography to 41.0.5. `#326 <https://github.com/dajiaji/pyseto/pull/326>`__
     - Bump urllib3 to 2.0.7. `#323 <https://github.com/dajiaji/pyseto/pull/323>`__
