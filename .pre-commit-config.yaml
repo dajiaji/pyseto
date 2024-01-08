@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 23.12.0
+    rev: 23.12.1
     hooks:
       - id: black
         args: [--line-length, "128"]
@@ -11,7 +11,7 @@ repos:
       - id: blacken-docs
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
+    rev: 7.0.0
     hooks:
       - id: flake8
         args: [--ignore, "E203,E501,W503"]
@@ -24,7 +24,7 @@ repos:
         args: [--profile, "black"]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.1
+    rev: v1.8.0
     hooks:
       - id: mypy
         args: [--ignore-missing-imports]
