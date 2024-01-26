@@ -4,6 +4,26 @@ Changes
 Unreleased
 ----------
 
+Version 1.7.8
+-------------
+
+Released 2024-01-27
+
+- Update dependencies.
+    - Bump cryptography to 42.0.1. `#358 <https://github.com/dajiaji/pyseto/pull/358>`__
+    - Bump jinja2 to 3.1.3. `#354 <https://github.com/dajiaji/pyseto/pull/354>`__
+    - Bump pycryptodomex to 3.20.0. `#353 <https://github.com/dajiaji/pyseto/pull/353>`__
+- Update dev dependencies.
+    - Bump sphinx-autodoc-typehints to 1.25.3. `#342 <https://github.com/dajiaji/pyseto/pull/342>`__
+    - Bump tox to 4.12.1. `#356 <https://github.com/dajiaji/pyseto/pull/356>`__
+    - Bump pytest to 7.4.4. `#352 <https://github.com/dajiaji/pyseto/pull/352>`__
+    - Bump pre-commit/black to 23.12.1. `#350 <https://github.com/dajiaji/pyseto/pull/350>`__
+    - Bump pre-commit/mirrors-mypy to 1.8.0. `#350 <https://github.com/dajiaji/pyseto/pull/350>`__
+    - Bump pre-commit/flake8 to 7.0.0. `#350 <https://github.com/dajiaji/pyseto/pull/350>`__
+    - Bump freezegun to 1.4.0. `#349 <https://github.com/dajiaji/pyseto/pull/349>`__
+    - Bump pre-commit/isort to 5.13.2. `#348 <https://github.com/dajiaji/pyseto/pull/348>`__
+    - Bump sphinx-rtd-theme to 2.0.0. `#341 <https://github.com/dajiaji/pyseto/pull/341>`__
+
 Version 1.7.7
 -------------
 
