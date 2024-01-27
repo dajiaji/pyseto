@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pyseto"
-version = "1.7.7"
+version = "1.7.8"
 description = "A Python implementation of PASETO/PASERK."
 authors = ["Ajitomi Daisuke <dajiaji@gmail.com>"]
 license = "MIT"
@@ -25,7 +25,7 @@ exclude = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-cryptography = ">=41.0.7,<43"
+cryptography = ">=42.0.1,<43"
 pycryptodomex = ">=3.18.0"
 iso8601 = ">=1.0.2,<3.0.0"
 Sphinx = {version = ">=7.1,<8", optional = true, extras = ["docs"]}
