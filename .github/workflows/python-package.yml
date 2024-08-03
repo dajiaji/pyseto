@@ -32,9 +32,12 @@ jobs:
 
     - name: Upload coverage to Codecov
       if: contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v4
       with:
         fail_ci_if_error: true
+        vervose: true
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   package:
     name: Build package
