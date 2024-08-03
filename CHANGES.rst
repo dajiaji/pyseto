@@ -4,6 +4,35 @@ Changes
 Unreleased
 ----------
 
+Version 1.7.9
+-------------
+
+Released 2024-08-03
+
+- Add Python 3.12 to CI. `#361 <https://github.com/dajiaji/pyseto/pull/361>`__
+- Update dependencies.
+    - Bump cryptography to 43.0.0. `#397 <https://github.com/dajiaji/pyseto/pull/397>`__
+- Update dev dependencies.
+    - Bump codecov/codecov-action to v4. `#398 <https://github.com/dajiaji/pyseto/pull/398>`__
+    - Bump setuptools to 70.0.0. `#396 <https://github.com/dajiaji/pyseto/pull/396>`__
+    - Bump zipp to 3.19.1. `#395 <https://github.com/dajiaji/pyseto/pull/395>`__
+    - Bump certifi to 2024.7.4. `#394 <https://github.com/dajiaji/pyseto/pull/394>`__
+    - Bump tox to 4.16.0. `#393 <https://github.com/dajiaji/pyseto/pull/393>`__
+    - Bump blacken-docs to 1.18.0. `#392 <https://github.com/dajiaji/pyseto/pull/392>`__
+    - Bump pre-commit/mirrors-mypy to 1.11.0. `#392 <https://github.com/dajiaji/pyseto/pull/392>`__
+    - Bump pytest to 8.2.2. `#390 <https://github.com/dajiaji/pyseto/pull/390>`__
+    - Bump urllib3 to 2.2.2. `#389 <https://github.com/dajiaji/pyseto/pull/389>`__
+    - Bump requests to 2.32.0. `#387 <https://github.com/dajiaji/pyseto/pull/387>`__
+    - Bump freezegun to 1.5.1. `#386 <https://github.com/dajiaji/pyseto/pull/386>`__
+    - Bump jinja2 to 3.1.4. `#385 <https://github.com/dajiaji/pyseto/pull/385>`__
+    - Bump idna to 3.7. `#382 <https://github.com/dajiaji/pyseto/pull/382>`__
+    - Bump sphinx-autodoc-typehints to 2.0.1. `#381 <https://github.com/dajiaji/pyseto/pull/381>`__
+    - Bump pre-commit/black to 24.4.2. `#380 <https://github.com/dajiaji/pyseto/pull/380>`__
+    - Bump pre-commit/flake8 to 7.1.0. `#380 <https://github.com/dajiaji/pyseto/pull/380>`__
+    - Bump pre-commit/mirrors-mypy to 1.10.0. `#380 <https://github.com/dajiaji/pyseto/pull/380>`__
+    - Bump pre-commit/pre-commit-hooks to 4.6.0. `#380 <https://github.com/dajiaji/pyseto/pull/380>`__
+    - Bump pytest-cov to 5.0.0. `#379 <https://github.com/dajiaji/pyseto/pull/279>`__
+
 Version 1.7.8
 -------------
 
