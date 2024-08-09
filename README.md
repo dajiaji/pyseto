@@ -3,7 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/pyseto.svg)](https://badge.fury.io/py/pyseto)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyseto)
 [![Documentation Status](https://readthedocs.org/projects/pyseto/badge/?version=latest)](https://pyseto.readthedocs.io/en/latest/?badge=latest)
-![Github CI](https://github.com/dajiaji/pyseto/actions/workflows/python-package.yml/badge.svg)
+![Github CI](https://github.com/dajiaji/pyseto/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/dajiaji/pyseto/branch/main/graph/badge.svg?token=QN8GXEYEP3)](https://codecov.io/gh/dajiaji/pyseto)
 
 
