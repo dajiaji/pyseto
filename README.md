@@ -82,6 +82,19 @@ assert (
 assert (
     decoded.payload
     == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+)import pyseto
+from pyseto import Key
+
+key = Key.new(version=4, purpose="local", key=b"our-secret")
+token = pyseto.encode(
+    key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+)
+
+decoded = pyseto.decode(key, token)
+
+assert (
+    decoded.payload
+    == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 )
 
 # Decode and verify a PASETO token.
@@ -102,7 +115,7 @@ from pyseto import Key
 key = Key.new(version=4, purpose="local", key=b"our-secret")
 token = pyseto.encode(
     key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
-)
+)decoded.payload
 
 decoded = pyseto.decode(key, token)
 
@@ -115,7 +128,50 @@ from pyseto import Key
 private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
 public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
 
+import json
+import pyseto
+from pyseto import Key
 
+private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+token = pyseto.encode(
+    private_key,
+    {"data": "this is a signed message"},
+    footer={"kid": public_key.to_paserk_id()},
+    serializer=json,
+    exp=3600,
+)import json
+import pyseto
+from pyseto import Key, Paseto
+
+private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+paseto = Paseto.new(
+    exp=3600, include_iat=True
+)  # Default values are exp=0(not specified) and including_iat=False
+token = paseto.encode(
+    private_key,
+    {"data": "this is a signed message"},
+    serializer=json,
+)
+
+public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+decoded = pyseto.decode(public_key, token, deserializer=json)
+
+assert decoded.payload["data"] == "this is a signed message"
+assert decoded.payload["iat"] == "2021-11-11T00:00:00+00:00"
+assert decoded.payload["exp"] == "2021-11-11T01:00:00+00:00"
+
+decoded = pyseto.decode(public_key, token, deserializer=json)
+
+assert decoded.payload["data"] == "this is a signed message"
+assert decoded.payload["exp"] == "2021-11-11T00:00:00+00:00"
+assert decoded.footer["kid"] == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
 # Create a PASETO token.
 private_key = Key.new(version=4, purpose="public", key=private_key_pem)
 token = pyseto.encode(private_key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}')
@@ -155,7 +211,34 @@ You can install PySETO with pip:
 
 ```sh
 $ pip install pyseto
-```
+```import pyseto
+from pyseto import Key
+
+# pyseto.Key can be generated from PASERK.
+symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
+private_key = Key.from_paserk(
+    "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
+)
+public_key = Key.from_paserk("k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI")
+
+token = pyseto.encode(
+    private_key,
+    b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+)
+decoded = pyseto.decode(public_key, token)
+
+assert (
+    decoded.payload
+    == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+)
+
+# PASERK can be derived from pyseto.Key.
+assert symmetric_key.to_paserk() == "k4.local.b3VyLXNlY3JldA"
+assert (
+    private_key.to_paserk()
+    == "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
+)
+assert public_key.to_paserk() == "k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI"
 
 ## Supported PASETO Versions
 
@@ -223,7 +306,28 @@ assert (
     decoded.payload
     == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 )
-```
+```import pyseto
+from pyseto import Key
+
+# pyseto.Key can be generated from PASERK.
+symmetric_key = Key.new(version=4, purpose="local", key=b"our-secret")
+private_key = Key.from_paserk(
+    "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
+)
+public_key = Key.from_paserk("k4.public.Hrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI")
+
+# PASERK ID can be derived from pyseto.Key.
+assert (
+    symmetric_key.to_paserk_id()
+    == "k4.lid._D6kgTzxgiPGk35gMj9bukgj4En2H94u22wVX9zaoh05"
+)
+assert (
+    private_key.to_paserk()
+    == "k4.secret.tMv7Q99M4hByfZU-SnEzB_oZu32fhQQUONnhG5QqN3Qeudu7vAR8A_1wYE4AcfCYfhayi3VyJcEfAEFdDiCxog"
+)
+assert (
+    public_key.to_paserk_id() == "k4.pid.yh4-bJYjOYAG6CWy0zsfPmpKylxS7uAWrxqVmBN2KAiJ"
+)
 
 ### Basic usage: v4.local
 
@@ -244,7 +348,7 @@ assert (
     decoded.payload
     == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 )
-```
+```pyseto.Key
 
 ### Using serializer/deserializer for payload and footer
 
