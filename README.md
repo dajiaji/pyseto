@@ -5,7 +5,7 @@
 [![Documentation Status](https://readthedocs.org/projects/pyseto/badge/?version=latest)](https://pyseto.readthedocs.io/en/latest/?badge=latest)
 ![Github CI](https://github.com/dajiaji/pyseto/actions/workflows/python-package.yml/badge.svg)
 [![codecov](https://codecov.io/gh/dajiaji/pyseto/branch/main/graph/badge.svg?token=QN8GXEYEP3)](https://codecov.io/gh/dajiaji/pyseto)
-
+$ pip install pyseto
 
 PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/)/[PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk) implementation written in Python
 which supports all of the versions ([v1](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version1.md),
@@ -19,10 +19,6 @@ You can install PySETO with pip:
 ```sh
 $ pip install pyseto
 ```
-
-PySETO can be used in ease as follows (in case of `v4.public`):
-
-```py
 import pyseto
 from pyseto import Key
 
@@ -49,7 +45,87 @@ assert (
     decoded.payload
     == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 )
-```
+PySETO can be used in ease as follows (in case of `v4.public`):
+
+```py
+import pyseto
+from pyseto import Key
+
+private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+decoded.payload
+# Create a PASETO token.
+private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+token = pyseto.encode(
+    private_key,
+    b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+)import pyseto
+from pyseto import Key
+
+private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+token = pyseto.encode(
+    private_key,
+    b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}',
+)
+
+public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+decoded = pyseto.decode(public_key, token)
+
+assert (
+    token
+    == b"v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg"
+)
+assert (
+    decoded.payload
+    == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+)
+
+# Decode and verify a PASETO token.
+public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+decoded = pyseto.decode(public_key, token)
+
+assert (
+    token
+    == b"v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg"
+)
+assert (
+    decoded.payload
+    == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+)
+```import pyseto
+from pyseto import Key
+
+key = Key.new(version=4, purpose="local", key=b"our-secret")
+token = pyseto.encode(
+    key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+)
+
+decoded = pyseto.decode(key, token)
+
+assert (
+    decoded.payload
+    == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
+)import pyseto
+from pyseto import Key
+
+private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
+public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"
+
+
+# Create a PASETO token.
+private_key = Key.new(version=4, purpose="public", key=private_key_pem)
+token = pyseto.encode(private_key, b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}')
+
+# Decode and verify a PASETO token.
+public_key = Key.new(version=4, purpose="public", key=public_key_pem)
+decoded = pyseto.decode(public_key, token)
+
+assert token == b'v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQgbWVzc2FnZSIsICJleHAiOiAiMjAyMi0wMS0wMVQwMDowMDowMCswMDowMCJ9l1YiKei2FESvHBSGPkn70eFO1hv3tXH0jph1IfZyEfgm3t1DjkYqD5r4aHWZm1eZs_3_bZ9pBQlZGp0DPSdzDg'
+assert decoded.payload == b'{"data": "this is a signed message", "exp": "2022-01-01T00:00:00+00:00"}'
 
 See following contents or [Documentation](https://pyseto.readthedocs.io/en/stable/) for details.
 
