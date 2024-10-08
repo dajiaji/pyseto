@@ -1,12 +1,12 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 24.10.0
     hooks:
       - id: black
         args: [--line-length, "128"]
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.18.0
+    rev: 1.19.0
     hooks:
       - id: blacken-docs
 
@@ -31,7 +31,7 @@ repos:
         additional_dependencies: [types-freezegun]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-json
       - id: check-toml
