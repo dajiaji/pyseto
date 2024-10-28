@@ -48,4 +48,3 @@ freezegun = ">=1.2.2"
 
 [tool.poetry.group.dev.dependencies]
 sphinx-rtd-theme = ">=1.2.1,<4"
-
