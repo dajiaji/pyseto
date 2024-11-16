@@ -4,6 +4,35 @@ Changes
 Unreleased
 ----------
 
+Version 1.8.0
+-------------
+
+Released 2024-11-16
+
+- Add Support Python 3.13. `#430 <https://github.com/dajiaji/pyseto/pull/430>`__
+- Drop Support for Python 3.8. `#426 <https://github.com/dajiaji/pyhpke/pull/426>`__
+- Fix link on README. `#407 <https://github.com/dajiaji/pyhpke/pull/407>`__
+- Rename CI/CD files. `#404 <https://github.com/dajiaji/pyhpke/pull/404>`__
+- Fix error on populating codecov token. `#402 <https://github.com/dajiaji/pyhpke/pull/402>`__
+- Update dependencies.
+    - Bump cryptography to 43.0.3. `#423 <https://github.com/dajiaji/pyseto/pull/423>`__
+    - Bump pycryptodomex to 3.21.0. `#416 <https://github.com/dajiaji/pyseto/pull/416>`__
+- Update dev dependencies.
+    - Bump sphinx-rtd-theme to 3.0.2. `#429 <https://github.com/dajiaji/pyhpke/pull/429>`__
+    - Bump pytest-cov to 6.0.0. `#428 <https://github.com/dajiaji/pyseto/pull/428>`__
+    - Bump blacken-docs to 1.19.1. `#427 <https://github.com/dajiaji/pyseto/pull/427>`__
+    - Bump mirrors-mypy to 1.13.0. `#427 <https://github.com/dajiaji/pyseto/pull/427>`__
+    - Bump idna to 3.10. `#426 <https://github.com/dajiaji/pyseto/pull/426>`__
+    - Bump urllib3 to 2.2.3. `#426 <https://github.com/dajiaji/pyseto/pull/426>`__
+    - Bump certifi to 2024.8.30. `#426 <https://github.com/dajiaji/pyseto/pull/426>`__
+    - Bump requests to 2.32.3. `#426 <https://github.com/dajiaji/pyseto/pull/426>`__
+    - Bump zipp to 3.20.2. `#426 <https://github.com/dajiaji/pyseto/pull/426>`__
+    - Bump tox to 4.23.2. `#425 <https://github.com/dajiaji/pyseto/pull/425>`__
+    - Bump black to 24.4.2. `#419 <https://github.com/dajiaji/pyseto/pull/419>`__
+    - Bump flake8 to 7.1.0. `#419 <https://github.com/dajiaji/pyseto/pull/419>`__
+    - Bump pre-commit-hooks to 5.0.0. `#419 <https://github.com/dajiaji/pyseto/pull/419>`__
+    - Bump pytest to 8.3.3. `#412 <https://github.com/dajiaji/pyhpke/pull/412>`__
+
 Version 1.7.9
 -------------
 
