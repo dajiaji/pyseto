@@ -24,8 +24,8 @@ exclude = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<4.0"
-cryptography = ">=42.0.1,<44"
+python = ">=3.9.2,<4.0"
+cryptography = ">=42.0.1,<45"
 pycryptodomex = ">=3.18.0"
 iso8601 = ">=1.0.2,<3.0.0"
 Sphinx = {version = ">=7.1,<8", optional = true, extras = ["docs"]}
