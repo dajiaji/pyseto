@@ -4,6 +4,14 @@ Changes
 Unreleased
 ----------
 
+Version 1.8.1
+-------------
+
+Released 2024-11-29
+
+- Update dependencies.
+    - Bump cryptography to 44.0.0. `#433 <https://github.com/dajiaji/pyseto/pull/433>`__
+
 Version 1.8.0
 -------------
 
