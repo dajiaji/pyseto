@@ -30,6 +30,7 @@ pycryptodomex = ">=3.18.0"
 iso8601 = ">=1.0.2,<3.0.0"
 Sphinx = {version = ">=7.1,<8", optional = true, extras = ["docs"]}
 sphinx-autodoc-typehints = {version = ">=1.25.2", optional = true, extras = ["docs"]}
+sphinx-rtd-theme = {version = ">=1.2.1,<4", optional = true, extras = ["docs"]}
 argon2-cffi = ">=23.1.0"
 
 [tool.poetry.extras]
@@ -45,6 +46,3 @@ pytest-cov = ">=4.1.0"
 tox = ">=4.11.4"
 pre-commit = ">=3.5.0"
 freezegun = ">=1.2.2"
-
-[tool.poetry.group.dev.dependencies]
-sphinx-rtd-theme = ">=1.2.1,<4"
