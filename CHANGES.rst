@@ -4,6 +4,20 @@ Changes
 Unreleased
 ----------
 
+Version 1.8.2
+-------------
+
+Released 2025-01-11
+
+- Fix readthedoc deploy error. `#440 <https://github.com/dajiaji/pyseto/pull/440>`__
+- Update dev dependencies.
+    - Bump mirrors-mypy to 1.14.1. `#441 <https://github.com/dajiaji/pyseto/pull/441>`__
+    - Bump certifi to 2024.12.14. `#439 <https://github.com/dajiaji/pyseto/pull/439>`__
+    - Bump jinja2 to 3.1.5. `#439 <https://github.com/dajiaji/pyseto/pull/439>`__
+    - Bump urllib3 to 2.3.0. `#439 <https://github.com/dajiaji/pyseto/pull/439>`__
+    - Bump zipp to 3.21.0. `#439 <https://github.com/dajiaji/pyseto/pull/439>`__
+    - Bump pytest to 8.3.4. `#437 <https://github.com/dajiaji/pyseto/pull/437>`__
+
 Version 1.8.1
 -------------
 
