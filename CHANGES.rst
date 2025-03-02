@@ -4,6 +4,22 @@ Changes
 Unreleased
 ----------
 
+Version 1.8.3
+-------------
+
+Released 2025-03-02
+
+- Update dependencies.
+    - Bump cryptography to 44.0.2. `#448 <https://github.com/dajiaji/pyseto/pull/448>`__
+- Update dev dependencies.
+    - Bump certifi to 2025.01.31. `#448 <https://github.com/dajiaji/pyseto/pull/448>`__
+    - Bump flake8 to 7.1.2. `#447 <https://github.com/dajiaji/pyseto/pull/447>`__
+    - Bump black to 25.1.0. `#445 <https://github.com/dajiaji/pyseto/pull/445>`__
+    - Bump isort to 6.0.0. `#445 <https://github.com/dajiaji/pyseto/pull/445>`__
+    - Bump mirrors-mypy to 1.15.0. `#445 <https://github.com/dajiaji/pyseto/pull/445>`__
+    - Bump tox to 4.24.1. `#444 <https://github.com/dajiaji/pyseto/pull/444>`__
+    - Bump pre-commit to 4.1.0. `#443 <https://github.com/dajiaji/pyseto/pull/443>`__
+
 Version 1.8.2
 -------------
 
