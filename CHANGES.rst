@@ -4,6 +4,23 @@ Changes
 Unreleased
 ----------
 
+Version 1.8.4
+-------------
+
+Released 2025-05-20
+
+- Refine pyproject.toml to use poetry group. `#455 <https://github.com/dajiaji/pyseto/pull/455>`__
+- Update dependencies.
+    - Bump pycryptodomex to 3.23.0. `#468 <https://github.com/dajiaji/pyseto/pull/468>`__
+    - Bump cryptography to 45.0.2. `#467 <https://github.com/dajiaji/pyseto/pull/467>`__
+- Update dev dependencies.
+    - Bump tox to 4.26.0. `#465 <https://github.com/dajiaji/pyseto/pull/465>`__
+    - Bump pytest-cov to 6.1.1. `#463 <https://github.com/dajiaji/pyseto/pull/463>`__
+    - Bump flake8 to 7.2.0. `#461 <https://github.com/dajiaji/pyseto/pull/461>`__
+    - Bump pre-commit to 4.2.0. `#458 <https://github.com/dajiaji/pyseto/pull/458>`__
+    - Bump jinja2 to 3.1.6. `#456 <https://github.com/dajiaji/pyseto/pull/456>`__
+    - Bump isort to 6.0.1. `#451 <https://github.com/dajiaji/pyseto/pull/451>`__
+
 Version 1.8.3
 -------------
 
