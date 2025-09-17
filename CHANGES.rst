@@ -4,6 +4,27 @@ Changes
 Unreleased
 ----------
 
+Version 1.8.5
+-------------
+
+Released 2025-09-17
+
+- Update dependencies.
+    - Bump cryptography to 46.0.2. `#506 <https://github.com/dajiaji/pyseto/pull/506>`__
+    - Bump argon2-cffi to 25.1.0. `#473 <https://github.com/dajiaji/pyseto/pull/473>`__
+- Update dev dependencies.
+    - Bump pytest-cov to 7.0.0. `#503 <https://github.com/dajiaji/pyseto/pull/503>`__
+    - Bump blacken-docs to 1.20.0. `#502 <https://github.com/dajiaji/pyseto/pull/502>`__
+    - Bump tox to 4.30.2. `#500 <https://github.com/dajiaji/pyseto/pull/500>`__
+    - Bump pytest to 8.4.2. `#499 <https://github.com/dajiaji/pyseto/pull/499>`__
+    - Bump pre-commit-hooks to 6.0.0. `#494 <https://github.com/dajiaji/pyseto/pull/494>`__
+    - Bump pre-commit to 4.3.0. `#493 <https://github.com/dajiaji/pyseto/pull/493>`__
+    - Bump freezegun to 1.5.5. `#492 <https://github.com/dajiaji/pyseto/pull/492>`__
+    - Bump mirrors-mypy to 1.15.0. `#485 <https://github.com/dajiaji/pyseto/pull/485>`__
+    - Bump urllib3 to 2.5.0. `#480 <https://github.com/dajiaji/pyseto/pull/480>`__
+    - Bump requests to 2.32.4. `#475 <https://github.com/dajiaji/pyseto/pull/475>`__
+    - Bump zipp to 3.22.0. `#474 <https://github.com/dajiaji/pyseto/pull/474>`__
+
 Version 1.8.4
 -------------
 
