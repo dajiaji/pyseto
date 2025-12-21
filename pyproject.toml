@@ -24,7 +24,7 @@ exclude = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9.2,<4.0"
+python = ">=3.10,<4.0"
 cryptography = ">=42.0.1,<47"
 pycryptodomex = ">=3.18.0"
 iso8601 = ">=1.0.2,<3.0.0"
