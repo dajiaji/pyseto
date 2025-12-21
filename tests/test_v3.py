@@ -207,8 +207,8 @@ class TestV3Public:
         with pytest.raises((ValueError, SignError)) as err:
             k = Key.from_paserk(
                 "k3.secret-pw.mXsR2qVqmcDxmSWeQCnCwNeIxe5RDQ3ehnQvdXFj-YgAAAPoFI8eRXCL8PFpVW_CWOvGHnvMPy0BkMlKF1AtmBYGKold9i-ALC2oflkemYdbncrHbiKGd8zfjTQu2tTo2ayOMHybk_-hhopwJ2IUallYfLfUzPuqvtOQfVxXLtUBPnmR75dhRiPDgzdIO1OMbqa3Z1LDevvzbrcPyhHqmJSZioeJ7j1Mu8DJOvrIK0pWHmjDq_eg4YFnaOgz7I3Tkxx89A",
-                password="correct horse battery staple".encode("utf-8").hex(),
+                password=b"correct horse battery staple".hex(),
             )
             pyseto.encode(k, b"Hello world!")
             pytest.fail("pyseto.sign() should fail.")
-        assert "Failed to sign" or "Invalid EC Key" in str(err.value)
+        assert "Failed to sign" in str(err.value) or "Invalid EC Key" in str(err.value)

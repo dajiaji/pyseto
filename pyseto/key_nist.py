@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Any, Union
+from typing import Any
 
 from cryptography.hazmat.primitives import hashes
 
@@ -35,7 +35,7 @@ class NISTKey(KeyInterface):
         paserk: str,
         wrapping_key: bytes = b"",
         password: bytes = b"",
-        unsealing_key: bytes = b"",
+        _unsealing_key: bytes = b"",
     ) -> KeyInterface:
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
@@ -85,13 +85,13 @@ class NISTKey(KeyInterface):
 
     def to_paserk(
         self,
-        wrapping_key: Union[bytes, str] = b"",
-        password: Union[bytes, str] = b"",
-        sealing_key: Union[bytes, str] = b"",
+        wrapping_key: bytes | str = b"",
+        password: bytes | str = b"",
+        _sealing_key: bytes | str = b"",
         iteration: int = 100000,
-        memory_cost: int = 15 * 1024,
-        time_cost: int = 2,
-        parallelism: int = 1,
+        _memory_cost: int = 15 * 1024,
+        _time_cost: int = 2,
+        _parallelism: int = 1,
     ) -> str:
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")

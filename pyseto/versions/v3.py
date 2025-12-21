@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Any, Union
+from typing import Any
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -36,7 +36,7 @@ class V3Local(NISTKey):
     _VERSION = 3
     _TYPE = "local"
 
-    def __init__(self, key: Union[str, bytes]):
+    def __init__(self, key: str | bytes):
         super().__init__(key)
         return
 
@@ -152,7 +152,7 @@ class V3Public(NISTKey):
         paserk: str,
         wrapping_key: bytes = b"",
         password: bytes = b"",
-        unsealing_key: bytes = b"",
+        _unsealing_key: bytes = b"",
     ) -> KeyInterface:
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
@@ -171,7 +171,10 @@ class V3Public(NISTKey):
             if frags[1] == "secret-wrap":
                 h = "k3.secret-wrap.pie."
                 k = cls._decode_pie(h, wrapping_key, frags[3])
-                priv = ec.derive_private_key(int.from_bytes(k, byteorder="big"), ec.SECP384R1())
+                try:
+                    priv = ec.derive_private_key(int.from_bytes(k, byteorder="big"), ec.SECP384R1())
+                except Exception as err:
+                    raise ValueError("Invalid EC Key") from err
                 return cls(priv)
             raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
@@ -183,7 +186,10 @@ class V3Public(NISTKey):
             if frags[1] == "secret-pw":
                 h = "k3.secret-pw."
                 k = cls._decode_pbkw(h, password, frags[2])
-                priv = ec.derive_private_key(int.from_bytes(k, byteorder="big"), ec.SECP384R1())
+                try:
+                    priv = ec.derive_private_key(int.from_bytes(k, byteorder="big"), ec.SECP384R1())
+                except Exception as err:
+                    raise ValueError("Invalid EC Key") from err
                 return cls(priv)
             raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
@@ -195,7 +201,10 @@ class V3Public(NISTKey):
 
         # secret
         if frags[1] == "secret":
-            priv = ec.derive_private_key(int.from_bytes(k, byteorder="big"), ec.SECP384R1())
+            try:
+                priv = ec.derive_private_key(int.from_bytes(k, byteorder="big"), ec.SECP384R1())
+            except Exception as err:
+                raise ValueError("Invalid EC Key") from err
             return cls(priv)
         if frags[1] == "secret-wrap":
             raise ValueError(f"{frags[1]} needs wrapping_key.")
@@ -203,13 +212,13 @@ class V3Public(NISTKey):
 
     def to_paserk(
         self,
-        wrapping_key: Union[bytes, str] = b"",
-        password: Union[bytes, str] = b"",
-        sealing_key: Union[bytes, str] = b"",
+        wrapping_key: bytes | str = b"",
+        password: bytes | str = b"",
+        _sealing_key: bytes | str = b"",
         iteration: int = 100000,
-        memory_cost: int = 15 * 1024,
-        time_cost: int = 2,
-        parallelism: int = 1,
+        _memory_cost: int = 15 * 1024,
+        _time_cost: int = 2,
+        _parallelism: int = 1,
     ) -> str:
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
@@ -268,10 +277,13 @@ class V3Public(NISTKey):
     def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
         if isinstance(self._key, EllipticCurvePublicKey):
             raise ValueError("A public key cannot be used for signing.")
-        pk = ec_public_key_compress(
-            self._key.private_numbers().public_numbers.x,
-            self._key.private_numbers().public_numbers.y,
-        )
+        try:
+            pk = ec_public_key_compress(
+                self._key.private_numbers().public_numbers.x,
+                self._key.private_numbers().public_numbers.y,
+            )
+        except Exception as err:
+            raise ValueError("Invalid EC Key") from err
         m2 = pae([pk, self.header, payload, footer, implicit_assertion])
         try:
             sig = self._key.sign(m2, ec.ECDSA(hashes.SHA384()))

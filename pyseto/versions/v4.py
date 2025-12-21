@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Any, Union
+from typing import Any
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
@@ -22,7 +22,7 @@ class V4Local(SodiumKey):
     _VERSION = 4
     _TYPE = "local"
 
-    def __init__(self, key: Union[str, bytes]):
+    def __init__(self, key: str | bytes):
         super().__init__(key)
         if len(self._key) > 64:
             raise ValueError("key length must be up to 64 bytes.")

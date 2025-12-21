@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict
+from typing import Any
 
 from pyseto.utils import base64url_decode
 
@@ -15,7 +15,7 @@ def load_key(name: str) -> str:
     return k
 
 
-def load_jwk(name: str) -> Dict[str, Any]:
+def load_jwk(name: str) -> dict[str, Any]:
     with open(get_path(name)) as key_file:
         jwk = json.loads(key_file.read())
     res = {}

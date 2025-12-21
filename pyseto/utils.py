@@ -1,5 +1,4 @@
 import base64
-from typing import List
 
 
 def i2osp(x: int, x_len: int) -> bytes:
@@ -14,7 +13,7 @@ def i2osp(x: int, x_len: int) -> bytes:
         x //= 256
     for _ in range(x_len - len(digits)):
         digits.append(0)
-    return bytes.fromhex("".join("%.2x" % x for x in digits[::-1]))
+    return bytes.fromhex("".join(f"{x:02x}" for x in digits[::-1]))
 
 
 def os2ip(octet_string: bytes) -> int:
@@ -51,7 +50,7 @@ def _le64(n: int) -> bytes:
     return bytes(s)
 
 
-def pae(pieces: List[bytes]) -> bytes:
+def pae(pieces: list[bytes]) -> bytes:
     output = _le64(len(pieces))
     for i in range(len(pieces)):
         output += _le64(len(pieces[i]))

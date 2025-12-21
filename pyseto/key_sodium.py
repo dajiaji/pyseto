@@ -1,6 +1,6 @@
 import hashlib
 from secrets import token_bytes
-from typing import Any, Union
+from typing import Any
 
 from argon2 import PasswordHasher
 from Cryptodome.Cipher import ChaCha20
@@ -124,10 +124,10 @@ class SodiumKey(KeyInterface):
 
     def to_paserk(
         self,
-        wrapping_key: Union[bytes, str] = b"",
-        password: Union[bytes, str] = b"",
-        sealing_key: Union[bytes, str] = b"",
-        iteration: int = 100000,
+        wrapping_key: bytes | str = b"",
+        password: bytes | str = b"",
+        sealing_key: bytes | str = b"",
+        _iteration: int = 100000,
         memory_cost: int = 15 * 1024,
         time_cost: int = 2,
         parallelism: int = 1,

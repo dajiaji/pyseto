@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta, timezone
-from typing import Any, List, Optional, Union
+from typing import Any
 
 import iso8601
 
@@ -10,7 +10,7 @@ from .token import Token
 from .utils import base64url_encode
 
 
-class Paseto(object):
+class Paseto:
     """
     A PASETO processor which can be used as a PASETO encoder/decoder.
     """
@@ -57,9 +57,9 @@ class Paseto(object):
     def encode(
         self,
         key: KeyInterface,
-        payload: Union[bytes, str, dict],
-        footer: Union[bytes, str, dict] = b"",
-        implicit_assertion: Union[bytes, str] = b"",
+        payload: bytes | str | dict,
+        footer: bytes | str | dict = b"",
+        implicit_assertion: bytes | str = b"",
         nonce: bytes = b"",
         serializer: Any = json,
         exp: int = 0,
@@ -96,7 +96,7 @@ class Paseto(object):
         if not isinstance(payload, (bytes, str, dict)):
             raise ValueError("payload should be bytes, str or dict.")
 
-        res: Union[bytes, str]
+        res: bytes | str
         bp: bytes
         if isinstance(payload, dict):
             if not serializer:
@@ -104,10 +104,8 @@ class Paseto(object):
             try:
                 if not callable(serializer.dumps):
                     raise ValueError("serializer should have dumps().")
-            except AttributeError:
-                raise ValueError("serializer should have dumps().")
-            except Exception:
-                raise
+            except AttributeError as err:
+                raise ValueError("serializer should have dumps().") from err
             try:
                 payload = self._set_registered_claims(payload, exp)
                 res = serializer.dumps(payload)
@@ -124,10 +122,8 @@ class Paseto(object):
             try:
                 if not callable(serializer.dumps):
                     raise ValueError("serializer should have dumps().")
-            except AttributeError:
-                raise ValueError("serializer should have dumps().")
-            except Exception:
-                raise
+            except AttributeError as err:
+                raise ValueError("serializer should have dumps().") from err
             try:
                 res = serializer.dumps(footer)
                 bf = res if isinstance(res, bytes) else res.encode("utf-8")
@@ -149,10 +145,10 @@ class Paseto(object):
 
     def decode(
         self,
-        keys: Union[KeyInterface, List[KeyInterface]],
-        token: Union[bytes, str],
-        implicit_assertion: Union[bytes, str] = b"",
-        deserializer: Optional[Any] = None,
+        keys: KeyInterface | list[KeyInterface],
+        token: bytes | str,
+        implicit_assertion: bytes | str = b"",
+        deserializer: Any | None = None,
         aud: str = "",
     ) -> Token:
         """
@@ -183,10 +179,8 @@ class Paseto(object):
             try:
                 if not callable(deserializer.loads):
                     raise ValueError("deserializer should have loads().")
-            except AttributeError:
-                raise ValueError("deserializer should have loads().")
-            except Exception:
-                raise
+            except AttributeError as err:
+                raise ValueError("deserializer should have loads().") from err
 
         keys = keys if isinstance(keys, list) else [keys]
         bi = implicit_assertion if isinstance(implicit_assertion, bytes) else implicit_assertion.encode("utf-8")
@@ -252,7 +246,6 @@ class Paseto(object):
                 raise VerifyError("Invalid nbf.") from err
             if now < nbf - timedelta(seconds=self._leeway):
                 raise VerifyError("Token has not been activated yet.")
-        if aud:
-            if "aud" not in claims or aud != claims["aud"]:
-                raise VerifyError("aud verification failed.")
+        if aud and ("aud" not in claims or aud != claims["aud"]):
+            raise VerifyError("aud verification failed.")
         return

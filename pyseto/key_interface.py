@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 
 from .exceptions import NotSupportedError
 
@@ -70,9 +70,9 @@ class KeyInterface:
 
     def to_paserk(
         self,
-        wrapping_key: Union[bytes, str] = b"",
-        password: Union[bytes, str] = b"",
-        sealing_key: Union[bytes, str] = b"",
+        wrapping_key: bytes | str = b"",
+        password: bytes | str = b"",
+        sealing_key: bytes | str = b"",
         iteration: int = 100000,
         memory_cost: int = 15 * 1024,
         time_cost: int = 2,
@@ -129,10 +129,10 @@ class KeyInterface:
 
     def encrypt(
         self,
-        payload: bytes,
-        footer: bytes = b"",
-        implicit_assertion: bytes = b"",
-        nonce: bytes = b"",
+        _payload: bytes,
+        _footer: bytes = b"",
+        _implicit_assertion: bytes = b"",
+        _nonce: bytes = b"",
     ) -> bytes:
         """
         Encrypts a message to a PASETO token with the key.
@@ -156,7 +156,7 @@ class KeyInterface:
         """
         raise NotSupportedError("A key for public does not have encrypt().")
 
-    def decrypt(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
+    def decrypt(self, _payload: bytes, _footer: bytes = b"", _implicit_assertion: bytes = b"") -> bytes:
         """
         Decrypts an encrypted PASETO token with the key.
 
@@ -178,7 +178,7 @@ class KeyInterface:
         """
         raise NotSupportedError("A key for public does not have decrypt().")
 
-    def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
+    def sign(self, _payload: bytes, _footer: bytes = b"", _implicit_assertion: bytes = b"") -> bytes:
         """
         Signs a message with the key and makes a PASETO token.
 
@@ -201,7 +201,7 @@ class KeyInterface:
         """
         raise NotSupportedError("A key for local does not have sign().")
 
-    def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
+    def verify(self, _payload: bytes, _footer: bytes = b"", _implicit_assertion: bytes = b"") -> bytes:
         """
         Verifies and decodes a signed PASETO token with the key.
 
