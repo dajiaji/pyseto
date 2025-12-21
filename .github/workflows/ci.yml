@@ -80,3 +80,58 @@ jobs:
       run: uv run python -c "import pyseto; print(pyseto.__version__)"
     - name: Publish (dry-run)
       run: uv publish --dry-run
+
+  trivy:
+    name: Trivy Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Run Trivy vulnerability scanner in fs mode (SARIF)
+      uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+        scanners: 'vuln,secret,license'
+        exit-code: '0'
+    - name: Generate Trivy SBOM (CycloneDX)
+      uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'cyclonedx'
+        output: 'trivy-sbom.cdx.json'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+        scanners: 'vuln,secret,license'
+        exit-code: '0'
+    - name: Generate Trivy SBOM (SPDX)
+      uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'spdx-json'
+        output: 'trivy-sbom.spdx.json'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+        scanners: 'vuln,secret,license'
+        exit-code: '0'
+    - name: Upload Trivy results to GitHub Security
+      uses: github/codeql-action/upload-sarif@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # v4.31.9
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+    - name: Upload Trivy SBOM artifacts
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      if: always()
+      with:
+        name: trivy-sbom
+        path: |
+          trivy-sbom.cdx.json
+          trivy-sbom.spdx.json
