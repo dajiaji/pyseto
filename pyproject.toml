@@ -1,49 +1,96 @@
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.9.7,<1"]
+build-backend = "uv_build"
 
-[tool.poetry]
+[project]
 name = "pyseto"
 version = "1.8.5"
 description = "A Python implementation of PASETO/PASERK."
-authors = ["Ajitomi Daisuke <dajiaji@gmail.com>"]
-license = "MIT"
 readme = "README.md"
-repository = "https://github.com/dajiaji/pyseto"
-
-include = [
-  "CHANGES.rst",
-  "docs",
-  "poetry.lock",
-  "tests",
-  "tox.ini",
+requires-python = ">=3.10,<4.0"
+authors = [{ name = "Ajitomi Daisuke", email = "dajiaji@gmail.com" }]
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+dependencies = [
+    "argon2-cffi>=23.1.0",
+    "cryptography>=42.0.1,<47",
+    "iso8601>=1.0.2,<3.0.0",
+    "pycryptodomex>=3.18.0",
 ]
 
-exclude = [
-  "docs/_build",
+[project.urls]
+Repository = "https://github.com/dajiaji/pyseto"
+
+[tool.uv.build-backend]
+module-name = "pyseto"
+module-root = ""
+source-include = [
+    "tests/**",
+    "docs/**",
+]
+source-exclude = [
+    "docs/_build/**",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-cryptography = ">=42.0.1,<47"
-pycryptodomex = ">=3.18.0"
-iso8601 = ">=1.0.2,<3.0.0"
-argon2-cffi = ">=23.1.0"
+[dependency-groups]
+dev = [
+    "freezegun>=1.5.5",
+    "pre-commit>=4.5.1",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+]
+docs = [
+    "docutils>=0.21.2",
+    "sphinx>=7.4.7,<9.0.0",
+    "sphinx-autodoc-typehints>=3.0.1",
+    "sphinx-rtd-theme>=3.0.2",
+]
 
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.5"
-pytest-cov = ">=6,<8"
-tox = "^4.24.2"
-pre-commit = "^4.1.0"
-freezegun = "^1.5.1"
-
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-sphinx = ">=7.1,<8.0.0"
-sphinx-rtd-theme = "^3.0.2"
-sphinx-autodoc-typehints = ">=2.3.0,<3.0.0"
+# include = [
+#   "CHANGES.rst",
+#   "docs",
+#   "poetry.lock",
+#   "tests",
+#   "tox.ini",
+# ]
+# 
+# exclude = [
+#   "docs/_build",
+# ]
+# 
+# [tool.poetry.dependencies]
+# python = ">=3.10,<4.0"
+# cryptography = ">=42.0.1,<47"
+# pycryptodomex = ">=3.18.0"
+# iso8601 = ">=1.0.2,<3.0.0"
+# argon2-cffi = ">=23.1.0"
+# 
+# [tool.poetry.group.dev]
+# optional = true
+# 
+# [tool.poetry.group.dev.dependencies]
+# pytest = "^8.3.5"
+# pytest-cov = ">=6,<8"
+# tox = "^4.24.2"
+# pre-commit = "^4.1.0"
+# freezegun = "^1.5.1"
+# 
+# [tool.poetry.group.docs]
+# optional = true
+# 
+# [tool.poetry.group.docs.dependencies]
+# sphinx = ">=7.1,<8.0.0"
+# sphinx-rtd-theme = "^3.0.2"
+# sphinx-autodoc-typehints = ">=2.3.0,<3.0.0"
