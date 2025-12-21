@@ -1,6 +1,6 @@
 import hashlib
 from secrets import token_bytes
-from typing import Any, Union
+from typing import Any
 
 # from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from Cryptodome.Cipher import ChaCha20_Poly1305
@@ -23,7 +23,7 @@ class V2Local(SodiumKey):
     _VERSION = 2
     _TYPE = "local"
 
-    def __init__(self, key: Union[str, bytes]):
+    def __init__(self, key: str | bytes):
         super().__init__(key)
         if len(self._key) != 32:
             raise ValueError("key must be 32 bytes long.")
@@ -41,7 +41,7 @@ class V2Local(SodiumKey):
         self,
         payload: bytes,
         footer: bytes = b"",
-        implicit_assertion: bytes = b"",
+        _implicit_assertion: bytes = b"",
         nonce: bytes = b"",
     ) -> bytes:
         n = self._generate_nonce(nonce, payload)
@@ -58,7 +58,7 @@ class V2Local(SodiumKey):
         except Exception as err:
             raise EncryptError("Failed to encrypt.") from err
 
-    def decrypt(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
+    def decrypt(self, payload: bytes, footer: bytes = b"", _implicit_assertion: bytes = b"") -> bytes:
         n = payload[0:24]
         c = payload[24 : len(payload) - 16]
         tag = payload[-16:]
@@ -139,7 +139,7 @@ class V2Public(SodiumKey):
     #         raise ValueError("Invalid bytes for the key.") from err
     #     return cls(k)
 
-    def sign(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
+    def sign(self, payload: bytes, footer: bytes = b"", _implicit_assertion: bytes = b"") -> bytes:
         if isinstance(self._key, Ed25519PublicKey):
             raise ValueError("A public key cannot be used for signing.")
         m2 = pae([self.header, payload, footer])
@@ -148,7 +148,7 @@ class V2Public(SodiumKey):
         except Exception as err:
             raise SignError("Failed to sign.") from err
 
-    def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""):
+    def verify(self, payload: bytes, footer: bytes = b"", _implicit_assertion: bytes = b""):
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 

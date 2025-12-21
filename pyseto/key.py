@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
@@ -34,7 +34,7 @@ class Key:
     ]
 
     @classmethod
-    def new(cls, version: int, purpose: str, key: Union[bytes, str] = b"") -> KeyInterface:
+    def new(cls, version: int, purpose: str, key: bytes | str = b"") -> KeyInterface:
         """
         Constructor of a PASETO key object which has
         :class:`KeyInterface <pyseto.key_interface.KeyInterface>`.
@@ -56,9 +56,7 @@ class Key:
 
         elif purpose == "public":
             k: Any = None
-            if bkey.startswith(b"-----BEGIN EC PRIVATE"):
-                k = load_pem_private_key(bkey, password=None)
-            elif bkey.startswith(b"-----BEGIN PRIVATE"):
+            if bkey.startswith(b"-----BEGIN EC PRIVATE") or bkey.startswith(b"-----BEGIN PRIVATE"):
                 k = load_pem_private_key(bkey, password=None)
             elif bkey.startswith(b"-----BEGIN PUBLIC"):
                 k = load_pem_public_key(bkey)
@@ -74,9 +72,9 @@ class Key:
     def from_paserk(
         cls,
         paserk: str,
-        wrapping_key: Union[bytes, str] = b"",
-        password: Union[bytes, str] = b"",
-        unsealing_key: Union[bytes, str] = b"",
+        wrapping_key: bytes | str = b"",
+        password: bytes | str = b"",
+        unsealing_key: bytes | str = b"",
     ) -> KeyInterface:
         """
         Generates a PASETO key object which has

@@ -50,6 +50,7 @@ dev = [
     "pre-commit>=4.5.1",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
+    "ruff>=0.14.10",
 ]
 docs = [
     "docutils>=0.21.2",
@@ -57,6 +58,40 @@ docs = [
     "sphinx-autodoc-typehints>=3.0.1",
     "sphinx-rtd-theme>=3.0.2",
 ]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 128  # Match black configuration used by pre-commit hooks.
+
+[tool.ruff.format]
+line-ending = "auto"
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+docstring-code-format = true  # Mirrors blacken-docs formatting of fenced blocks.
+docstring-code-line-length = 128
+
+[tool.ruff.lint]
+# Match the flake8 + flake8-bugbear setup from .pre-commit-config.yaml by enabling
+# E/F/W plus B codes, and extend with Ruff's built-in equivalents for the
+# plugins we already run (flake8-comprehensions, pyupgrade, flake8-unused-arguments,
+# flake8-simplify, isort, debug-statements) per docs.astral.sh/ruff/rules/.
+select = [
+    "B",
+    "E",
+    "F",
+    "W",
+    "I",
+    "T10",
+    "C4",
+    "UP",
+    "ARG",
+    "SIM",
+]
+ignore = ["E203", "E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pyseto", "tests"]
 
 # include = [
 #   "CHANGES.rst",

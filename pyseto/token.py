@@ -1,9 +1,7 @@
-from typing import Union
-
 from .utils import base64url_decode
 
 
-class Token(object):
+class Token:
     """
     The parsed token object which is a return value of :func:`pyseto.decode <pyseto.decode>`.
     """
@@ -12,8 +10,8 @@ class Token(object):
         self,
         version: str,
         purpose: str,
-        payload: Union[bytes, dict],
-        footer: Union[bytes, dict] = b"",
+        payload: bytes | dict,
+        footer: bytes | dict = b"",
     ):
         self._version = version
         self._purpose = purpose
@@ -22,7 +20,7 @@ class Token(object):
         self._header = (version + "." + purpose + ".").encode("utf-8")
 
     @classmethod
-    def new(cls, token: Union[bytes, str]):
+    def new(cls, token: bytes | str):
         token = token if isinstance(token, str) else token.decode("utf-8")
         t = token.split(".")
         if len(t) != 3 and len(t) != 4:
@@ -56,14 +54,14 @@ class Token(object):
         return self._header
 
     @property
-    def payload(self) -> Union[bytes, dict]:
+    def payload(self) -> bytes | dict:
         """
         The payload of the token which is a decoded binary string. It's not Base64 encoded data.
         """
         return self._payload
 
     @payload.setter
-    def payload(self, payload: Union[bytes, dict]):
+    def payload(self, payload: bytes | dict):
         """
         A setter of the payload.
         """
@@ -71,14 +69,14 @@ class Token(object):
         return
 
     @property
-    def footer(self) -> Union[bytes, dict]:
+    def footer(self) -> bytes | dict:
         """
         The footer of the token which is a decoded binary string. It's not Base64 encoded data.
         """
         return self._footer
 
     @footer.setter
-    def footer(self, footer: Union[bytes, dict]):
+    def footer(self, footer: bytes | dict):
         """
         A setter of the footer.
         """

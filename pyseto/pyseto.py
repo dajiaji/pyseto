@@ -1,5 +1,5 @@
 import json
-from typing import Any, List, Optional, Union
+from typing import Any
 
 from .key_interface import KeyInterface
 from .paseto import Paseto
@@ -11,9 +11,9 @@ _paseto = Paseto()
 
 def encode(
     key: KeyInterface,
-    payload: Union[bytes, str, dict],
-    footer: Union[bytes, str] = b"",
-    implicit_assertion: Union[bytes, str] = b"",
+    payload: bytes | str | dict,
+    footer: bytes | str = b"",
+    implicit_assertion: bytes | str = b"",
     nonce: bytes = b"",
     serializer: Any = json,
     exp: int = 0,
@@ -49,10 +49,10 @@ def encode(
 
 
 def decode(
-    keys: Union[KeyInterface, List[KeyInterface]],
-    token: Union[bytes, str],
-    implicit_assertion: Union[bytes, str] = b"",
-    deserializer: Optional[Any] = None,
+    keys: KeyInterface | list[KeyInterface],
+    token: bytes | str,
+    implicit_assertion: bytes | str = b"",
+    deserializer: Any | None = None,
     aud: str = "",
 ) -> Token:
     """
