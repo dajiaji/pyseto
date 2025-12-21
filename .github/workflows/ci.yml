@@ -81,6 +81,20 @@ jobs:
     - name: Publish (dry-run)
       run: uv publish --dry-run
 
+  actionlint:
+    name: Lint GitHub Actions workflow files
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - name: Check workflow files
+        run: |
+          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color
+        shell: bash
+
   trivy:
     name: Trivy Security Scan
     runs-on: ubuntu-latest
