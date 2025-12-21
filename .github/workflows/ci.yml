@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions: {}
+
 jobs:
   test:
     name: Python ${{ matrix.python-version }} on ${{ matrix.platform }}
@@ -50,24 +52,31 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-
+    permissions:
+      id-token: write
+      contents: read
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v4
+    - name: Checkout repository
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
-        python-version: "3.12"
-
-    - name: Install poetry
-      run: python -m pip install poetry
-
-    - name: Build package
-      run: poetry build
-
+        persist-credentials: false
+    - name: Install uv
+      uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+      with:
+        python-version: "3.13"
+    - name: Build the project
+      run: uv build
     - name: Show result
       run: ls -l dist
-
+    # - name: Smoke test (wheel)
+    #   run: uv run --isolated --no-project --with dist/*.whl tests/test_sample.py
+    # - name: Smoke test (sdist)
+    #   run: uv run --isolated --no-project --with dist/*.tar.gz tests/test_sample.py
+    - name: Create virtual environment
+      run: uv venv
     - name: Install package
-      run: python -m pip install .
-
+      run: uv pip install .
     - name: Import package
-      run: python -c "import pyseto; print(pyseto.__version__)"
+      run: uv run python -c "import pyseto; print(pyseto.__version__)"
+    - name: Publish (dry-run)
+      run: uv publish --dry-run
