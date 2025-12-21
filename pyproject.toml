@@ -65,31 +65,31 @@ docs = [
 #   "tests",
 #   "tox.ini",
 # ]
-# 
+#
 # exclude = [
 #   "docs/_build",
 # ]
-# 
+#
 # [tool.poetry.dependencies]
 # python = ">=3.10,<4.0"
 # cryptography = ">=42.0.1,<47"
 # pycryptodomex = ">=3.18.0"
 # iso8601 = ">=1.0.2,<3.0.0"
 # argon2-cffi = ">=23.1.0"
-# 
+#
 # [tool.poetry.group.dev]
 # optional = true
-# 
+#
 # [tool.poetry.group.dev.dependencies]
 # pytest = "^8.3.5"
 # pytest-cov = ">=6,<8"
 # tox = "^4.24.2"
 # pre-commit = "^4.1.0"
 # freezegun = "^1.5.1"
-# 
+#
 # [tool.poetry.group.docs]
 # optional = true
-# 
+#
 # [tool.poetry.group.docs.dependencies]
 # sphinx = ">=7.1,<8.0.0"
 # sphinx-rtd-theme = "^3.0.2"
