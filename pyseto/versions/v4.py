@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Any
+from typing import Any, cast
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
@@ -134,7 +134,7 @@ class V4Public(SodiumKey):
 
         m2 = pae([self.header, payload, footer, implicit_assertion])
         try:
-            return self._key.sign(m2)
+            return cast(bytes, self._key.sign(m2))
         except Exception as err:
             raise SignError("Failed to sign.") from err
 

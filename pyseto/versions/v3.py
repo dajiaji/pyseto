@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Any
+from typing import Any, cast
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -318,4 +318,4 @@ class V3Public(NISTKey):
             raise ValueError("Invalid signature.")
         r = os2ip(sig[:num_bytes])
         s = os2ip(sig[num_bytes:])
-        return encode_dss_signature(r, s)
+        return cast(bytes, encode_dss_signature(r, s))

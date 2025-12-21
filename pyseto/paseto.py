@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, cast
 
 import iso8601
 
@@ -192,9 +192,9 @@ class Paseto:
                 continue
             try:
                 if k.purpose == "local":
-                    t.payload = k.decrypt(t.payload, t.footer, bi)
+                    t.payload = k.decrypt(cast(bytes, t.payload), cast(bytes, t.footer), bi)
                 else:
-                    t.payload = k.verify(t.payload, t.footer, bi)
+                    t.payload = k.verify(cast(bytes, t.payload), cast(bytes, t.footer), bi)
                 try:
                     if deserializer:
                         t.payload = deserializer.loads(t.payload)
@@ -206,7 +206,7 @@ class Paseto:
                             t.footer = deserializer.loads(t.footer)
                     except Exception:
                         pass
-                    self._verify_registered_claims(t.payload, aud)
+                    self._verify_registered_claims(cast(dict, t.payload), aud)
                 return t
             except Exception as err:
                 failed = err

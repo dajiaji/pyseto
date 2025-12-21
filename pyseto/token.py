@@ -20,7 +20,7 @@ class Token:
         self._header = (version + "." + purpose + ".").encode("utf-8")
 
     @classmethod
-    def new(cls, token: bytes | str):
+    def new(cls, token: bytes | str) -> "Token":
         token = token if isinstance(token, str) else token.decode("utf-8")
         t = token.split(".")
         if len(t) != 3 and len(t) != 4:
