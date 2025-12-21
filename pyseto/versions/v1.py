@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Any
+from typing import Any, cast
 
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -254,7 +254,7 @@ class V1Public(NISTKey):
             raise ValueError("A public key cannot be used for signing.")
         m2 = pae([self.header, payload, footer])
         try:
-            return self._key.sign(m2, self._padding, hashes.SHA384())
+            return cast(bytes, self._key.sign(m2, self._padding, hashes.SHA384()))
         except Exception as err:
             raise SignError("Failed to sign.") from err
 

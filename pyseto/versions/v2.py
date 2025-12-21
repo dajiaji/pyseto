@@ -1,6 +1,6 @@
 import hashlib
 from secrets import token_bytes
-from typing import Any
+from typing import Any, cast
 
 # from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from Cryptodome.Cipher import ChaCha20_Poly1305
@@ -67,7 +67,7 @@ class V2Local(SodiumKey):
         try:
             cipher = ChaCha20_Poly1305.new(key=self._key, nonce=n)
             cipher.update(pre_auth)
-            return cipher.decrypt_and_verify(c, tag)
+            return cast(bytes, cipher.decrypt_and_verify(c, tag))
         except Exception as err:
             raise DecryptError("Failed to decrypt.") from err
 
@@ -144,7 +144,7 @@ class V2Public(SodiumKey):
             raise ValueError("A public key cannot be used for signing.")
         m2 = pae([self.header, payload, footer])
         try:
-            return self._key.sign(m2)
+            return cast(bytes, self._key.sign(m2))
         except Exception as err:
             raise SignError("Failed to sign.") from err
 

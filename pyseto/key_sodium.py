@@ -1,6 +1,6 @@
 import hashlib
 from secrets import token_bytes
-from typing import Any
+from typing import Any, cast
 
 from argon2 import PasswordHasher
 from Cryptodome.Cipher import ChaCha20
@@ -378,7 +378,7 @@ class SodiumKey(KeyInterface):
     def _encrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
         try:
             cipher = ChaCha20.new(key=key, nonce=nonce)
-            return cipher.encrypt(msg)
+            return cast(bytes, cipher.encrypt(msg))
         except Exception as err:
             raise EncryptError("Failed to encrypt.") from err
 
@@ -386,6 +386,6 @@ class SodiumKey(KeyInterface):
     def _decrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
         try:
             cipher = ChaCha20.new(key=key, nonce=nonce)
-            return cipher.decrypt(msg)
+            return cast(bytes, cipher.decrypt(msg))
         except Exception as err:
             raise DecryptError("Failed to decrypt.") from err

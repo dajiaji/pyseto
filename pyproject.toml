@@ -93,6 +93,21 @@ ignore = ["E203", "E501"]
 [tool.ruff.lint.isort]
 known-first-party = ["pyseto", "tests"]
 
+[tool.mypy]
+ignore_missing_imports = true
+pretty = true
+warn_unused_ignores = true
+check_untyped_defs = true
+warn_return_any = true
+no_implicit_optional = true
+strict_equality = true
+python_version = "3.10"
+exclude = "^(tests|examples|dist)/"
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+ignore_errors = true
+
 # include = [
 #   "CHANGES.rst",
 #   "docs",
