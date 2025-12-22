@@ -1,4 +1,5 @@
 import json
+import warnings
 from datetime import datetime, timedelta, timezone
 from typing import Any, cast
 
@@ -204,8 +205,13 @@ class Paseto:
                     try:
                         if t.footer:
                             t.footer = deserializer.loads(t.footer)
-                    except Exception:
-                        pass
+                    except Exception as err:
+                        # Footer deserialization is optional; continue if it fails
+                        warnings.warn(
+                            f"Failed to deserialize footer: {err}",
+                            UserWarning,
+                            stacklevel=2,
+                        )
                     self._verify_registered_claims(cast(dict, t.payload), aud)
                 return t
             except Exception as err:

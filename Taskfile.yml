@@ -30,16 +30,16 @@ tasks:
     cmds:
       - uv sync --frozen --all-groups
 
+  uv:run:
+    desc: "Run command via uv with locked, time-delayed dependencies (e.g., task uv:run -- python app.py)"
+    cmds:
+      - uv run --no-sync {{.CLI_ARGS}}
+
   uv:dev:
     desc: "Set up development environment"
     cmds:
       - task: uv:sync
       - uv run pre-commit install
-
-  uv:run:
-    desc: "Run command via uv with locked, time-delayed dependencies (e.g., task uv:run -- python app.py)"
-    cmds:
-      - uv run --no-sync {{.CLI_ARGS}}
 
   uv:security:
     desc: "Run security scan"
