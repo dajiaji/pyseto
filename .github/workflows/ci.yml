@@ -13,7 +13,7 @@ jobs:
     name: Python ${{ matrix.python-version }} on ${{ matrix.platform }}
     runs-on: ${{ matrix.platform }}
     env:
-      USING_COVERAGE: "3.13"
+      PRIMARY_PYTHON_VERSION: "3.13"
 
     strategy:
       matrix:
@@ -31,6 +31,18 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install the project dependencies
       run: uv sync --frozen --all-groups
+    - name: Export locked requirements for audit
+      if: matrix.platform == 'ubuntu-latest' && matrix.python-version == env.PRIMARY_PYTHON_VERSION
+      run: uv export --format requirements.txt --all-groups --frozen --no-hashes --no-editable --no-emit-project --output-file requirements.txt
+    - name: Run pip-audit (PyPA Advisory)
+      if: matrix.platform == 'ubuntu-latest' && matrix.python-version == env.PRIMARY_PYTHON_VERSION
+      run: uv run --with pip-audit pip-audit -r requirements.txt --vulnerability-service pypi
+    - name: Upload audit requirements
+      if: matrix.platform == 'ubuntu-latest' && matrix.python-version == env.PRIMARY_PYTHON_VERSION
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: requirements-audit
+        path: requirements.txt
     - name: Run checks
       run: uv run pre-commit run --all-files
     - name: Run docs build
@@ -38,7 +50,7 @@ jobs:
     - name: Run tests
       run: uv run pytest -ra --cov=pyseto --cov-report=term --cov-report=xml tests
     - name: Upload coverage to Codecov
-      if: contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'
+      if: contains(env.PRIMARY_PYTHON_VERSION, matrix.python-version) && matrix.platform == 'ubuntu-latest'
       uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
       with:
         fail_ci_if_error: true
