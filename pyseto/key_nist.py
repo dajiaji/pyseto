@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Any, cast
+from typing import Any
 
 from cryptography.hazmat.primitives import hashes
 
@@ -270,7 +270,7 @@ class NISTKey(KeyInterface):
     def _encrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
         try:
             encryptor = Cipher(algorithms.AES(key), modes.CTR(nonce)).encryptor()
-            return cast(bytes, encryptor.update(msg))
+            return encryptor.update(msg)
         except Exception as err:
             raise EncryptError("Failed to encrypt.") from err
 
@@ -278,6 +278,6 @@ class NISTKey(KeyInterface):
     def _decrypt(key: bytes, nonce: bytes, msg: bytes) -> bytes:
         try:
             decryptor = Cipher(algorithms.AES(key), modes.CTR(nonce)).decryptor()
-            return cast(bytes, decryptor.update(msg))
+            return decryptor.update(msg)
         except Exception as err:
             raise DecryptError("Failed to decrypt.") from err

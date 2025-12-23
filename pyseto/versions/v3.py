@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 from secrets import token_bytes
-from typing import Any, cast
+from typing import Any
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -139,7 +139,7 @@ class V3Public(NISTKey):
         return
 
     @classmethod
-    def from_public_bytes(cls, key: bytes):
+    def from_public_bytes(cls, key: bytes) -> "V3Public":
         try:
             k = EllipticCurvePublicKey.from_encoded_point(ec.SECP384R1(), key)
         except Exception as err:
@@ -230,7 +230,7 @@ class V3Public(NISTKey):
 
             bkey = wrapping_key if isinstance(wrapping_key, bytes) else wrapping_key.encode("utf-8")
             h = "k3.secret-wrap.pie."
-            k = self._key.private_numbers().private_value.to_bytes(48, byteorder="big")
+            k = self._key.private_numbers().private_value.to_bytes(48, byteorder="big")  # type: ignore[attr-defined]
             return h + self._encode_pie(h, bkey, k)
 
         if password:
@@ -240,7 +240,7 @@ class V3Public(NISTKey):
 
             bpw = password if isinstance(password, bytes) else password.encode("utf-8")
             h = "k3.secret-pw."
-            k = self._key.private_numbers().private_value.to_bytes(48, byteorder="big")
+            k = self._key.private_numbers().private_value.to_bytes(48, byteorder="big")  # type: ignore[attr-defined]
             return h + self._encode_pbkw(h, bpw, k, iteration)
 
         # public
@@ -291,7 +291,7 @@ class V3Public(NISTKey):
         except Exception as err:
             raise SignError("Failed to sign.") from err
 
-    def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b""):
+    def verify(self, payload: bytes, footer: bytes = b"", implicit_assertion: bytes = b"") -> bytes:
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 
@@ -318,4 +318,4 @@ class V3Public(NISTKey):
             raise ValueError("Invalid signature.")
         r = os2ip(sig[:num_bytes])
         s = os2ip(sig[num_bytes:])
-        return cast(bytes, encode_dss_signature(r, s))
+        return encode_dss_signature(r, s)

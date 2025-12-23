@@ -148,7 +148,7 @@ class V2Public(SodiumKey):
         except Exception as err:
             raise SignError("Failed to sign.") from err
 
-    def verify(self, payload: bytes, footer: bytes = b"", _implicit_assertion: bytes = b""):
+    def verify(self, payload: bytes, footer: bytes = b"", _implicit_assertion: bytes = b"") -> bytes:
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 
