@@ -43,3 +43,28 @@ updates:
         update-types:
           - "minor"
           - "patch"
+
+  # pre-commit hooks
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "04:00"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "pre-commit"
+    # Wait 2 days after release for supply chain security
+    cooldown:
+      default-days: 2
+    # Group minor and patch updates together for hooks
+    groups:
+      pre-commit-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
