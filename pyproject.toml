@@ -62,7 +62,7 @@ docs = [
 [tool.ruff]
 target-version = "py310"
 line-length = 128  # Match black configuration used by pre-commit hooks.
-exclude = ["tests"]
+exclude = []
 
 [tool.ruff.format]
 line-ending = "auto"
@@ -91,24 +91,38 @@ select = [
     "UP",
 ]
 ignore = ["E203", "E501"]
+per-file-ignores = { "tests/**" = ["S101", "S106"] }
 
 [tool.ruff.lint.isort]
 known-first-party = ["pyseto", "tests"]
 
 [tool.mypy]
-ignore_missing_imports = true
-pretty = true
-warn_unused_ignores = true
-check_untyped_defs = true
-warn_return_any = true
-no_implicit_optional = true
-strict_equality = true
 python_version = "3.10"
-exclude = "^(tests|examples|dist)/"
+strict = true
+# warn_return_any = true
+# no_implicit_optional = true
+# strict_equality = true
+# warn_unused_ignores = true
+# disallow_any_generics = true
+disallow_any_unimported = true
+warn_unreachable = true
+ignore_missing_imports = false
+pretty = true
 
+# Ignore type errors in tests; they are covered by runtime pytest runs instead.
 [[tool.mypy.overrides]]
 module = ["tests.*"]
 ignore_errors = true
+
+# Ignore missing imports for external libraries that don't have type stubs
+# or have incomplete type information in pre-commit environment
+[[tool.mypy.overrides]]
+module = [
+    "iso8601.*",
+    "argon2.*",
+    "Cryptodome.*",
+]
+ignore_missing_imports = true
 
 # include = [
 #   "CHANGES.rst",

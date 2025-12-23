@@ -33,7 +33,7 @@ class Paseto:
         exp: int = 0,
         include_iat: bool = False,
         leeway: int = 0,
-    ):
+    ) -> "Paseto":
         """
         Constructor of PASETO processor.
 
@@ -58,8 +58,8 @@ class Paseto:
     def encode(
         self,
         key: KeyInterface,
-        payload: bytes | str | dict,
-        footer: bytes | str | dict = b"",
+        payload: bytes | str | dict[str, Any],
+        footer: bytes | str | dict[str, Any] = b"",
         implicit_assertion: bytes | str = b"",
         nonce: bytes = b"",
         serializer: Any = json,
@@ -212,7 +212,7 @@ class Paseto:
                             UserWarning,
                             stacklevel=2,
                         )
-                    self._verify_registered_claims(cast(dict, t.payload), aud)
+                    self._verify_registered_claims(cast(dict[str, Any], t.payload), aud)
                 return t
             except Exception as err:
                 failed = err
@@ -220,7 +220,7 @@ class Paseto:
             raise failed
         raise ValueError("key is not found for verifying the token.")
 
-    def _set_registered_claims(self, claims: dict, exp: int) -> dict:
+    def _set_registered_claims(self, claims: dict[str, Any], exp: int) -> dict[str, Any]:
         now = datetime.now(tz=timezone.utc)
         # exp
         if exp > 0:
@@ -232,7 +232,7 @@ class Paseto:
             claims["iat"] = now.isoformat(timespec="seconds")
         return claims
 
-    def _verify_registered_claims(self, claims: dict, aud: str):
+    def _verify_registered_claims(self, claims: dict[str, Any], aud: str) -> None:
         now = iso8601.parse_date(datetime.now(tz=timezone.utc).isoformat(timespec="seconds"))
         # In Python 3.7 or later, the following code can be used:
         # now = datetime.fromisoformat(

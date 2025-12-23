@@ -11,7 +11,7 @@ _paseto = Paseto()
 
 def encode(
     key: KeyInterface,
-    payload: bytes | str | dict,
+    payload: bytes | str | dict[str, Any],
     footer: bytes | str = b"",
     implicit_assertion: bytes | str = b"",
     nonce: bytes = b"",

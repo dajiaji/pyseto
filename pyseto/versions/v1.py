@@ -188,7 +188,7 @@ class V1Public(NISTKey):
 
             bkey = wrapping_key if isinstance(wrapping_key, bytes) else wrapping_key.encode("utf-8")
             h = "k1.secret-wrap.pie."
-            priv = self._key.private_bytes(
+            priv = self._key.private_bytes(  # type: ignore[attr-defined]
                 encoding=serialization.Encoding.DER,
                 format=serialization.PrivateFormat.TraditionalOpenSSL,
                 encryption_algorithm=serialization.NoEncryption(),
@@ -202,7 +202,7 @@ class V1Public(NISTKey):
 
             bpw = password if isinstance(password, bytes) else password.encode("utf-8")
             h = "k1.secret-pw."
-            priv = self._key.private_bytes(
+            priv = self._key.private_bytes(  # type: ignore[attr-defined]
                 encoding=serialization.Encoding.DER,
                 format=serialization.PrivateFormat.TraditionalOpenSSL,
                 encryption_algorithm=serialization.NoEncryption(),
@@ -258,7 +258,7 @@ class V1Public(NISTKey):
         except Exception as err:
             raise SignError("Failed to sign.") from err
 
-    def verify(self, payload: bytes, footer: bytes = b"", _implicit_assertion: bytes = b""):
+    def verify(self, payload: bytes, footer: bytes = b"", _implicit_assertion: bytes = b"") -> bytes:
         if len(payload) <= self._sig_size:
             raise ValueError("Invalid payload.")
 
