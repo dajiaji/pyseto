@@ -36,6 +36,36 @@ jobs:
           name: requirements-audit
           path: requirements.txt
 
+  licenses:
+    name: License Check (pip-licenses)
+    runs-on: ubuntu-latest
+    env:
+      PRIMARY_PYTHON_VERSION: "3.13"
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        with:
+          python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
+      - name: Export locked requirements for license check
+        run: uv export --format requirements.txt --all-groups --frozen --no-hashes --no-editable --no-emit-project --output-file requirements.txt
+      - name: Install dependencies for license check
+        run: uv sync --frozen --all-groups --no-build --no-install-project
+      - name: Run pip-licenses
+        run: uv run pip-licenses --format=json --output-file licenses.json
+      - name: Upload license report
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: license-report
+          path: |
+            requirements.txt
+            licenses.json
+
   trivy:
     name: Trivy Security Scan
     runs-on: ubuntu-latest
@@ -55,7 +85,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
-          scanners: 'vuln,secret,license'
+          scanners: 'vuln,secret'
           exit-code: '0'
       - name: Generate Trivy SBOM (CycloneDX)
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
@@ -65,7 +95,7 @@ jobs:
           format: 'cyclonedx'
           output: 'trivy-sbom.cdx.json'
           severity: 'CRITICAL,HIGH,MEDIUM'
-          scanners: 'vuln,secret,license'
+          scanners: 'vuln,secret'
           exit-code: '0'
       - name: Generate Trivy SBOM (SPDX)
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
@@ -75,7 +105,7 @@ jobs:
           format: 'spdx-json'
           output: 'trivy-sbom.spdx.json'
           severity: 'CRITICAL,HIGH,MEDIUM'
-          scanners: 'vuln,secret,license'
+          scanners: 'vuln,secret'
           exit-code: '0'
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # v4.31.9
