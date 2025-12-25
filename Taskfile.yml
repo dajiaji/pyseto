@@ -4,26 +4,25 @@ version: '3'
 vars:
   # 2-day delay (security verification window)
   EXCLUDE_NEWER_DAYS: 2
-  EXCLUDE_NEWER_DATE:
-    sh: date -u -d '{{.EXCLUDE_NEWER_DAYS}} days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-{{.EXCLUDE_NEWER_DAYS}}d '+%Y-%m-%dT%H:%M:%SZ'
+  EXCLUDE_NEWER: "{{.EXCLUDE_NEWER_DAYS}} days"
 
 tasks:
   uv:add:
     desc: "Add package (with {{.EXCLUDE_NEWER_DAYS}}-day delay)"
     cmds:
-      - echo "Excluding packages newer than {{.EXCLUDE_NEWER_DATE}}"
-      - uv add --exclude-newer {{.EXCLUDE_NEWER_DATE}} --no-build --no-install-project {{.CLI_ARGS}}
+      - echo "Excluding packages newer than {{.EXCLUDE_NEWER}}"
+      - uv add --exclude-newer "{{.EXCLUDE_NEWER}}" --no-build --no-install-project {{.CLI_ARGS}}
 
   uv:lock:
     desc: "Lock dependencies (with {{.EXCLUDE_NEWER_DAYS}}-day delay)"
     cmds:
-      - echo "Excluding packages newer than {{.EXCLUDE_NEWER_DATE}}"
-      - uv lock --exclude-newer {{.EXCLUDE_NEWER_DATE}} --no-build
+      - echo "Excluding packages newer than {{.EXCLUDE_NEWER}}"
+      - uv lock --exclude-newer "{{.EXCLUDE_NEWER}}" --no-build
 
   uv:lock:upgrade:
     desc: "Upgrade all dependencies (with {{.EXCLUDE_NEWER_DAYS}}-day delay)"
     cmds:
-      - uv lock --upgrade --exclude-newer {{.EXCLUDE_NEWER_DATE}} --no-build
+      - uv lock --upgrade --exclude-newer "{{.EXCLUDE_NEWER}}" --no-build
 
   uv:sync:
     desc: "Sync environment without building sdists"
@@ -46,6 +45,12 @@ tasks:
     desc: "Install a uv tool without building sdists (e.g., task uv:tool:install -- ruff)"
     cmds:
       - uv tool install --no-build {{.CLI_ARGS}}
+
+  uv:licenses:
+    desc: "Export requirements.txt and run a license check"
+    cmds:
+      - uv export --format requirements-txt --without-hashes --all-groups -o requirements.txt
+      - uv run pip-licenses
 
   uv:security:
     desc: "Run security scan"
