@@ -12,17 +12,27 @@ tasks:
     cmds:
       - echo "Excluding packages newer than {{.EXCLUDE_NEWER}}"
       - uv add --exclude-newer "{{.EXCLUDE_NEWER}}" --no-build --no-install-project {{.CLI_ARGS}}
+      - task: uv:export-requirements
 
   uv:lock:
     desc: "Lock dependencies (with {{.EXCLUDE_NEWER_DAYS}}-day delay)"
     cmds:
       - echo "Excluding packages newer than {{.EXCLUDE_NEWER}}"
       - uv lock --exclude-newer "{{.EXCLUDE_NEWER}}" --no-build
+      - task: uv:export-requirements
 
   uv:lock:upgrade:
     desc: "Upgrade all dependencies (with {{.EXCLUDE_NEWER_DAYS}}-day delay)"
     cmds:
+      - echo "Excluding packages newer than {{.EXCLUDE_NEWER}}"
       - uv lock --upgrade --exclude-newer "{{.EXCLUDE_NEWER}}" --no-build
+      - task: uv:export-requirements
+
+  uv:export-requirements:
+    desc: "Export uv.lock to requirements-txt for scanners"
+    cmds:
+      - echo "Excluding packages newer than {{.EXCLUDE_NEWER}}"
+      - uv export --format requirements-txt --all-groups --locked --exclude-newer {{.EXCLUDE_NEWER}} -o requirements.txt
 
   uv:sync:
     desc: "Sync environment without building sdists"
@@ -34,17 +44,17 @@ tasks:
     cmds:
       - uv run --no-sync {{.CLI_ARGS}}
 
+  uv:tool:install:
+    desc: "Install a uv tool without building sdists (e.g., task uv:tool:install -- ruff)"
+    cmds:
+      - uv tool install --no-build {{.CLI_ARGS}}
+
   uv:dev:
     desc: "Set up development environment"
     cmds:
       - task: uv:sync
       - uv pip install -e .
       - uv run pre-commit install
-
-  uv:tool:install:
-    desc: "Install a uv tool without building sdists (e.g., task uv:tool:install -- ruff)"
-    cmds:
-      - uv tool install --no-build {{.CLI_ARGS}}
 
   uv:licenses:
     desc: "Export requirements.txt and run a license check"
