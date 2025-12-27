@@ -3,8 +3,9 @@
 [![PyPI version](https://badge.fury.io/py/pyseto.svg)](https://badge.fury.io/py/pyseto)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyseto)
 [![Documentation Status](https://readthedocs.org/projects/pyseto/badge/?version=latest)](https://pyseto.readthedocs.io/en/latest/?badge=latest)
-![Github CI](https://github.com/dajiaji/pyseto/actions/workflows/ci.yml/badge.svg)
+i[Github CI](https://github.com/dajiaji/pyseto/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/dajiaji/pyseto/branch/main/graph/badge.svg?token=QN8GXEYEP3)](https://codecov.io/gh/dajiaji/pyseto)
+[![Known Vulnerabilities](https://snyk.io/test/github/dajiaji/pyseto/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/dajiaji/pyhpke?targetFile=requirements.txt)
 
 
 PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/)/[PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk) implementation written in Python
@@ -71,6 +72,7 @@ See following contents or [Documentation](https://pyseto.readthedocs.io/en/stabl
     - [Asymmetric Encryption](#asymmetric-encryption)
 - [API Reference](#api-reference)
 - [Tests](#tests)
+- [Security](#security)
 - [Contributing](#contributing)
 
 ## Installation
@@ -450,6 +452,16 @@ You can run tests from the project root after cloning with:
 ```sh
 $ tox
 ```
+
+## Security
+
+If you discover a security issue, please report it via a GitHub issue and avoid disclosing exploit details publicly until we respond.
+
+This project has not been formally audited; use it according to your risk assessment.
+
+The Snyk badge reports results based on `requirements.txt` exported from `uv.lock` and reflects dependency scanning only.
+
+See [SECURITY.md](SECURITY.md) for our security policy and reporting guidance.
 
 ## Contributing
 
