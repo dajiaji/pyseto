@@ -32,7 +32,7 @@ tasks:
     desc: "Export uv.lock to requirements-txt for scanners"
     cmds:
       - echo "Excluding packages newer than {{.EXCLUDE_NEWER}}"
-      - uv export --format requirements-txt --all-groups --locked --exclude-newer {{.EXCLUDE_NEWER}} -o requirements.txt
+      - uv export --format requirements-txt --all-groups --locked --exclude-newer "{{.EXCLUDE_NEWER}}" -o requirements.txt
 
   uv:sync:
     desc: "Sync environment without building sdists"
