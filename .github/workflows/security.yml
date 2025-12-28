@@ -26,15 +26,8 @@ jobs:
         uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
         with:
           python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
-      - name: Export locked requirements for audit
-        run: uv export --format requirements.txt --all-groups --frozen --no-hashes --no-editable --no-emit-project --output-file requirements.txt
       - name: Run pip-audit (PyPA Advisory)
         run: uv run --with pip-audit pip-audit -r requirements.txt --vulnerability-service pypi
-      - name: Upload audit requirements
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: requirements-audit
-          path: requirements.txt
 
   licenses:
     name: License Check (pip-licenses)
@@ -52,8 +45,6 @@ jobs:
         uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
         with:
           python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
-      - name: Export locked requirements for license check
-        run: uv export --format requirements.txt --all-groups --frozen --no-hashes --no-editable --no-emit-project --output-file requirements.txt
       - name: Install dependencies for license check
         run: uv sync --frozen --all-groups --no-build --no-install-project
       - name: Run pip-licenses
@@ -63,7 +54,6 @@ jobs:
         with:
           name: license-report
           path: |
-            requirements.txt
             licenses.json
 
   trivy:
