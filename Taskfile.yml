@@ -52,8 +52,7 @@ tasks:
   uv:dev:
     desc: "Set up development environment"
     cmds:
-      - task: uv:sync
-      - uv pip install -e .
+      - uv sync --frozen --all-groups --no-build
       - uv run pre-commit install
 
   uv:licenses:
