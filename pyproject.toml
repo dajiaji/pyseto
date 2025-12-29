@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "pyseto"
-version = "1.9.0"
+version = "1.9.1"
 description = "A Python implementation of PASETO/PASERK."
 readme = "README.md"
 requires-python = ">=3.10,<4.0"

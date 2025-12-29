@@ -4,6 +4,33 @@ Changes
 Unreleased
 ----------
 
+Version 1.9.1
+-------------
+
+Released 2025-12-29
+
+- Refactor CI/CD workflows.
+    - Split CD workflow into build and deploy jobs. `#562 <https://github.com/dajiaji/pyseto/pull/562>`__
+    - Simplify requirements.txt generation and remove unnecessary steps. `#561 <https://github.com/dajiaji/pyseto/pull/561>`__
+    - Pin actions/download-artifact to v7.0.0. `#563 <https://github.com/dajiaji/pyseto/pull/563>`__
+    - Grant required permissions for zizmor code scanning. `#558 <https://github.com/dajiaji/pyseto/pull/558>`__
+    - Add push trigger to security workflow. `#beff4cc <https://github.com/dajiaji/pyseto/commit/beff4cc>`__
+    - Remove paths filter from workflow. `#552 <https://github.com/dajiaji/pyseto/pull/552>`__
+- Security improvements.
+    - Introduce zizmor-action for workflow security. `#69ea45b <https://github.com/dajiaji/pyseto/commit/69ea45b>`__
+    - Introduce pip-license. `#def4dcc <https://github.com/dajiaji/pyseto/commit/def4dcc>`__
+    - Add requirements.txt for snyk integration. `#554 <https://github.com/dajiaji/pyseto/pull/554>`__
+- Documentation improvements.
+    - Add security section to README. `#555 <https://github.com/dajiaji/pyseto/pull/555>`__
+    - Fix snyk badge link URL. `#557 <https://github.com/dajiaji/pyseto/pull/557>`__
+    - Fix GitHub CI badge markdown syntax. `#556 <https://github.com/dajiaji/pyseto/pull/556>`__
+- Taskfile improvements.
+    - Simplify uv:dev task by using uv sync directly. `#564 <https://github.com/dajiaji/pyseto/pull/564>`__
+    - Use correct uv export format for requirements.txt. `#559 <https://github.com/dajiaji/pyseto/pull/559>`__
+    - Refine Taskfile.yml. `#063beca <https://github.com/dajiaji/pyseto/commit/063beca>`__
+- Update dev dependencies.
+    - Simplify sphinx version constraints. `#6c2a7a3 <https://github.com/dajiaji/pyseto/commit/6c2a7a3>`__
+
 Version 1.9.0
 -------------
 
