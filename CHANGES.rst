@@ -14,11 +14,11 @@ Released 2025-12-29
     - Simplify requirements.txt generation and remove unnecessary steps. `#561 <https://github.com/dajiaji/pyseto/pull/561>`__
     - Pin actions/download-artifact to v7.0.0. `#563 <https://github.com/dajiaji/pyseto/pull/563>`__
     - Grant required permissions for zizmor code scanning. `#558 <https://github.com/dajiaji/pyseto/pull/558>`__
-    - Add push trigger to security workflow. `#beff4cc <https://github.com/dajiaji/pyseto/commit/beff4cc>`__
+    - Add push trigger to security workflow. `#549 <https://github.com/dajiaji/pyseto/pull/549>`__
     - Remove paths filter from workflow. `#552 <https://github.com/dajiaji/pyseto/pull/552>`__
 - Security improvements.
-    - Introduce zizmor-action for workflow security. `#69ea45b <https://github.com/dajiaji/pyseto/commit/69ea45b>`__
-    - Introduce pip-license. `#def4dcc <https://github.com/dajiaji/pyseto/commit/def4dcc>`__
+    - Introduce zizmor-action for workflow security. `#551 <https://github.com/dajiaji/pyseto/pull/551>`__
+    - Introduce pip-license. `#551 <https://github.com/dajiaji/pyseto/pull/551>`__
     - Add requirements.txt for snyk integration. `#554 <https://github.com/dajiaji/pyseto/pull/554>`__
 - Documentation improvements.
     - Add security section to README. `#555 <https://github.com/dajiaji/pyseto/pull/555>`__
@@ -27,43 +27,41 @@ Released 2025-12-29
 - Taskfile improvements.
     - Simplify uv:dev task by using uv sync directly. `#564 <https://github.com/dajiaji/pyseto/pull/564>`__
     - Use correct uv export format for requirements.txt. `#559 <https://github.com/dajiaji/pyseto/pull/559>`__
-    - Refine Taskfile.yml. `#063beca <https://github.com/dajiaji/pyseto/commit/063beca>`__
-- Update dev dependencies.
-    - Simplify sphinx version constraints. `#6c2a7a3 <https://github.com/dajiaji/pyseto/commit/6c2a7a3>`__
+    - Refine Taskfile.yml. `#550 <https://github.com/dajiaji/pyseto/pull/550>`__
 
 Version 1.9.0
 -------------
 
 Released 2025-12-24
 
-- Migrate from poetry to uv. `#f1ed392 <https://github.com/dajiaji/pyseto/commit/f1ed392>`__
-- Drop support for Python 3.9. `#e858157 <https://github.com/dajiaji/pyseto/commit/e858157>`__
-- Add support for Python 3.14. `#d1d9fb2 <https://github.com/dajiaji/pyseto/commit/d1d9fb2>`__
-- Replace black/flake8/isort with ruff. `#965fd88 <https://github.com/dajiaji/pyseto/commit/965fd88>`__
-- Remove tox. `#e44d893 <https://github.com/dajiaji/pyseto/commit/e44d893>`__
-- Split security scans into separate workflow. `#7879baf <https://github.com/dajiaji/pyseto/commit/7879baf>`__
-- Introduce trivy for security scanning. `#8cd9ee8 <https://github.com/dajiaji/pyseto/commit/8cd9ee8>`__
-- Introduce pip-audit for dependency scanning. `#e3ef136 <https://github.com/dajiaji/pyseto/commit/e3ef136>`__
-- Integrate mypy setting to pyproject.toml. `#beddfe5 <https://github.com/dajiaji/pyseto/commit/beddfe5>`__
-- Enhance mypy setting. `#b4fa9a7 <https://github.com/dajiaji/pyseto/commit/b4fa9a7>`__
-- Add detect-private-key to pre-commit hooks. `#7e16f23 <https://github.com/dajiaji/pyseto/commit/7e16f23>`__
-- Introduce Bandit/S rules for ruff. `#1f73d4a <https://github.com/dajiaji/pyseto/commit/1f73d4a>`__
-- Introduce actionlint for workflow linting. `#1ff233f <https://github.com/dajiaji/pyseto/commit/1ff233f>`__
-- Introduce pypa/gh-action-pypi-publish. `#f1d5453 <https://github.com/dajiaji/pyseto/commit/f1d5453>`__
-- Introduce zizmor for workflow security. `#a7f0467 <https://github.com/dajiaji/pyseto/commit/a7f0467>`__
-- Introduce aikido-safe-chain to CI. `#0c16ffc <https://github.com/dajiaji/pyseto/commit/0c16ffc>`__
-- Introduce cooldown. `#8041c4e <https://github.com/dajiaji/pyseto/commit/8041c4e>`__
-- Add pre-commit to dependabot. `#20a68c9 <https://github.com/dajiaji/pyseto/commit/20a68c9>`__
-- Introduce --no-build option. `#335392e <https://github.com/dajiaji/pyseto/commit/335392e>`__
-- Remove redundant checking tools. `#0f06cc4 <https://github.com/dajiaji/pyseto/commit/0f06cc4>`__
-- Fix workflow security alert. `#4fa0ce1 <https://github.com/dajiaji/pyseto/commit/4fa0ce1>`__
-- Fix readthedocs config to use uv. `#519c16b <https://github.com/dajiaji/pyseto/commit/519c16b>`__
+- Migrate from poetry to uv. `#522 <https://github.com/dajiaji/pyseto/pull/522>`__
+- Drop support for Python 3.9. `#520 <https://github.com/dajiaji/pyseto/pull/520>`__
+- Add support for Python 3.14. `#533 <https://github.com/dajiaji/pyseto/pull/533>`__
+- Replace black/flake8/isort with ruff. `#523 <https://github.com/dajiaji/pyseto/pull/523>`__
+- Remove tox. `#525 <https://github.com/dajiaji/pyseto/pull/525>`__
+- Split security scans into separate workflow. `#544 <https://github.com/dajiaji/pyseto/pull/544>`__
+- Introduce trivy for security scanning. `#532 <https://github.com/dajiaji/pyseto/pull/532>`__
+- Introduce pip-audit for dependency scanning. `#543 <https://github.com/dajiaji/pyseto/pull/543>`__
+- Integrate mypy setting to pyproject.toml. `#534 <https://github.com/dajiaji/pyseto/pull/534>`__
+- Enhance mypy setting. `#540 <https://github.com/dajiaji/pyseto/pull/540>`__
+- Add detect-private-key to pre-commit hooks. `#547 <https://github.com/dajiaji/pyseto/pull/547>`__
+- Introduce Bandit/S rules for ruff. `#538 <https://github.com/dajiaji/pyseto/pull/538>`__
+- Introduce actionlint for workflow linting. `#537 <https://github.com/dajiaji/pyseto/pull/537>`__
+- Introduce pypa/gh-action-pypi-publish. `#526 <https://github.com/dajiaji/pyseto/pull/526>`__
+- Introduce zizmor for workflow security. `#524 <https://github.com/dajiaji/pyseto/pull/524>`__
+- Introduce aikido-safe-chain to CI. `#546 <https://github.com/dajiaji/pyseto/pull/546>`__
+- Introduce cooldown. `#527 <https://github.com/dajiaji/pyseto/pull/527>`__
+- Add pre-commit to dependabot. `#542 <https://github.com/dajiaji/pyseto/pull/542>`__
+- Introduce --no-build option. `#545 <https://github.com/dajiaji/pyseto/pull/545>`__
+- Remove redundant checking tools. `#531 <https://github.com/dajiaji/pyseto/pull/531>`__
+- Fix workflow security alert. `#528 <https://github.com/dajiaji/pyseto/pull/528>`__
+- Fix readthedocs config to use uv. `#535 <https://github.com/dajiaji/pyseto/pull/535>`__
 - Update dependencies.
-    - Bump cryptography to 46.0.3. `#7a698d8 <https://github.com/dajiaji/pyseto/commit/7a698d8>`__
-    - Bump urllib3 to 2.6.0. `#9e51a0f <https://github.com/dajiaji/pyseto/commit/9e51a0f>`__
+    - Bump cryptography to 46.0.3. `#514 <https://github.com/dajiaji/pyseto/pull/514>`__
+    - Bump urllib3 to 2.6.0. `#517 <https://github.com/dajiaji/pyseto/pull/517>`__
 - Update dev dependencies.
-    - Bump ruff-pre-commit to v0.14.10. `#408a82b <https://github.com/dajiaji/pyseto/commit/408a82b>`__
-    - Bump pytest-cov to 7.0.0. `#f44afce <https://github.com/dajiaji/pyseto/commit/f44afce>`__
+    - Bump ruff-pre-commit to v0.14.10. `#541 <https://github.com/dajiaji/pyseto/pull/541>`__
+    - Bump pytest-cov to 7.0.0. `#503 <https://github.com/dajiaji/pyseto/pull/503>`__
 
 Version 1.8.5
 -------------
