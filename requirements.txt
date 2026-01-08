@@ -121,7 +121,7 @@ typing-extensions==4.15.0 ; python_full_version < '3.11'
     #   cryptography
     #   exceptiongroup
     #   virtualenv
-urllib3==2.6.2
+urllib3==2.6.3
     # via requests
 virtualenv==20.35.4
     # via pre-commit
