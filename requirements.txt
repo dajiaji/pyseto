@@ -84,7 +84,7 @@ pyyaml==6.0.3
     # via pre-commit
 requests==2.32.5
     # via sphinx
-ruff==0.14.10
+ruff==0.14.11
 six==1.17.0
     # via python-dateutil
 snowballstemmer==3.0.1
