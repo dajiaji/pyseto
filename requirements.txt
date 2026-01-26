@@ -53,7 +53,7 @@ markupsafe==3.0.3
     # via jinja2
 nodeenv==1.10.0
     # via pre-commit
-packaging==25.0
+packaging==26.0
     # via
     #   pytest
     #   sphinx
