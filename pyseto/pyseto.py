@@ -12,7 +12,7 @@ _paseto = Paseto()
 def encode(
     key: KeyInterface,
     payload: bytes | str | dict[str, Any],
-    footer: bytes | str = b"",
+    footer: bytes | str | dict[str, Any] = b"",
     implicit_assertion: bytes | str = b"",
     nonce: bytes = b"",
     serializer: Any = json,
