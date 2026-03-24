@@ -22,7 +22,7 @@ colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   pytest
     #   sphinx
-coverage==7.13.1
+coverage==7.13.5
     # via pytest-cov
 cryptography==46.0.5
     # via pyseto
