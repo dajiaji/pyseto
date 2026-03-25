@@ -82,7 +82,7 @@ python-dateutil==2.9.0.post0
     # via freezegun
 pyyaml==6.0.3
     # via pre-commit
-requests==2.32.5
+requests==2.33.0
     # via sphinx
 ruff==0.15.7
 six==1.17.0
