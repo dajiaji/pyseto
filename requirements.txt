@@ -71,7 +71,7 @@ pycparser==3.0 ; implementation_name != 'PyPy'
     # via cffi
 pycryptodomex==3.23.0
     # via pyseto
-pygments==2.19.2
+pygments==2.20.0
     # via
     #   pytest
     #   sphinx
