@@ -57,7 +57,7 @@ packaging==26.0
     # via
     #   pytest
     #   sphinx
-pip-licenses==5.5.1
+pip-licenses==5.5.5
 platformdirs==4.9.4
     # via virtualenv
 pluggy==1.6.0
