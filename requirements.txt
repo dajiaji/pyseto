@@ -75,7 +75,7 @@ pygments==2.20.0
     # via
     #   pytest
     #   sphinx
-pytest==9.0.2
+pytest==9.0.3
     # via pytest-cov
 pytest-cov==7.1.0
 python-dateutil==2.9.0.post0
