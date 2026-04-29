@@ -24,7 +24,7 @@ def encode(
     Args:
         key (KeyInterface): A key for encryption or signing.
         payload (Union[bytes, str, dict]): A message to be encrypted or signed.
-        footer (Union[bytes, str]): A footer.
+        footer (Union[bytes, str, dict]): A footer.
         implicit_assertion (Union[bytes, str]): An implicit assertion. It is
             only used in ``v3`` or ``v4``.
         nonce (bytes): A nonce. If omitted(it's recommended), a nonce will be
@@ -32,7 +32,7 @@ def encode(
             want ot use ``secrets.token_bytes()``, you can specify it via this
             parameter explicitly.
         serializer (Any): A serializer which is used when the type of
-            ``payload`` is ``object``. It must have a ``dumps()`` function to
+            ``payload`` and/or ``footer`` is ``dict``. It must have a ``dumps()`` function to
             serialize the payload. Typically, you can use ``json`` or ``cbor2``.
         exp (int): An expiration time (seconds) of the PASETO token. It will be
             set in the payload as the registered ``exp`` claim when serializer
