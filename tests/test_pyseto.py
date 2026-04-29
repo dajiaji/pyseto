@@ -314,6 +314,15 @@ class TestPyseto:
             pytest.fail("pyseto.decode() should fail.")
         assert "aud verification failed." in str(err.value)
 
+    def test_decode_non_object_payload_with_aud(self):
+        key = Key.new(version=4, purpose="local", key=b"our-secret")
+        token = pyseto.encode(key, '["not-a-claims-object"]')
+
+        with pytest.raises(VerifyError) as err:
+            pyseto.decode(key, token, deserializer=json, aud="12345")
+            pytest.fail("pyseto.decode() should fail.")
+        assert "aud verification failed." in str(err.value)
+
     def test_decode_object_payload_with_invalid_aud(self):
         private_key_pem = b"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEILTL+0PfTOIQcn2VPkpxMwf6Gbt9n4UEFDjZ4RuUKjd0\n-----END PRIVATE KEY-----"
         public_key_pem = b"-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAHrnbu7wEfAP9cGBOAHHwmH4Wsot1ciXBHwBBXQ4gsaI=\n-----END PUBLIC KEY-----"

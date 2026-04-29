@@ -221,37 +221,41 @@ class Paseto:
         raise ValueError("key is not found for verifying the token.")
 
     def _set_registered_claims(self, claims: dict[str, Any], exp: int) -> dict[str, Any]:
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=timezone.utc).replace(microsecond=0)
+
+        def to_iso(dt: datetime) -> str:
+            return dt.isoformat(timespec="seconds")
+
+        exp_seconds = exp if exp > 0 else self._exp
+
         # exp
-        if exp > 0:
-            claims["exp"] = (now + timedelta(seconds=exp)).isoformat(timespec="seconds")
-        elif self._exp > 0:
-            claims["exp"] = (now + timedelta(seconds=self._exp)).isoformat(timespec="seconds")
+        if exp_seconds > 0:
+            claims["exp"] = to_iso(now + timedelta(seconds=exp_seconds))
+
         # iat
         if self._include_iat:
-            claims["iat"] = now.isoformat(timespec="seconds")
+            claims["iat"] = to_iso(now)
+
         return claims
 
     def _verify_registered_claims(self, claims: dict[str, Any], aud: str) -> None:
-        now = iso8601.parse_date(datetime.now(tz=timezone.utc).isoformat(timespec="seconds"))
-        # In Python 3.7 or later, the following code can be used:
-        # now = datetime.fromisoformat(
-        #     datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
-        # )
-        if "exp" in claims:
+        now = datetime.now(tz=timezone.utc).replace(microsecond=0)
+        leeway = timedelta(seconds=self._leeway)
+
+        def parse(field: str) -> datetime:
             try:
-                exp = iso8601.parse_date(claims["exp"])
+                return cast(datetime, iso8601.parse_date(claims[field]))
             except Exception as err:
-                raise VerifyError("Invalid exp.") from err
-            if now > exp + timedelta(seconds=self._leeway):
-                raise VerifyError("Token expired.")
-        if "nbf" in claims:
-            try:
-                nbf = iso8601.parse_date(claims["nbf"])
-            except Exception as err:
-                raise VerifyError("Invalid nbf.") from err
-            if now < nbf - timedelta(seconds=self._leeway):
-                raise VerifyError("Token has not been activated yet.")
-        if aud and ("aud" not in claims or aud != claims["aud"]):
+                raise VerifyError(f"Invalid {field}.") from err
+
+        # exp
+        if "exp" in claims and now > parse("exp") + leeway:
+            raise VerifyError("Token expired.")
+
+        # nbf
+        if "nbf" in claims and now < parse("nbf") - leeway:
+            raise VerifyError("Token has not been activated yet.")
+
+        # aud
+        if aud and (not isinstance(claims, dict) or claims.get("aud") != aud):
             raise VerifyError("aud verification failed.")
-        return
