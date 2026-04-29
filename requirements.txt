@@ -39,7 +39,7 @@ filelock==3.29.0
 freezegun==1.5.5
 identify==2.6.19
     # via pre-commit
-idna==3.11
+idna==3.13
     # via requests
 imagesize==2.0.0
     # via sphinx
