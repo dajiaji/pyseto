@@ -4,6 +4,24 @@ Changes
 Unreleased
 ----------
 
+Version 1.9.2
+-------------
+
+Released 2026-04-29
+
+- Refactor registered claims helpers. `#642 <https://github.com/dajiaji/pyseto/pull/642>`__
+- Add ``dict[str, Any]`` type to ``footer`` argument in encode wrapper. `#611 <https://github.com/dajiaji/pyseto/pull/611>`__
+- Update changelog references from commit hashes to pull request numbers. `#566 <https://github.com/dajiaji/pyseto/pull/566>`__
+- Update dependencies.
+    - Bump cryptography to 47.0.0. `#665 <https://github.com/dajiaji/pyseto/pull/665>`__
+- Update dev dependencies.
+    - Bump ruff to 0.15.12. `#666 <https://github.com/dajiaji/pyseto/pull/666>`__
+    - Bump pre-commit to 4.6.0. `#661 <https://github.com/dajiaji/pyseto/pull/661>`__
+    - Bump pytest to 9.0.3. `#645 <https://github.com/dajiaji/pyseto/pull/645>`__
+    - Bump pytest-cov to 7.1.0. `#622 <https://github.com/dajiaji/pyseto/pull/622>`__
+    - Bump pip-licenses to 5.5.5. `#637 <https://github.com/dajiaji/pyseto/pull/637>`__
+    - Bump sphinx-rtd-theme to 3.1.0. `#578 <https://github.com/dajiaji/pyseto/pull/578>`__
+
 Version 1.9.1
 -------------
 
