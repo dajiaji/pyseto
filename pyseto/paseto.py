@@ -244,10 +244,7 @@ class Paseto:
 
         def parse(field: str) -> datetime:
             try:
-                dt = iso8601.parse_date(claims[field])
-                if not isinstance(dt, datetime):
-                    raise VerifyError(f"Invalid {field}.")
-                return dt
+                return cast(datetime, iso8601.parse_date(claims[field]))
             except Exception as err:
                 raise VerifyError(f"Invalid {field}.") from err
 
@@ -260,5 +257,5 @@ class Paseto:
             raise VerifyError("Token has not been activated yet.")
 
         # aud
-        if aud and claims.get("aud") != aud:
+        if aud and (not isinstance(claims, dict) or claims.get("aud") != aud):
             raise VerifyError("aud verification failed.")
