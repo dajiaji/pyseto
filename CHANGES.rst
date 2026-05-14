@@ -4,6 +4,26 @@ Changes
 Unreleased
 ----------
 
+Version 1.9.3
+-------------
+
+Released 2026-05-15
+
+- Relax cryptography upper bound to ``<52``. `#681 <https://github.com/dajiaji/pyseto/pull/681>`__
+- Update dependencies.
+    - Bump cryptography to 48.0.0. `#674 <https://github.com/dajiaji/pyseto/pull/674>`__
+- Update dev dependencies.
+    - Bump requests to 2.34.0. `#680 <https://github.com/dajiaji/pyseto/pull/680>`__
+    - Bump coverage to 7.14.0. `#678 <https://github.com/dajiaji/pyseto/pull/678>`__
+    - Bump idna to 3.14. `#677 <https://github.com/dajiaji/pyseto/pull/677>`__
+    - Bump urllib3 to 2.7.0. `#675 <https://github.com/dajiaji/pyseto/pull/675>`__
+    - Bump virtualenv to 21.3.2. `#673 <https://github.com/dajiaji/pyseto/pull/673>`__
+    - Bump wcwidth to 0.7.0. `#672 <https://github.com/dajiaji/pyseto/pull/672>`__
+    - Bump virtualenv to 21.3.0. `#670 <https://github.com/dajiaji/pyseto/pull/670>`__
+- Update GitHub Actions.
+    - Bump github/codeql-action to 4.35.4. `#676 <https://github.com/dajiaji/pyseto/pull/676>`__
+    - Bump github/codeql-action to 4.35.3. `#671 <https://github.com/dajiaji/pyseto/pull/671>`__
+
 Version 1.9.2
 -------------
 
