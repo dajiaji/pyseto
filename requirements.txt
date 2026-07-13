@@ -131,5 +131,5 @@ urllib3==2.7.0
     # via requests
 virtualenv==21.3.2
     # via pre-commit
-wcwidth==0.7.0
+wcwidth==0.8.2
     # via prettytable
