@@ -60,7 +60,7 @@ packaging==26.2
     #   pytest
     #   sphinx
 pip-licenses==5.5.5
-platformdirs==4.9.6
+platformdirs==4.10.0
     # via
     #   python-discovery
     #   virtualenv
