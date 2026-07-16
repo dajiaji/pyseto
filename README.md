@@ -490,6 +490,10 @@ $ uv export --format requirements.txt --all-groups --locked \
     --no-hashes --no-editable --no-emit-project -o requirements.txt
 ```
 
+CI fails if `uv.lock` does not resolve `pyproject.toml`, or if `requirements.txt`
+does not match the above export. A dependency bump that edits `requirements.txt`
+without relocking is therefore caught rather than silently scanned.
+
 ### Scanning
 
 ```sh

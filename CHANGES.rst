@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Add CI check that uv.lock and requirements.txt stay in sync.
 - Move dependency workflow from Taskfile to native uv config.
 
 Version 1.9.3
