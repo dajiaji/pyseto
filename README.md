@@ -466,3 +466,34 @@ See [SECURITY.md](SECURITY.md) for our security policy and reporting guidance.
 ## Contributing
 
 We welcome all kind of contributions, filing issues, suggesting new features or sending PRs.
+
+### Development environment
+
+```sh
+$ uv sync --frozen
+$ uv run pre-commit install
+```
+
+### Dependency updates
+
+`[tool.uv]` in `pyproject.toml` pins `exclude-newer = "2 days"`, so resolution only
+considers packages uploaded more than two days ago. This gives newly published
+releases a verification window before we depend on them, and it applies to every
+`uv` command automatically — no extra flags needed.
+
+After changing dependencies, re-export `requirements.txt`, which is what the
+dependency scanners read:
+
+```sh
+$ uv add <package>          # or: uv lock --upgrade
+$ uv export --format requirements.txt --all-groups --locked \
+    --no-hashes --no-editable --no-emit-project -o requirements.txt
+```
+
+### Scanning
+
+```sh
+$ uv run pip-audit
+$ uv run pip-licenses
+$ trivy fs --severity HIGH,CRITICAL .
+```

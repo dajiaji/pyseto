@@ -4,6 +4,8 @@ Changes
 Unreleased
 ----------
 
+- Move dependency workflow from Taskfile to native uv config.
+
 Version 1.9.3
 -------------
 
