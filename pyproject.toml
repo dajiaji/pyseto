@@ -33,6 +33,14 @@ dependencies = [
 [project.urls]
 Repository = "https://github.com/dajiaji/pyseto"
 
+[tool.uv]
+# Relative `exclude-newer` spans require uv 0.11+; older versions would read the
+# backwards-compatibility sentinel date written into uv.lock and resolve nothing.
+required-version = ">=0.11"
+# Only consider packages uploaded more than 2 days ago (security verification window).
+exclude-newer = "2 days"
+default-groups = "all"
+
 [tool.uv.build-backend]
 module-name = "pyseto"
 module-root = ""
@@ -47,6 +55,7 @@ source-exclude = [
 [dependency-groups]
 dev = [
     "freezegun>=1.5.5",
+    "pip-audit>=2.10.1",
     "pip-licenses>=5.0.0",
     "pre-commit>=4.5.1",
     "pytest>=9.0.2",
