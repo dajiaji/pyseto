@@ -14,7 +14,7 @@ cachecontrol==0.14.4
     # via pip-audit
 certifi==2026.4.22
     # via requests
-cffi==2.0.0
+cffi==2.1.0
     # via
     #   argon2-cffi-bindings
     #   cryptography
