@@ -28,7 +28,7 @@ colorama==0.4.6 ; sys_platform == 'win32'
     #   sphinx
 coverage==7.15.1
     # via pytest-cov
-cryptography==48.0.0
+cryptography==49.0.0
     # via pyseto
 cyclonedx-python-lib==11.11.0
     # via pip-audit
