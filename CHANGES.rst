@@ -4,9 +4,29 @@ Changes
 Unreleased
 ----------
 
-- Run ruff from the dev dependency group instead of a separate pre-commit pin.
-- Add CI check that uv.lock and requirements.txt stay in sync.
-- Move dependency workflow from Taskfile to native uv config.
+Version 1.9.4
+-------------
+
+Released 2026-07-16
+
+- Run ruff from the dev dependency group instead of a separate pre-commit pin. `#726 <https://github.com/dajiaji/pyseto/pull/726>`__
+- Add CI check that uv.lock and requirements.txt stay in sync. `#725 <https://github.com/dajiaji/pyseto/pull/725>`__
+- Move dependency workflow from Taskfile to native uv config. `#723 <https://github.com/dajiaji/pyseto/pull/723>`__
+- Update dependencies.
+    - Bump cryptography to 49.0.0. `#724 <https://github.com/dajiaji/pyseto/pull/724>`__
+- Update dev dependencies.
+    - Bump ruff to 0.15.21. `#712 <https://github.com/dajiaji/pyseto/pull/712>`__
+    - Bump pytest to 9.1.1. `#719 <https://github.com/dajiaji/pyseto/pull/719>`__
+    - Bump snowballstemmer to 3.1.1. `#703 <https://github.com/dajiaji/pyseto/pull/703>`__
+    - Bump idna to 3.18. `#702 <https://github.com/dajiaji/pyseto/pull/702>`__
+    - Bump python-discovery to 1.4.0. `#695 <https://github.com/dajiaji/pyseto/pull/695>`__
+    - Bump coverage to 7.14.1. `#694 <https://github.com/dajiaji/pyseto/pull/694>`__
+    - Bump python-discovery to 1.3.1. `#684 <https://github.com/dajiaji/pyseto/pull/684>`__
+    - Bump idna to 3.15. `#683 <https://github.com/dajiaji/pyseto/pull/683>`__
+- Update GitHub Actions.
+    - Bump actions/checkout to 7.0.0. `#721 <https://github.com/dajiaji/pyseto/pull/721>`__
+    - Bump codecov/codecov-action to 7.0.0. `#722 <https://github.com/dajiaji/pyseto/pull/722>`__
+    - Bump the github-actions-minor-patch group with 6 updates. `#710 <https://github.com/dajiaji/pyseto/pull/710>`__
 
 Version 1.9.3
 -------------
