@@ -4,6 +4,7 @@ Changes
 Unreleased
 ----------
 
+- Run ruff from the dev dependency group instead of a separate pre-commit pin.
 - Add CI check that uv.lock and requirements.txt stay in sync.
 - Move dependency workflow from Taskfile to native uv config.
 
