@@ -98,7 +98,7 @@ pluggy==1.6.0
     #   pytest
     #   pytest-cov
 pre-commit==4.6.0
-prettytable==3.17.0
+prettytable==3.18.0
     # via pip-licenses
 py-serializable==2.1.0
     # via cyclonedx-python-lib
