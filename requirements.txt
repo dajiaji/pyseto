@@ -34,7 +34,7 @@ cyclonedx-python-lib==11.11.0
     # via pip-audit
 defusedxml==0.7.1
     # via py-serializable
-distlib==0.4.0
+distlib==0.4.3
     # via virtualenv
 docutils==0.21.2
     # via
