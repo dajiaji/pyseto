@@ -25,6 +25,15 @@ from .exceptions import DecryptError, EncryptError
 from .key_interface import KeyInterface
 from .utils import base64url_decode, base64url_encode
 
+# Upper bounds for the Argon2 cost parameters read from an untrusted PASERK when
+# unwrapping a `local-pw`/`secret-pw` key. The KDF runs *before* the MAC can be
+# verified, so an attacker-supplied blob could otherwise request a huge amount of
+# memory (immediate OOM) or an excessive number of passes and cause a denial of
+# service. Any legitimate value is far below these bounds.
+_MAX_ARGON2_MEMORY_KIB = 4 * 1024 * 1024  # 4 GiB
+_MAX_ARGON2_TIME_COST = 2**16
+_MAX_ARGON2_PARALLELISM = 2**8
+
 
 class SodiumKey(KeyInterface):
     """
@@ -302,8 +311,15 @@ class SodiumKey(KeyInterface):
         memory_cost = int.from_bytes(mem, byteorder="big")
         time_cost = int.from_bytes(time, byteorder="big")
         parallelism = int.from_bytes(para, byteorder="big")
+        memory_cost_kib = int(memory_cost / 1024)
+        if not 8 <= memory_cost_kib <= _MAX_ARGON2_MEMORY_KIB:
+            raise ValueError("Invalid or unsupported Argon2 memory cost.")
+        if not 1 <= time_cost <= _MAX_ARGON2_TIME_COST:
+            raise ValueError("Invalid or unsupported Argon2 time cost.")
+        if not 1 <= parallelism <= _MAX_ARGON2_PARALLELISM:
+            raise ValueError("Invalid or unsupported Argon2 parallelism.")
         argon2_k = PasswordHasher(
-            memory_cost=int(memory_cost / 1024),
+            memory_cost=memory_cost_kib,
             time_cost=time_cost,
             parallelism=parallelism,
             hash_len=32,

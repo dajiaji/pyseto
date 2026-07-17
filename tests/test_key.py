@@ -270,6 +270,50 @@ class TestKey:
         assert "Failed to unwrap a key." in str(err.value)
 
     @pytest.mark.parametrize(
+        "version",
+        [
+            1,
+            3,
+        ],
+    )
+    def test_key_from_paserk_for_local_pw_with_excessive_iterations(self, version):
+        # A `local-pw` PASERK carries the PBKDF2 iteration count (4 bytes at
+        # offset 32) in the clear. An attacker-supplied blob must not be able to
+        # trigger an unbounded KDF before the MAC is checked.
+        k = Key.new(version, "local", token_bytes(32))
+        wpk = k.to_paserk(password="correct horse battery staple")
+        h, _, body = wpk.rpartition(".")
+        d = bytearray(base64url_decode(body))
+        d[32:36] = (0xFFFFFFFF).to_bytes(4, byteorder="big")
+        tampered = h + "." + base64url_encode(bytes(d)).decode("utf-8")
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(tampered, password="correct horse battery staple")
+            pytest.fail("Key.from_paserk() should fail.")
+        assert "PBKDF2 iteration count" in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            2,
+            4,
+        ],
+    )
+    def test_key_from_paserk_for_local_pw_with_excessive_memory(self, version):
+        # A `local-pw` PASERK carries the Argon2 memory cost (8 bytes at offset
+        # 16) in the clear. An attacker-supplied blob must not be able to request
+        # a huge allocation before the MAC is checked.
+        k = Key.new(version, "local", token_bytes(32))
+        wpk = k.to_paserk(password="correct horse battery staple")
+        h, _, body = wpk.rpartition(".")
+        d = bytearray(base64url_decode(body))
+        d[16:24] = (0xFFFFFFFFFFFFFFFF).to_bytes(8, byteorder="big")
+        tampered = h + "." + base64url_encode(bytes(d)).decode("utf-8")
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(tampered, password="correct horse battery staple")
+            pytest.fail("Key.from_paserk() should fail.")
+        assert "Argon2 memory cost" in str(err.value)
+
+    @pytest.mark.parametrize(
         "version, key",
         [
             (1, load_key("keys/private_key_rsa.pem")),

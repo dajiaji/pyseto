@@ -26,6 +26,13 @@ from .exceptions import DecryptError, EncryptError
 from .key_interface import KeyInterface
 from .utils import base64url_decode, base64url_encode, ec_public_key_compress
 
+# Upper bound for the PBKDF2 iteration count read from an untrusted PASERK when
+# unwrapping a `local-pw`/`secret-pw` key. The KDF runs *before* the MAC can be
+# verified, so an attacker-supplied blob could otherwise request billions of
+# iterations and cause a denial of service. Any legitimate value is far below
+# this bound.
+_MAX_PBKDF2_ITERATIONS = 100_000_000
+
 
 class NISTKey(KeyInterface):
     """
@@ -202,6 +209,8 @@ class NISTKey(KeyInterface):
         edk = d[52 : len(d) - 48]
         t = d[-48:]
         i = int.from_bytes(bi, byteorder="big")
+        if i < 1 or i > _MAX_PBKDF2_ITERATIONS:
+            raise ValueError("Invalid or unsupported PBKDF2 iteration count.")
 
         k = PBKDF2HMAC(
             algorithm=hashes.SHA384(),
