@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 from secrets import token_bytes
 from typing import Any, cast
 
@@ -248,7 +249,7 @@ class SodiumKey(KeyInterface):
         ak = cls._generate_hash(wrapping_key, b"\x81" + n, 32)
 
         t2 = cls._generate_hash(ak, h + n + c, 32)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to unwrap a key.")
 
         x = cls._generate_hash(wrapping_key, b"\x80" + n, 56)
@@ -311,7 +312,7 @@ class SodiumKey(KeyInterface):
         k = base64url_decode(frags[5])
         ak = cls._digest(b"\xfe" + k, 32)
         t2 = cls._generate_hash(ak, h + s + mem + time + para + n + edk, 32)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to unwrap a key.")
 
         ek = cls._digest(b"\xff" + k, 32)
@@ -354,7 +355,7 @@ class SodiumKey(KeyInterface):
 
         ak = cls._digest(b"\x02" + h + xk + epk + xpk, 32)
         t2 = cls._generate_hash(ak, h + epk + edk, 32)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to unseal a key.")
 
         ek = cls._digest(b"\x01" + h + xk + epk + xpk, 32)

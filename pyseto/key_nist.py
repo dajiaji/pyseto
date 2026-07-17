@@ -165,7 +165,7 @@ class NISTKey(KeyInterface):
         c = d[80:]
         ak = cls._generate_hash(wrapping_key, b"\x81" + n, 32)
         t2 = cls._generate_hash(ak, h + n + c, 48)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to unwrap a key.")
         x = cls._generate_hash(wrapping_key, b"\x80" + n)
         ek = x[0:32]
@@ -212,7 +212,7 @@ class NISTKey(KeyInterface):
 
         ak = cls._digest(b"\xfe" + k)
         t2 = cls._generate_hash(ak, h + s + bi + n + edk, 48)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to unwrap a key.")
 
         ek = cls._digest(b"\xff" + k)[0:32]
