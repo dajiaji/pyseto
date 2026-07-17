@@ -86,8 +86,8 @@ class Key:
                 `wrapping_key` is specified, `password` should not be specified.
             password (Union[bytes, str]): A password for key wrapping. If the
                 `password` is specified, `wrapping_key` should not be specified.
-            unsealing_key (Union[bytes, str]): A password for key wrapping. If the
-                `password` is specified, `wrapping_key` should not be specified.
+            unsealing_key (Union[bytes, str]): A PEM formatted asymmetric secret
+                key for unsealing a sealed (`seal` type) PASERK.
         Returns:
             KeyInterface: A PASETO key object.
         Raise:

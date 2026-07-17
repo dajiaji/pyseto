@@ -83,10 +83,13 @@ class KeyInterface:
 
         Args:
             wrapping_key (Union[bytes, str]): A wrapping key to wrap the key.
-                If the `wrapping_key` is specified, `password` should not be
-                specified.
+                It cannot be used with `password` or `sealing_key`.
             password (Union[bytes, str]): A password to wrap the key. If the
-                `password` is specified, `wrapping_key` should not be specified.
+                `password` is specified, neither `wrapping_key` nor
+                `sealing_key` should be specified.
+            sealing_key (Union[bytes, str]): A PEM formatted asymmetric public
+                key to seal the key. It can only be used for a local key and
+                cannot be used with `wrapping_key` or `password`.
             iteration (int): An iteration count used for password-based key
                 wrapping. This argument will only be used when the `password` is
                 specified.
