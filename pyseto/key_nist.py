@@ -1,20 +1,30 @@
 import hashlib
 import hmac
-from secrets import token_bytes
+from math import gcd
+from secrets import randbelow, token_bytes
 from typing import Any
 
 from cryptography.hazmat.primitives import hashes
-
-# from cryptography.hazmat.primitives.asymmetric import ec
-# from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurvePublicKey
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.ec import (
+    EllipticCurvePrivateKey,
+    EllipticCurvePublicKey,
+)
+from cryptography.hazmat.primitives.asymmetric.rsa import (
+    RSAPrivateKey,
+    RSAPrivateNumbers,
+    RSAPublicKey,
+)
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-
-# from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives.serialization import (
+    load_pem_private_key,
+    load_pem_public_key,
+)
 
 from .exceptions import DecryptError, EncryptError
 from .key_interface import KeyInterface
-from .utils import base64url_decode, base64url_encode
+from .utils import base64url_decode, base64url_encode, ec_public_key_compress
 
 
 class NISTKey(KeyInterface):
@@ -35,7 +45,7 @@ class NISTKey(KeyInterface):
         paserk: str,
         wrapping_key: bytes = b"",
         password: bytes = b"",
-        _unsealing_key: bytes = b"",
+        unsealing_key: bytes = b"",
     ) -> KeyInterface:
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
@@ -66,12 +76,18 @@ class NISTKey(KeyInterface):
                 return cls(cls._decode_pbkw(h, password, frags[2]))
             raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
-        # if unsealing_key:
-        #     # seal
-        #     h = frags[0] + "." + frags[1] + "."
-        #     if frags[1] == "seal":
-        #         return cls(cls._decode_pke(h, unsealing_key, frags[2]))
-        #     raise ValueError(f"Invalid PASERK type: {frags[1]}.")
+        if unsealing_key:
+            # seal
+            h = frags[0] + "." + frags[1] + "."
+            if frags[1] != "seal":
+                raise ValueError(f"Invalid PASERK type: {frags[1]}.")
+            if not unsealing_key.startswith(b"-----BEGIN"):
+                raise ValueError("Invalid or unsupported PEM format.")
+            try:
+                sk = load_pem_private_key(unsealing_key, password=None)
+            except Exception as err:
+                raise ValueError("Invalid or unsupported PEM format.") from err
+            return cls(cls._decode_pke(h, sk, frags[2]))
 
         # local
         k = base64url_decode(frags[2])
@@ -81,13 +97,15 @@ class NISTKey(KeyInterface):
             raise ValueError(f"{frags[1]} needs wrapping_key.")
         if frags[1] == "local-pw":
             raise ValueError(f"{frags[1]} needs password.")
+        if frags[1] == "seal":
+            raise ValueError(f"{frags[1]} needs unsealing_key.")
         raise ValueError(f"Invalid PASERK type: {frags[1]}.")
 
     def to_paserk(
         self,
         wrapping_key: bytes | str = b"",
         password: bytes | str = b"",
-        _sealing_key: bytes | str = b"",
+        sealing_key: bytes | str = b"",
         iteration: int = 100000,
         _memory_cost: int = 15 * 1024,
         _time_cost: int = 2,
@@ -95,6 +113,8 @@ class NISTKey(KeyInterface):
     ) -> str:
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
+        if sealing_key and (wrapping_key or password):
+            raise ValueError("Only one of wrapping_key, password or sealing_key should be specified.")
 
         # local-wrap
         if wrapping_key:
@@ -103,14 +123,16 @@ class NISTKey(KeyInterface):
             return h + self._encode_pie(h, bkey, self._key)
 
         # seal
-        # if sealing_key:
-        #     bkey = (
-        #         sealing_key
-        #         if isinstance(sealing_key, bytes)
-        #         else sealing_key.encode("utf-8")
-        #     )
-        #     h = f"k{self.version}.seal."
-        #     return h + self._encode_pke(h, bkey, self._key)
+        if sealing_key:
+            bkey = sealing_key if isinstance(sealing_key, bytes) else sealing_key.encode("utf-8")
+            if not bkey.startswith(b"-----BEGIN"):
+                raise ValueError("Invalid or unsupported PEM format.")
+            try:
+                pk = load_pem_public_key(bkey)
+            except Exception as err:
+                raise ValueError("Invalid or unsupported PEM format.") from err
+            h = f"k{self.version}.seal."
+            return h + self._encode_pke(h, pk, self._key)
 
         # local-pw
         if password:
@@ -196,63 +218,142 @@ class NISTKey(KeyInterface):
         ek = cls._digest(b"\xff" + k)[0:32]
         return cls._decrypt(ek, n, edk)
 
-    # @classmethod
-    # def _encode_pke(cls, header: str, sealing_key: bytes, ptk: bytes) -> str:
+    @classmethod
+    def _encode_pke(cls, header: str, sealing_key: Any, ptk: bytes) -> str:
+        if cls._VERSION == 1:
+            return cls._encode_pke_v1(header, sealing_key, ptk)
+        return cls._encode_pke_v3(header, sealing_key, ptk)
 
-    #     h = header.encode("utf-8")
+    @classmethod
+    def _decode_pke(cls, header: str, unsealing_key: Any, data: str) -> bytes:
+        if cls._VERSION == 1:
+            return cls._decode_pke_v1(header, unsealing_key, data)
+        return cls._decode_pke_v3(header, unsealing_key, data)
 
-    #     esk = ec.generate_private_key(ec.SECP384R1())
-    #     epk = ec_public_key_compress(
-    #         esk.private_numbers().public_numbers.x,
-    #         esk.private_numbers().public_numbers.y,
-    #     )
-    #     pub = EllipticCurvePublicKey.from_encoded_point(ec.SECP384R1(), sealing_key)
-    #     pk = ec_public_key_compress(
-    #         pub.public_numbers().x,
-    #         pub.public_numbers().y,
-    #     )
-    #     xk = esk.exchange(ec.ECDH(), pub)
-    #     tmp = cls._digest(b"\x01" + h + xk + epk + pk)
-    #     ek = tmp[0:32]
-    #     n = tmp[32:]
-    #     ak = cls._digest(b"\x01" + h + xk + epk + pk)
-    #     edk = cls._encrypt(ek, n, ptk)
-    #     t = cls._generate_hash(ak, h + epk + edk, 48)
-    #     return base64url_encode(t + epk + edk).decode("utf-8")
+    @classmethod
+    def _encode_pke_v1(cls, header: str, sealing_key: Any, ptk: bytes) -> str:
+        if not isinstance(sealing_key, RSAPublicKey):
+            raise ValueError("The sealing key is not RSA key.")
+        if sealing_key.key_size != 4096:
+            raise ValueError("The sealing key must be 4096-bit RSA key.")
 
-    # @classmethod
-    # def _decode_pke(cls, header: str, unsealing_key: bytes, data: str) -> bytes:
+        h = header.encode("utf-8")
+        pub = sealing_key.public_numbers()
+        if pub.e != 65537:
+            raise ValueError("The RSA public exponent must be 65537.")
+        r = bytearray(token_bytes(512))
+        r[0] &= 0x7F
+        r[0] |= 0x40
+        br = bytes(r)
+        c = pow(int.from_bytes(br, byteorder="big"), pub.e, pub.n).to_bytes(512, byteorder="big")
+        x = cls._digest(c)
+        tmp = cls._generate_hash(x, b"\x01" + h + br)
+        ek = tmp[0:32]
+        n = tmp[32:]
+        ak = cls._generate_hash(x, b"\x02" + h + br)
+        edk = cls._encrypt(ek, n, ptk)
+        t = cls._generate_hash(ak, h + c + edk, 48)
+        return base64url_encode(t + edk + c).decode("utf-8")
 
-    #     h = header.encode("utf-8")
-    #     d = base64url_decode(data)
+    @classmethod
+    def _decode_pke_v1(cls, header: str, unsealing_key: Any, data: str) -> bytes:
+        if not isinstance(unsealing_key, RSAPrivateKey):
+            raise ValueError("The unsealing key is not RSA key.")
+        if unsealing_key.key_size != 4096:
+            raise ValueError("The unsealing key must be 4096-bit RSA key.")
 
-    #     if cls._VERSION == 1:
-    #         raise NotImplementedError("Not implemented.")
+        h = header.encode("utf-8")
+        d = base64url_decode(data)
+        if len(d) <= 560:
+            raise ValueError("Invalid PASERK format.")
+        t = d[0:48]
+        edk = d[48 : len(d) - 512]
+        c = d[-512:]
 
-    #     t = d[0:48]
-    #     epk = d[48:97]
-    #     edk = d[97:]
-    #     sk = ec.derive_private_key(
-    #         int.from_bytes(unsealing_key, byteorder="big"), ec.SECP384R1()
-    #     )
-    #     pub = EllipticCurvePublicKey.from_encoded_point(ec.SECP384R1(), epk)
+        priv = unsealing_key.private_numbers()  # type: ignore[attr-defined]
+        if priv.public_numbers.e != 65537:
+            raise ValueError("The RSA public exponent must be 65537.")
+        r = cls._rsa_decrypt(c, priv)
+        x = cls._digest(c)
+        ak = cls._generate_hash(x, b"\x02" + h + r)
+        t2 = cls._generate_hash(ak, h + c + edk, 48)
+        if not hmac.compare_digest(t, t2):
+            raise DecryptError("Failed to unseal a key.")
 
-    #     xk = sk.exchange(ec.ECDH(), pub)
-    #     # shared = sk.exchange(ec.ECDH(), pub)
-    #     # xk = HKDF(algorithm=hashes.SHA384(), length=48, salt=None, info=b"").derive(shared)
-    #     pk = ec_public_key_compress(
-    #         sk.private_numbers().public_numbers.x,
-    #         sk.private_numbers().public_numbers.y,
-    #     )
-    #     ak = cls._digest(b"\x01" + h + xk + epk + pk)
-    #     t2 = cls._generate_hash(ak, h + epk + edk, 48)
-    #     if t != t2:
-    #         raise DecryptError("Failed to unseal a key.")
+        tmp = cls._generate_hash(x, b"\x01" + h + r)
+        ek = tmp[0:32]
+        n = tmp[32:]
+        return cls._decrypt(ek, n, edk)
 
-    #     tmp = cls._digest(b"\x01" + h + xk + epk + pk)
-    #     ek = tmp[0:32]
-    #     n = tmp[32:]
-    #     return cls._decrypt(ek, n, edk)
+    @staticmethod
+    def _rsa_decrypt(ciphertext: bytes, priv: RSAPrivateNumbers) -> bytes:
+        pub = priv.public_numbers
+        c = int.from_bytes(ciphertext, byteorder="big")
+        if c >= pub.n:
+            raise ValueError("Invalid PASERK format.")
+
+        while True:
+            blinding_factor = randbelow(pub.n - 2) + 2
+            if gcd(blinding_factor, pub.n) == 1:
+                break
+
+        blinded_c = c * pow(blinding_factor, pub.e, pub.n) % pub.n
+        m1 = pow(blinded_c, priv.dmp1, priv.p)
+        m2 = pow(blinded_c, priv.dmq1, priv.q)
+        h = (priv.iqmp * (m1 - m2)) % priv.p
+        blinded_m = m2 + priv.q * h
+        m = blinded_m * pow(blinding_factor, -1, pub.n) % pub.n
+        return m.to_bytes(512, byteorder="big")
+
+    @classmethod
+    def _encode_pke_v3(cls, header: str, sealing_key: Any, ptk: bytes) -> str:
+        if not isinstance(sealing_key, EllipticCurvePublicKey) or not isinstance(sealing_key.curve, ec.SECP384R1):
+            raise ValueError("The sealing key is not P-384 key.")
+
+        h = header.encode("utf-8")
+        pk = ec_public_key_compress(sealing_key.public_numbers().x, sealing_key.public_numbers().y)
+        esk = ec.generate_private_key(ec.SECP384R1())
+        epk = ec_public_key_compress(
+            esk.public_key().public_numbers().x,
+            esk.public_key().public_numbers().y,
+        )
+        xk = esk.exchange(ec.ECDH(), sealing_key)
+        tmp = cls._digest(b"\x01" + h + xk + epk + pk)
+        ek = tmp[0:32]
+        n = tmp[32:]
+        ak = cls._digest(b"\x02" + h + xk + epk + pk)
+        edk = cls._encrypt(ek, n, ptk)
+        t = cls._generate_hash(ak, h + epk + edk, 48)
+        return base64url_encode(t + epk + edk).decode("utf-8")
+
+    @classmethod
+    def _decode_pke_v3(cls, header: str, unsealing_key: Any, data: str) -> bytes:
+        if not isinstance(unsealing_key, EllipticCurvePrivateKey) or not isinstance(unsealing_key.curve, ec.SECP384R1):
+            raise ValueError("The unsealing key is not P-384 key.")
+
+        h = header.encode("utf-8")
+        d = base64url_decode(data)
+        if len(d) <= 97:
+            raise ValueError("Invalid PASERK format.")
+        t = d[0:48]
+        epk = d[48:97]
+        edk = d[97:]
+
+        pub = EllipticCurvePublicKey.from_encoded_point(ec.SECP384R1(), epk)
+        xk = unsealing_key.exchange(ec.ECDH(), pub)
+        pk = ec_public_key_compress(
+            unsealing_key.public_key().public_numbers().x,
+            unsealing_key.public_key().public_numbers().y,
+        )
+        ak = cls._digest(b"\x02" + h + xk + epk + pk)
+        t2 = cls._generate_hash(ak, h + epk + edk, 48)
+        if not hmac.compare_digest(t, t2):
+            raise DecryptError("Failed to unseal a key.")
+
+        tmp = cls._digest(b"\x01" + h + xk + epk + pk)
+        ek = tmp[0:32]
+        n = tmp[32:]
+        return cls._decrypt(ek, n, edk)
 
     @staticmethod
     def _generate_hash(key: bytes, msg: bytes, size: int = 0) -> bytes:

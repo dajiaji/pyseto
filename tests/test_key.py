@@ -1,10 +1,13 @@
 from secrets import token_bytes
 
 import pytest
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicNumbers
 
 from pyseto import DecryptError, Key, NotSupportedError
 from pyseto.key_interface import KeyInterface
-from pyseto.utils import base64url_decode
+from pyseto.utils import base64url_decode, base64url_encode
 
 from .utils import load_jwk, load_key
 
@@ -318,6 +321,214 @@ class TestKey:
             k.to_paserk(password=wk)
             pytest.fail("to_paserk() should fail.")
         assert "Public key cannot be wrapped." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, pub, priv",
+        [
+            (1, "keys/public_key_rsa_4096.pem", "keys/private_key_rsa_4096.pem"),
+            (3, "keys/public_key_ecdsa_p384.pem", "keys/private_key_ecdsa_p384.pem"),
+        ],
+    )
+    def test_key_to_paserk_seal_roundtrip(self, version, pub, priv):
+        k = Key.new(version, "local", token_bytes(32))
+        sealed = k.to_paserk(sealing_key=load_key(pub))
+        assert sealed.startswith(f"k{version}.seal.")
+        unsealed = Key.from_paserk(sealed, unsealing_key=load_key(priv))
+        assert k._key == unsealed._key
+
+    @pytest.mark.parametrize(
+        "version, pub",
+        [
+            (1, "keys/public_key_rsa_4096.pem"),
+            (2, "keys/public_key_x25519.pem"),
+            (3, "keys/public_key_ecdsa_p384.pem"),
+            (4, "keys/public_key_x25519.pem"),
+        ],
+    )
+    def test_key_to_paserk_with_password_and_sealing_key(self, version, pub):
+        k = Key.new(version, "local", token_bytes(32))
+        with pytest.raises(ValueError) as err:
+            k.to_paserk(password="password", sealing_key=load_key(pub))
+            pytest.fail("to_paserk() should fail.")
+        assert "Only one of wrapping_key, password or sealing_key should be specified." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            1,
+            2,
+            3,
+            4,
+        ],
+    )
+    def test_key_from_paserk_for_seal_without_unsealing_key(self, version):
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(f"k{version}.seal.AAAAAAAAAAAAAAAA")
+            pytest.fail("Key.from_paserk should fail.")
+        assert "seal needs unsealing_key." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, priv",
+        [
+            (1, "keys/private_key_rsa_4096.pem"),
+            (3, "keys/private_key_ecdsa_p384.pem"),
+        ],
+    )
+    def test_key_from_paserk_with_unsealing_key_for_wrong_paserk_type(self, version, priv):
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(f"k{version}.local.AAAAAAAAAAAAAAAA", unsealing_key=load_key(priv))
+            pytest.fail("Key.from_paserk should fail.")
+        assert "Invalid PASERK type: local." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            1,
+            3,
+        ],
+    )
+    @pytest.mark.parametrize(
+        "unsealing_key",
+        [
+            b"not-pem",
+            b"-----BEGIN PRIVATE KEY-----\nAAAA\n-----END PRIVATE KEY-----",
+        ],
+    )
+    def test_key_from_paserk_seal_with_invalid_pem(self, version, unsealing_key):
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(f"k{version}.seal.AAAAAAAAAAAAAAAA", unsealing_key=unsealing_key)
+            pytest.fail("Key.from_paserk should fail.")
+        assert "Invalid or unsupported PEM format." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, priv, msg",
+        [
+            (1, "keys/private_key_ecdsa_p384.pem", "The unsealing key is not RSA key."),
+            (1, "keys/private_key_rsa.pem", "The unsealing key must be 4096-bit RSA key."),
+            (3, "keys/private_key_rsa_4096.pem", "The unsealing key is not P-384 key."),
+        ],
+    )
+    def test_key_from_paserk_seal_with_wrong_unsealing_key(self, version, priv, msg):
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(f"k{version}.seal.AAAAAAAAAAAAAAAA", unsealing_key=load_key(priv))
+            pytest.fail("Key.from_paserk should fail.")
+        assert msg in str(err.value)
+
+    def test_key_from_paserk_seal_v3_with_wrong_curve_unsealing_key(self):
+        sk = ec.generate_private_key(ec.SECP256R1())
+        pem = sk.private_bytes(
+            serialization.Encoding.PEM,
+            serialization.PrivateFormat.PKCS8,
+            serialization.NoEncryption(),
+        )
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk("k3.seal.AAAAAAAAAAAAAAAA", unsealing_key=pem)
+            pytest.fail("Key.from_paserk should fail.")
+        assert "The unsealing key is not P-384 key." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, priv",
+        [
+            (1, "keys/private_key_rsa_4096.pem"),
+            (3, "keys/private_key_ecdsa_p384.pem"),
+        ],
+    )
+    def test_key_from_paserk_seal_with_invalid_payload_length(self, version, priv):
+        paserk = f"k{version}.seal." + base64url_encode(b"0" * 64).decode("utf-8")
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(paserk, unsealing_key=load_key(priv))
+            pytest.fail("Key.from_paserk should fail.")
+        assert "Invalid PASERK format." in str(err.value)
+
+    def test_key_from_paserk_seal_v1_with_out_of_range_ciphertext(self):
+        private_key = serialization.load_pem_private_key(
+            load_key("keys/private_key_rsa_4096.pem").encode("utf-8"),
+            password=None,
+        )
+        n = private_key.private_numbers().public_numbers.n
+        payload = b"0" * 48 + b"0" * 32 + n.to_bytes(512, byteorder="big")
+        paserk = "k1.seal." + base64url_encode(payload).decode("utf-8")
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(paserk, unsealing_key=load_key("keys/private_key_rsa_4096.pem"))
+            pytest.fail("Key.from_paserk should fail.")
+        assert "Invalid PASERK format." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, pub, msg",
+        [
+            (1, "keys/public_key_ecdsa_p384.pem", "The sealing key is not RSA key."),
+            (1, "keys/public_key_rsa.pem", "The sealing key must be 4096-bit RSA key."),
+            (3, "keys/public_key_rsa_4096.pem", "The sealing key is not P-384 key."),
+        ],
+    )
+    def test_key_to_paserk_seal_with_wrong_sealing_key(self, version, pub, msg):
+        k = Key.new(version, "local", token_bytes(32))
+        with pytest.raises(ValueError) as err:
+            k.to_paserk(sealing_key=load_key(pub))
+            pytest.fail("to_paserk() should fail.")
+        assert msg in str(err.value)
+
+    def test_key_to_paserk_seal_v1_with_wrong_public_exponent(self):
+        public_key = serialization.load_pem_public_key(load_key("keys/public_key_rsa_4096.pem").encode("utf-8"))
+        bad_public_key = RSAPublicNumbers(3, public_key.public_numbers().n).public_key()
+        pem = bad_public_key.public_bytes(
+            serialization.Encoding.PEM,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        k = Key.new(1, "local", token_bytes(32))
+        with pytest.raises(ValueError) as err:
+            k.to_paserk(sealing_key=pem)
+            pytest.fail("to_paserk() should fail.")
+        assert "The RSA public exponent must be 65537." in str(err.value)
+
+    def test_key_to_paserk_seal_v3_with_wrong_curve_sealing_key(self):
+        pk = ec.generate_private_key(ec.SECP256R1()).public_key()
+        pem = pk.public_bytes(
+            serialization.Encoding.PEM,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        k = Key.new(3, "local", token_bytes(32))
+        with pytest.raises(ValueError) as err:
+            k.to_paserk(sealing_key=pem)
+            pytest.fail("to_paserk() should fail.")
+        assert "The sealing key is not P-384 key." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            1,
+            3,
+        ],
+    )
+    @pytest.mark.parametrize(
+        "sealing_key",
+        [
+            "not-pem",
+            "-----BEGIN PUBLIC KEY-----\nAAAA\n-----END PUBLIC KEY-----",
+        ],
+    )
+    def test_key_to_paserk_seal_with_invalid_pem(self, version, sealing_key):
+        k = Key.new(version, "local", token_bytes(32))
+        with pytest.raises(ValueError) as err:
+            k.to_paserk(sealing_key=sealing_key)
+            pytest.fail("to_paserk() should fail.")
+        assert "Invalid or unsupported PEM format." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, key",
+        [
+            (1, load_key("keys/public_key_rsa.pem")),
+            (2, load_key("keys/public_key_ed25519.pem")),
+            (3, load_key("keys/public_key_ecdsa_p384.pem")),
+            (4, load_key("keys/public_key_ed25519.pem")),
+        ],
+    )
+    def test_key_to_paserk_seal_for_public_key(self, version, key):
+        k = Key.new(version, "public", key)
+        with pytest.raises(ValueError) as err:
+            k.to_paserk(sealing_key="xxx")
+            pytest.fail("to_paserk() should fail.")
+        assert "Key sealing can only be used for local key." in str(err.value)
 
     @pytest.mark.parametrize(
         "version, key, msg",

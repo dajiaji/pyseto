@@ -134,6 +134,8 @@ class SodiumKey(KeyInterface):
     ) -> str:
         if wrapping_key and password:
             raise ValueError("Only one of wrapping_key or password should be specified.")
+        if sealing_key and (wrapping_key or password):
+            raise ValueError("Only one of wrapping_key, password or sealing_key should be specified.")
 
         if wrapping_key:
             # local-wrap

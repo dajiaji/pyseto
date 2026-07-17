@@ -4,6 +4,9 @@ Changes
 Unreleased
 ----------
 
+- Add PASERK ``seal`` support for ``v1`` (RSA-KEM) and ``v3`` (ECDH over P-384).
+- Update PASERK ``seal`` test vectors to the latest official ones and cover the ``expect-fail`` cases.
+
 Version 1.9.4
 -------------
 

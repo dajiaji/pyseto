@@ -108,7 +108,7 @@ Currently, following PASERK types are supported:
 | `local`       |  ✅  |  ✅  |  ✅  |  ✅  |
 | `secret`      |  ✅  |  ✅  |  ✅  |  ✅  |
 | `public`      |  ✅  |  ✅  |  ✅  |  ✅  |
-| `seal`        |  ✅  |      |  ✅  |      |
+| `seal`        |  ✅  |  ✅  |  ✅  |  ✅  |
 | `local-wrap`  |  ✅  |  ✅  |  ✅  |  ✅  |
 | `secret-wrap` |  ✅  |  ✅  |  ✅  |  ✅  |
 | `local-pw`    |  ✅  |  ✅  |  ✅  |  ✅  |
@@ -413,7 +413,9 @@ assert (
 
 ### Asymmetric Encryption
 
-At this time, PySETO supports asymmetric encryption (key sealing) for `v2` and `v4`.
+PySETO supports asymmetric encryption (key sealing) for all versions (`v1`, `v2`, `v3` and `v4`).
+A local key can be sealed with a PEM formatted asymmetric public key (RSA-4096 with public exponent 65537 for `v1`,
+X25519 for `v2`/`v4` and P-384 for `v3`) and unsealed with the corresponding secret key.
 
 ```py
 import pyseto
