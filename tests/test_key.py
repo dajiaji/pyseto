@@ -7,6 +7,7 @@ from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicNumbers
 
 from pyseto import DecryptError, Key, NotSupportedError
 from pyseto.key_interface import KeyInterface
+from pyseto.key_nist import _MAX_PBKDF2_ITERATIONS as _MAX_PBKDF2
 from pyseto.utils import base64url_decode, base64url_encode
 
 from .utils import load_jwk, load_key
@@ -269,26 +270,44 @@ class TestKey:
             pytest.fail("Key.from_paserk() should fail.")
         assert "Failed to unwrap a key." in str(err.value)
 
-    @pytest.mark.parametrize(
-        "version",
-        [
-            1,
-            3,
-        ],
-    )
-    def test_key_from_paserk_for_local_pw_with_excessive_iterations(self, version):
-        # A `local-pw` PASERK carries the PBKDF2 iteration count (4 bytes at
-        # offset 32) in the clear. An attacker-supplied blob must not be able to
-        # trigger an unbounded KDF before the MAC is checked.
-        k = Key.new(version, "local", token_bytes(32))
-        wpk = k.to_paserk(password="correct horse battery staple")
+    @staticmethod
+    def _tamper_pw_paserk(wpk, patches):
+        # Rewrite the cost-parameter bytes of a `local-pw`/`secret-pw` PASERK in
+        # place. `patches` maps a byte slice (start, stop) to its replacement.
         h, _, body = wpk.rpartition(".")
         d = bytearray(base64url_decode(body))
-        d[32:36] = (0xFFFFFFFF).to_bytes(4, byteorder="big")
-        tampered = h + "." + base64url_encode(bytes(d)).decode("utf-8")
+        for (start, stop), value in patches.items():
+            d[start:stop] = value
+        return h + "." + base64url_encode(bytes(d)).decode("utf-8")
+
+    @pytest.mark.parametrize(
+        "version, iterations",
+        [
+            # Values that stay well under the 4-byte format maximum (~4.3e9) but
+            # exceed the conservative _MAX_PBKDF2_ITERATIONS budget, i.e. the
+            # dangerous-but-plausible range a real attacker would use.
+            (1, 1_000_001),
+            (1, 50_000_000),
+            (3, 1_000_001),
+            (3, 50_000_000),
+        ],
+    )
+    def test_key_from_paserk_for_local_pw_rejects_excessive_pbkdf2(self, version, iterations, monkeypatch):
+        # A `local-pw` PASERK carries the PBKDF2 iteration count (4 bytes at
+        # offset 32) in the clear, and it is consumed before the MAC is checked.
+        # An over-budget count must be rejected *without* ever running the KDF.
+        import pyseto.key_nist as key_nist
+
+        k = Key.new(version, "local", token_bytes(32))
+        wpk = k.to_paserk(password="correct horse battery staple")
+        tampered = self._tamper_pw_paserk(wpk, {(32, 36): iterations.to_bytes(4, "big")})
+
+        def _boom(*_args, **_kwargs):
+            raise AssertionError("PBKDF2 must not be invoked for over-budget parameters.")
+
+        monkeypatch.setattr(key_nist, "PBKDF2HMAC", _boom)
         with pytest.raises(ValueError) as err:
             Key.from_paserk(tampered, password="correct horse battery staple")
-            pytest.fail("Key.from_paserk() should fail.")
         assert "PBKDF2 iteration count" in str(err.value)
 
     @pytest.mark.parametrize(
@@ -298,20 +317,82 @@ class TestKey:
             4,
         ],
     )
-    def test_key_from_paserk_for_local_pw_with_excessive_memory(self, version):
-        # A `local-pw` PASERK carries the Argon2 memory cost (8 bytes at offset
-        # 16) in the clear. An attacker-supplied blob must not be able to request
-        # a huge allocation before the MAC is checked.
+    @pytest.mark.parametrize(
+        "patches, msg",
+        [
+            # 1 GiB of memory: under the 8-byte format max but over the 256 MiB budget.
+            ({(16, 24): (1024 * 1024 * 1024).to_bytes(8, "big")}, "Argon2 memory cost"),
+            # 1000 passes.
+            ({(24, 28): (1000).to_bytes(4, "big")}, "Argon2 time cost"),
+            # 256-way parallelism.
+            ({(28, 32): (256).to_bytes(4, "big")}, "Argon2 parallelism"),
+        ],
+    )
+    def test_key_from_paserk_for_local_pw_rejects_excessive_argon2(self, version, patches, msg, monkeypatch):
+        # The Argon2 cost parameters (memory/time/parallelism) are likewise
+        # consumed before the MAC is checked. Each over-budget value must be
+        # rejected *without* ever running the KDF.
+        import pyseto.key_sodium as key_sodium
+
         k = Key.new(version, "local", token_bytes(32))
         wpk = k.to_paserk(password="correct horse battery staple")
-        h, _, body = wpk.rpartition(".")
-        d = bytearray(base64url_decode(body))
-        d[16:24] = (0xFFFFFFFFFFFFFFFF).to_bytes(8, byteorder="big")
-        tampered = h + "." + base64url_encode(bytes(d)).decode("utf-8")
+        tampered = self._tamper_pw_paserk(wpk, patches)
+
+        def _boom(*_args, **_kwargs):
+            raise AssertionError("Argon2 must not be invoked for over-budget parameters.")
+
+        monkeypatch.setattr(key_sodium, "PasswordHasher", _boom)
         with pytest.raises(ValueError) as err:
             Key.from_paserk(tampered, password="correct horse battery staple")
-            pytest.fail("Key.from_paserk() should fail.")
+        assert msg in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            2,
+            4,
+        ],
+    )
+    def test_key_from_paserk_for_local_pw_rejects_undersized_argon2_memory(self, version):
+        # Argon2 requires memory_cost >= 8 * parallelism. A blob that satisfies
+        # each individual bound but violates the combination (8 KiB memory with
+        # 4-way parallelism) must be rejected with a ValueError before the KDF,
+        # not leak argon2's HashingError.
+        k = Key.new(version, "local", token_bytes(32))
+        wpk = k.to_paserk(password="correct horse battery staple")
+        tampered = self._tamper_pw_paserk(
+            wpk,
+            {
+                (16, 24): (8 * 1024).to_bytes(8, "big"),  # 8 KiB memory
+                (28, 32): (4).to_bytes(4, "big"),  # parallelism 4
+            },
+        )
+        with pytest.raises(ValueError) as err:
+            Key.from_paserk(tampered, password="correct horse battery staple")
         assert "Argon2 memory cost" in str(err.value)
+
+    @pytest.mark.parametrize(
+        "version, kwargs, msg",
+        [
+            # NIST (PBKDF2) over-budget iteration count.
+            (1, {"iteration": _MAX_PBKDF2 + 1}, "PBKDF2 iteration count"),
+            (3, {"iteration": _MAX_PBKDF2 + 1}, "PBKDF2 iteration count"),
+            # Sodium (Argon2) over-budget parameters.
+            (2, {"time_cost": 5}, "Argon2 time cost"),
+            (4, {"time_cost": 5}, "Argon2 time cost"),
+            (2, {"parallelism": 5}, "Argon2 parallelism"),
+            (4, {"parallelism": 5}, "Argon2 parallelism"),
+            (2, {"memory_cost": 512 * 1024}, "Argon2 memory cost"),
+            (4, {"memory_cost": 512 * 1024}, "Argon2 memory cost"),
+        ],
+    )
+    def test_key_to_paserk_local_pw_rejects_over_budget_params(self, version, kwargs, msg):
+        # Symmetry: the encode side enforces the same budget as decode, so
+        # to_paserk() can never emit a PASERK that from_paserk() would reject.
+        k = Key.new(version, "local", token_bytes(32))
+        with pytest.raises(ValueError) as err:
+            k.to_paserk(password="correct horse battery staple", **kwargs)
+        assert msg in str(err.value)
 
     @pytest.mark.parametrize(
         "version, key",
