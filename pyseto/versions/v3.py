@@ -133,6 +133,8 @@ class V3Public(NISTKey):
         self._sig_size = 96
         if not isinstance(self._key, (EllipticCurvePublicKey, EllipticCurvePrivateKey)):
             raise ValueError("The key is not ECDSA key.")
+        if not isinstance(self._key.curve, ec.SECP384R1):
+            raise ValueError("The key is not on curve P-384.")
 
         if isinstance(self._key, EllipticCurvePublicKey):
             self._is_secret = False

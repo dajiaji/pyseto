@@ -2,7 +2,7 @@ from secrets import token_bytes
 
 import pytest
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicNumbers
 
 from pyseto import DecryptError, Key, NotSupportedError
@@ -126,6 +126,70 @@ class TestKey:
             Key.new(version, "public", key)
             pytest.fail("Key.new should fail.")
         assert msg in str(err.value)
+
+    @pytest.mark.parametrize(
+        "key",
+        [
+            load_key("keys/private_key_rsa_4096.pem"),
+            load_key("keys/public_key_rsa_4096.pem"),
+        ],
+    )
+    def test_key_new_v1_public_with_non_2048_rsa_key(self, key):
+        # PASETO v1.public mandates a 2048-bit RSA key; _sig_size is fixed at 256
+        # bytes accordingly, so other sizes must be rejected up front.
+        with pytest.raises(ValueError) as err:
+            Key.new(1, "public", key)
+            pytest.fail("Key.new should fail.")
+        assert "The RSA key size must be 2048 bits." in str(err.value)
+
+    @pytest.mark.parametrize(
+        "curve",
+        [
+            ec.SECP256R1(),
+            ec.SECP521R1(),
+        ],
+    )
+    def test_key_new_v3_public_with_non_p384_key(self, curve):
+        # PASETO v3.public mandates curve P-384; _sig_size is fixed at 96 bytes
+        # accordingly, so keys on other curves must be rejected up front.
+        sk = ec.generate_private_key(curve)
+        for pem in (
+            sk.private_bytes(
+                serialization.Encoding.PEM,
+                serialization.PrivateFormat.PKCS8,
+                serialization.NoEncryption(),
+            ),
+            sk.public_key().public_bytes(
+                serialization.Encoding.PEM,
+                serialization.PublicFormat.SubjectPublicKeyInfo,
+            ),
+        ):
+            with pytest.raises(ValueError) as err:
+                Key.new(3, "public", pem)
+                pytest.fail("Key.new should fail.")
+            assert "The key is not on curve P-384." in str(err.value)
+
+    def test_key_new_v1_public_with_non_65537_exponent(self):
+        # PASETO v1.public mandates RSASSA-PSS with public exponent 65537. A
+        # 2048-bit key with a different exponent (here e=3) otherwise passes the
+        # size check and produces a 256-byte signature, so it must be rejected up
+        # front -- for both the private and the public half of the key.
+        sk = rsa.generate_private_key(public_exponent=3, key_size=2048)
+        for pem in (
+            sk.private_bytes(
+                serialization.Encoding.PEM,
+                serialization.PrivateFormat.PKCS8,
+                serialization.NoEncryption(),
+            ),
+            sk.public_key().public_bytes(
+                serialization.Encoding.PEM,
+                serialization.PublicFormat.SubjectPublicKeyInfo,
+            ),
+        ):
+            with pytest.raises(ValueError) as err:
+                Key.new(1, "public", pem)
+                pytest.fail("Key.new should fail.")
+            assert "The RSA public exponent must be 65537." in str(err.value)
 
     @pytest.mark.parametrize(
         "version, purpose, key, msg",
