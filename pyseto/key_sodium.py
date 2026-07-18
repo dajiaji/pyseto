@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 from secrets import token_bytes
 from typing import Any, cast
 
@@ -23,6 +24,23 @@ from cryptography.hazmat.primitives.serialization import (
 from .exceptions import DecryptError, EncryptError
 from .key_interface import KeyInterface
 from .utils import base64url_decode, base64url_encode
+
+# Upper bounds for the Argon2 cost parameters of a `local-pw`/`secret-pw`
+# PASERK. On decode the KDF runs *before* the MAC can be verified, so the cost
+# has to be bounded to keep a single crafted blob from exhausting memory or CPU
+# (a denial of service). The same bounds are enforced on encode so `to_paserk()`
+# never produces a PASERK that `from_paserk()` would reject. These are a
+# conservative budget rather than the format maximums: Argon2's peak RSS equals
+# memory_cost and its work is memory_cost * time_cost, so bounding memory
+# (256 MiB, 4x the PASERK test-vector value and ~17x this library's 15 MiB
+# default) together with the pass count bounds both peak RSS and total work
+# (<= ~1 GiB-passes, ~0.6s). parallelism only sets the lane/thread count.
+# Callers who need heavier parameters -- or who must read a legacy PASERK
+# wrapped with them -- can raise these module-level bounds; they then apply
+# symmetrically to both encode and decode.
+_MAX_ARGON2_MEMORY_KIB = 256 * 1024  # 256 MiB
+_MAX_ARGON2_TIME_COST = 4
+_MAX_ARGON2_PARALLELISM = 4
 
 
 class SodiumKey(KeyInterface):
@@ -248,13 +266,27 @@ class SodiumKey(KeyInterface):
         ak = cls._generate_hash(wrapping_key, b"\x81" + n, 32)
 
         t2 = cls._generate_hash(ak, h + n + c, 32)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to unwrap a key.")
 
         x = cls._generate_hash(wrapping_key, b"\x80" + n, 56)
         ek = x[0:32]
         n2 = x[32:]
         return cls._decrypt(ek, n2, c)
+
+    @staticmethod
+    def _check_argon2_params(memory_cost_kib: int, time_cost: int, parallelism: int) -> None:
+        # Enforced on both encode and decode so `to_paserk()` can never produce a
+        # PASERK that `from_paserk()` would later reject as over-budget. The
+        # `memory_cost >= 8 * parallelism` rule is Argon2's own lower bound; check
+        # it here so an over-budget blob fails with a ValueError rather than
+        # leaking argon2's HashingError from inside the KDF.
+        if not 1 <= parallelism <= _MAX_ARGON2_PARALLELISM:
+            raise ValueError("Invalid or unsupported Argon2 parallelism.")
+        if not 1 <= time_cost <= _MAX_ARGON2_TIME_COST:
+            raise ValueError("Invalid or unsupported Argon2 time cost.")
+        if not 8 * parallelism <= memory_cost_kib <= _MAX_ARGON2_MEMORY_KIB:
+            raise ValueError("Invalid or unsupported Argon2 memory cost.")
 
     @classmethod
     def _encode_pbkw(
@@ -266,6 +298,7 @@ class SodiumKey(KeyInterface):
         time_cost: int,
         parallelism: int,
     ) -> str:
+        cls._check_argon2_params(memory_cost, time_cost, parallelism)
         h = header.encode("utf-8")
         s = token_bytes(16)
         argon2_k = PasswordHasher(
@@ -301,8 +334,10 @@ class SodiumKey(KeyInterface):
         memory_cost = int.from_bytes(mem, byteorder="big")
         time_cost = int.from_bytes(time, byteorder="big")
         parallelism = int.from_bytes(para, byteorder="big")
+        memory_cost_kib = int(memory_cost / 1024)
+        cls._check_argon2_params(memory_cost_kib, time_cost, parallelism)
         argon2_k = PasswordHasher(
-            memory_cost=int(memory_cost / 1024),
+            memory_cost=memory_cost_kib,
             time_cost=time_cost,
             parallelism=parallelism,
             hash_len=32,
@@ -311,7 +346,7 @@ class SodiumKey(KeyInterface):
         k = base64url_decode(frags[5])
         ak = cls._digest(b"\xfe" + k, 32)
         t2 = cls._generate_hash(ak, h + s + mem + time + para + n + edk, 32)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to unwrap a key.")
 
         ek = cls._digest(b"\xff" + k, 32)
@@ -354,7 +389,7 @@ class SodiumKey(KeyInterface):
 
         ak = cls._digest(b"\x02" + h + xk + epk + xpk, 32)
         t2 = cls._generate_hash(ak, h + epk + edk, 32)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to unseal a key.")
 
         ek = cls._digest(b"\x01" + h + xk + epk + xpk, 32)

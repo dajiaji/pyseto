@@ -26,6 +26,17 @@ from .exceptions import DecryptError, EncryptError
 from .key_interface import KeyInterface
 from .utils import base64url_decode, base64url_encode, ec_public_key_compress
 
+# Upper bound for the PBKDF2 iteration count of a `local-pw`/`secret-pw` PASERK.
+# On decode the KDF runs *before* the MAC can be verified, so the cost has to be
+# bounded to keep a single crafted blob from tying up a CPU (a denial of
+# service). The same bound is enforced on encode so `to_paserk()` never produces
+# a PASERK that `from_paserk()` would reject. This is a conservative budget:
+# 1,000,000 iterations of PBKDF2-HMAC-SHA384 costs on the order of 0.2s, and is
+# already 10x this library's own default (100,000). Callers who need a higher
+# count -- or who must read a legacy PASERK wrapped with one -- can raise this
+# module-level bound; it then applies symmetrically to both encode and decode.
+_MAX_PBKDF2_ITERATIONS = 1_000_000
+
 
 class NISTKey(KeyInterface):
     """
@@ -165,15 +176,23 @@ class NISTKey(KeyInterface):
         c = d[80:]
         ak = cls._generate_hash(wrapping_key, b"\x81" + n, 32)
         t2 = cls._generate_hash(ak, h + n + c, 48)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to unwrap a key.")
         x = cls._generate_hash(wrapping_key, b"\x80" + n)
         ek = x[0:32]
         n2 = x[32:]
         return cls._decrypt(ek, n2, c)
 
+    @staticmethod
+    def _check_pbkdf2_iterations(iterations: int) -> None:
+        # Enforced on both encode and decode so `to_paserk()` can never produce a
+        # PASERK that `from_paserk()` would later reject as over-budget.
+        if iterations < 1 or iterations > _MAX_PBKDF2_ITERATIONS:
+            raise ValueError("Invalid or unsupported PBKDF2 iteration count.")
+
     @classmethod
     def _encode_pbkw(cls, header: str, password: bytes, ptk: bytes, iteration: int = 100000) -> str:
+        cls._check_pbkdf2_iterations(iteration)
         h = header.encode("utf-8")
 
         s = token_bytes(32)
@@ -202,6 +221,7 @@ class NISTKey(KeyInterface):
         edk = d[52 : len(d) - 48]
         t = d[-48:]
         i = int.from_bytes(bi, byteorder="big")
+        cls._check_pbkdf2_iterations(i)
 
         k = PBKDF2HMAC(
             algorithm=hashes.SHA384(),
@@ -212,7 +232,7 @@ class NISTKey(KeyInterface):
 
         ak = cls._digest(b"\xfe" + k)
         t2 = cls._generate_hash(ak, h + s + bi + n + edk, 48)
-        if t != t2:
+        if not hmac.compare_digest(t, t2):
             raise DecryptError("Failed to unwrap a key.")
 
         ek = cls._digest(b"\xff" + k)[0:32]
