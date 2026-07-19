@@ -5,7 +5,6 @@
 [![Documentation Status](https://readthedocs.org/projects/pyseto/badge/?version=latest)](https://pyseto.readthedocs.io/en/latest/?badge=latest)
 ![Github CI](https://github.com/dajiaji/pyseto/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/dajiaji/pyseto/branch/main/graph/badge.svg?token=QN8GXEYEP3)](https://codecov.io/gh/dajiaji/pyseto)
-[![Known Vulnerabilities](https://snyk.io/test/github/dajiaji/pyseto/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/dajiaji/pyseto?targetFile=requirements.txt)
 
 
 PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/)/[PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk) implementation written in Python
@@ -461,7 +460,8 @@ If you discover a security issue, please report it via a GitHub issue and avoid 
 
 This project has not been formally audited; use it according to your risk assessment.
 
-The Snyk badge reports results based on `requirements.txt` exported from `uv.lock` and reflects dependency scanning only.
+Dependencies are scanned in CI with pip-audit (PyPA Advisory) and Trivy, licenses are
+checked with pip-licenses, and code is analyzed with CodeQL.
 
 See [SECURITY.md](SECURITY.md) for our security policy and reporting guidance.
 
@@ -483,18 +483,16 @@ considers packages uploaded more than two days ago. This gives newly published
 releases a verification window before we depend on them, and it applies to every
 `uv` command automatically — no extra flags needed.
 
-After changing dependencies, re-export `requirements.txt`, which is what the
-dependency scanners read:
+After changing dependencies, make sure `uv.lock` is updated:
 
 ```sh
 $ uv add <package>          # or: uv lock --upgrade
-$ uv export --format requirements.txt --all-groups --locked \
-    --no-hashes --no-editable --no-emit-project -o requirements.txt
 ```
 
-CI fails if `uv.lock` does not resolve `pyproject.toml`, or if `requirements.txt`
-does not match the above export. A dependency bump that edits `requirements.txt`
-without relocking is therefore caught rather than silently scanned.
+CI fails if `uv.lock` does not resolve `pyproject.toml`. In CI, pip-audit reads
+requirements exported from `uv.lock` on the fly, while Trivy scans `uv.lock`
+directly with development dependencies included, so no separate
+`requirements.txt` needs to be committed.
 
 ### Scanning
 
