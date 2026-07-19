@@ -115,6 +115,11 @@ class V1Public(NISTKey):
         self._sig_size = 256
         if not isinstance(self._key, (RSAPublicKey, RSAPrivateKey)):
             raise ValueError("The key is not RSA key.")
+        if self._key.key_size != 2048:
+            raise ValueError("The RSA key size must be 2048 bits.")
+        pub = self._key if isinstance(self._key, RSAPublicKey) else self._key.public_key()
+        if pub.public_numbers().e != 65537:
+            raise ValueError("The RSA public exponent must be 65537.")
 
         if isinstance(self._key, RSAPublicKey):
             self._is_secret = False
