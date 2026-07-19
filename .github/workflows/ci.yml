@@ -89,7 +89,7 @@ jobs:
       run: uv publish --dry-run
 
   lockfile:
-    name: Check uv.lock and requirements.txt are in sync
+    name: Check uv.lock is in sync
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -102,14 +102,6 @@ jobs:
           python-version: "3.13"
       - name: Check uv.lock resolves pyproject.toml
         run: uv lock --check
-      - name: Check requirements.txt matches uv.lock
-        run: |
-          uv export --format requirements.txt --all-groups --locked \
-            --no-hashes --no-editable --no-emit-project -o requirements.txt
-          if ! git diff --exit-code requirements.txt; then
-            echo "::error file=requirements.txt::requirements.txt is out of sync with uv.lock. Re-run the export command from README.md and commit the result."
-            exit 1
-          fi
 
   actionlint:
     name: Lint GitHub Actions workflow files
