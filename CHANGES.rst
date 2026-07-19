@@ -4,8 +4,17 @@ Changes
 Unreleased
 ----------
 
-- Add PASERK ``seal`` support for ``v1`` (RSA-KEM) and ``v3`` (ECDH over P-384).
-- Update PASERK ``seal`` test vectors to the latest official ones and cover the ``expect-fail`` cases.
+Version 1.10.0
+--------------
+
+Released 2026-07-19
+
+- Enforce mandated key type for ``v1.public`` and ``v3.public``. `#735 <https://github.com/dajiaji/pyseto/pull/735>`__
+- Harden PASERK key unwrapping: compare authentication tags in constant time and bound PBKDF2/Argon2 cost parameters for ``local-pw``/``secret-pw``. `#734 <https://github.com/dajiaji/pyseto/pull/734>`__
+- Add PASERK ``seal`` support for ``v1`` (RSA-KEM) and ``v3`` (ECDH over P-384). `#733 <https://github.com/dajiaji/pyseto/pull/733>`__
+- Update PASERK ``seal`` test vectors to the latest official ones and cover the ``expect-fail`` cases. `#733 <https://github.com/dajiaji/pyseto/pull/733>`__
+- Update GitHub Actions.
+    - Bump zizmorcore/zizmor-action to 0.6.0. `#732 <https://github.com/dajiaji/pyseto/pull/732>`__
 
 Version 1.9.4
 -------------
