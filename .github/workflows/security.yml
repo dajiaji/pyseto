@@ -1,14 +1,11 @@
 name: Security Scans
-
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch: {}
-
 permissions: {}
-
 jobs:
   pip-audit:
     name: pip-audit (PyPA Advisory)
@@ -32,7 +29,6 @@ jobs:
             --no-hashes --no-editable --no-emit-project -o requirements.txt
       - name: Run pip-audit (PyPA Advisory)
         run: uv run --with pip-audit pip-audit -r requirements.txt --vulnerability-service pypi
-
   licenses:
     name: License Check (pip-licenses)
     runs-on: ubuntu-latest
@@ -59,7 +55,6 @@ jobs:
           name: license-report
           path: |
             licenses.json
-
   trivy:
     name: Trivy Security Scan
     runs-on: ubuntu-latest
@@ -78,38 +73,38 @@ jobs:
       - name: Run Trivy vulnerability scanner in fs mode (SARIF)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          scanners: 'vuln,secret'
-          exit-code: '0'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH,MEDIUM"
+          scanners: "vuln,secret"
+          exit-code: "0"
       - name: Generate Trivy SBOM (CycloneDX)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'cyclonedx'
-          output: 'trivy-sbom.cdx.json'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          scanners: 'vuln,secret'
-          exit-code: '0'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "cyclonedx"
+          output: "trivy-sbom.cdx.json"
+          severity: "CRITICAL,HIGH,MEDIUM"
+          scanners: "vuln,secret"
+          exit-code: "0"
       - name: Generate Trivy SBOM (SPDX)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'spdx-json'
-          output: 'trivy-sbom.spdx.json'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          scanners: 'vuln,secret'
-          exit-code: '0'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "spdx-json"
+          output: "trivy-sbom.spdx.json"
+          severity: "CRITICAL,HIGH,MEDIUM"
+          scanners: "vuln,secret"
+          exit-code: "0"
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
         if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: "trivy-results.sarif"
       - name: Upload Trivy SBOM artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()

@@ -6,7 +6,6 @@
 ![Github CI](https://github.com/dajiaji/pyseto/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/dajiaji/pyseto/branch/main/graph/badge.svg?token=QN8GXEYEP3)](https://codecov.io/gh/dajiaji/pyseto)
 
-
 PySETO is a [PASETO (Platform-Agnostic SEcurity TOkens)](https://paseto.io/)/[PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk) implementation written in Python
 which supports all of the versions ([v1](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version1.md),
 [v2](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Version2.md),
@@ -59,16 +58,16 @@ See following contents or [Documentation](https://pyseto.readthedocs.io/en/stabl
 - [Supported PASETO Versions](#supported-paseto-versions)
 - [Supported PASERK Types](#supported-paserk-types)
 - [PASETO Usage](#paseto-usage)
-    - [Basic usage: v4.public](#basic-usage-v4public)
-    - [Basic usage: v4.local](#basic-usage-v4local)
-    - [Using serializer/deserializer for payload and footer](#using-serializerdeserializer-for-payload-and-footer)
-    - [Using Paseto class for handling registered claims](#using-paseto-class-for-handling-registered-claims)
+  - [Basic usage: v4.public](#basic-usage-v4public)
+  - [Basic usage: v4.local](#basic-usage-v4local)
+  - [Using serializer/deserializer for payload and footer](#using-serializerdeserializer-for-payload-and-footer)
+  - [Using Paseto class for handling registered claims](#using-paseto-class-for-handling-registered-claims)
 - [PASERK Usage](#paserk-usage)
-    - [Serializing/Deserializing PASERK](#serializingdeserializing-paserk)
-    - [Serializing PASERK ID](#serializing-paserk-id)
-    - [Key Wrapping](#key-wrapping)
-    - [Password-based Key Encryption](#password-based-key-encryption)
-    - [Asymmetric Encryption](#asymmetric-encryption)
+  - [Serializing/Deserializing PASERK](#serializingdeserializing-paserk)
+  - [Serializing PASERK ID](#serializing-paserk-id)
+  - [Key Wrapping](#key-wrapping)
+  - [Password-based Key Encryption](#password-based-key-encryption)
+  - [Asymmetric Encryption](#asymmetric-encryption)
 - [API Reference](#api-reference)
 - [Tests](#tests)
 - [Security](#security)
@@ -86,33 +85,29 @@ $ pip install pyseto
 
 PySETO supports all of PASETO versions and purposes below:
 
-
-|          |  v4  |  v3  |  v2  |  v1  |
+| | v4 | v3 | v2 | v1 |
 | ---------| ---- | ---- | ---- | ---- |
-| `local`  |  ✅  |  ✅  |  ✅  |  ✅  |
-| `public` |  ✅  |  ✅  |  ✅  |  ✅  |
-
+| `local` | ✅ | ✅ | ✅ | ✅ |
+| `public` | ✅ | ✅ | ✅ | ✅ |
 
 ## Supported PASERK Types
 
 PySETO also supports [PASERK (Platform-Agnostic Serialized Keys)](https://github.com/paseto-standard/paserk).
 Currently, following PASERK types are supported:
 
-
-|               |  v4  |  v3  |  v2  |  v1  |
+| | v4 | v3 | v2 | v1 |
 | ------------- | ---- | ---- | ---- | ---- |
-| `lid`         |  ✅  |  ✅  |  ✅  |  ✅  |
-| `sid`         |  ✅  |  ✅  |  ✅  |  ✅  |
-| `pid`         |  ✅  |  ✅  |  ✅  |  ✅  |
-| `local`       |  ✅  |  ✅  |  ✅  |  ✅  |
-| `secret`      |  ✅  |  ✅  |  ✅  |  ✅  |
-| `public`      |  ✅  |  ✅  |  ✅  |  ✅  |
-| `seal`        |  ✅  |  ✅  |  ✅  |  ✅  |
-| `local-wrap`  |  ✅  |  ✅  |  ✅  |  ✅  |
-| `secret-wrap` |  ✅  |  ✅  |  ✅  |  ✅  |
-| `local-pw`    |  ✅  |  ✅  |  ✅  |  ✅  |
-| `secret-pw`   |  ✅  |  ✅  |  ✅  |  ✅  |
-
+| `lid` | ✅ | ✅ | ✅ | ✅ |
+| `sid` | ✅ | ✅ | ✅ | ✅ |
+| `pid` | ✅ | ✅ | ✅ | ✅ |
+| `local` | ✅ | ✅ | ✅ | ✅ |
+| `secret` | ✅ | ✅ | ✅ | ✅ |
+| `public` | ✅ | ✅ | ✅ | ✅ |
+| `seal` | ✅ | ✅ | ✅ | ✅ |
+| `local-wrap` | ✅ | ✅ | ✅ | ✅ |
+| `secret-wrap` | ✅ | ✅ | ✅ | ✅ |
+| `local-pw` | ✅ | ✅ | ✅ | ✅ |
+| `secret-pw` | ✅ | ✅ | ✅ | ✅ |
 
 ## PASETO Usage
 
@@ -440,7 +435,6 @@ assert (
 ```
 
 Key searing for `v1` and `v3` have not been supported yet.
-
 
 ## API Reference
 

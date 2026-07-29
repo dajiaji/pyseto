@@ -1,11 +1,9 @@
 # .github/workflows/workflow-security.yml
 name: Workflow Security Check
-
 on:
   pull_request:
   push:
     branches: [main]
-
 jobs:
   zizmor:
     runs-on: ubuntu-latest
@@ -13,7 +11,6 @@ jobs:
       security-events: write
       contents: read
       actions: read
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
