@@ -40,6 +40,13 @@ required-version = ">=0.11"
 # Only consider packages uploaded more than 2 days ago (security verification window).
 exclude-newer = "2 days"
 default-groups = "all"
+# Security floor for filelock (dev-only transitive dependency). 4.2.1 fixes the known
+# advisories but requires Python 3.11+, so Python 3.10 can only reach 4.1.0.
+# Drop the 3.10 line along with Python 3.10 support.
+constraint-dependencies = [
+    "filelock>=4.2.1; python_version >= '3.11'",
+    "filelock>=4.1.0; python_version < '3.11'",
+]
 
 [tool.uv.build-backend]
 module-name = "pyseto"
